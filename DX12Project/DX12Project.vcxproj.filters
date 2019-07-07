@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Test">
+      <UniqueIdentifier>{9fea9192-7284-43b9-8c9c-9d88b4830f0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{83c55e2b-9ada-4df0-b234-db6fe614e359}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\D3D12">
+      <UniqueIdentifier>{ad73be41-5017-4511-9fed-cbde843193b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\D3D12\Private">
+      <UniqueIdentifier>{9802f1d3-99e0-4a41-8cfa-70eb47d6e23c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\D3D12\Public">
+      <UniqueIdentifier>{9aa9b091-e4f3-4274-83d9-f5934b7cc198}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Events">
+      <UniqueIdentifier>{3eb891af-d23e-47b8-9483-863cd03a3ac4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Launch">
+      <UniqueIdentifier>{1e960b31-9c1b-4e38-b4ce-7c7e15552214}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Launch\Public">
+      <UniqueIdentifier>{f406fabc-2a1a-4c7a-b8e7-4171ae925d14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Launch\Private">
+      <UniqueIdentifier>{3b2341b7-fd66-42f7-a5b9-6f663c70ccbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Util">
+      <UniqueIdentifier>{d2a82447-d393-489b-9263-b5c189079c67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Util\Private">
+      <UniqueIdentifier>{94583e60-ef62-4981-b2d7-bbc5b3d0fd01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Util\Public">
+      <UniqueIdentifier>{77c5249d-591a-458d-a00e-bd5c2a20315e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\D3D12\D3DApp.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\stdafx.cpp">
+      <Filter>Engine\Launch\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\WindowMain.cpp">
+      <Filter>Engine\Launch\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Main.cpp">
+      <Filter>Engine\Launch\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\InputManager.cpp">
+      <Filter>Engine\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\D3D12\D3DUtil.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\D3D12\FrameResource.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Util\MathHelper.cpp">
+      <Filter>Engine\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Util\GameTimer.cpp">
+      <Filter>Engine\Util\Private</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\D3D12\D3DApp.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\stdafx.h">
+      <Filter>Engine\Launch\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\WindowMain.h">
+      <Filter>Engine\Launch\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\InputManager.h">
+      <Filter>Engine\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\D3DUtil.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\FrameResource.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Util\MathHelper.h">
+      <Filter>Engine\Util\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Util\GameTimer.h">
+      <Filter>Engine\Util\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\d3dx12.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\UploadBuffer.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

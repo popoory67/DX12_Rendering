@@ -1,0 +1,7 @@
+# folders
+.vs
+Debug
+
+# files
+README.md
+*.vcxproj.user
