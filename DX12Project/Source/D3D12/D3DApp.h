@@ -11,7 +11,7 @@
 #include <comdef.h>
 #include "d3dx12.h"
 #include "D3DUtil.h"
-#include "../Util/GameTimer.h"
+#include "GameTimer.h"
 #include "FrameResource.h"
 
 #pragma comment(lib,"d3dcompiler.lib")
@@ -66,14 +66,18 @@ public:
 	static D3DApp& GetInstance();
 
 	virtual bool Initialize(HWND InWindowHandle);
-	//virtual void Update(const GameTimer& gt)/* = 0*/;
-	virtual void Draw(const GameTimer& gt)/* = 0*/;
+	//virtual void Update(const GameTimer& gt)/* = 0*/; // data update
+	virtual void Draw(const GameTimer& gt)/* = 0*/; // command list update
+	virtual void OnResize();
 
 protected:
+
+	void FlushCommandQueue();
 
 	virtual void CreateCommandObjects();
 	virtual void CreateSwapChain(HWND InWindowHandle);
 	virtual void CreateRtvAndDsvDescriptorHeaps();
+	virtual void CreateFrameResources();
 
 	//virtual void OnResize();
 	//virtual void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
@@ -130,8 +134,6 @@ private:
 	UINT DsvDescriptorSize = 0;			// Depth stencil view
 	UINT CbvSrvUavDescriptorSize = 0;	// Constant buffer, Shader resource, Unordered access view
 
-	DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-
 	bool IsMsaa4xState = false;		// 4X MSAA enabled
 	UINT Msaa4xQuality = 0;			// quality level of 4X MSAA
 
@@ -152,15 +154,23 @@ private:
 	// Buffers
 	static const int SwapChainBufferCount = 2;
 	ComPtr<ID3D12Resource> SwapChainBuffer[SwapChainBufferCount];
-
 	int CurBackBufferIndex = 0;
 
+	ComPtr<ID3D12Resource> DepthStencilBuffer;
+	DXGI_FORMAT DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	// root
 	ComPtr<ID3D12RootSignature> RootSignature = nullptr;
+
+	// frame resources
+	std::unique_ptr<FrameResource> CurFrameResource;
+
+	void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
 
 	// Render items divided by PSO.
 	std::vector<RenderItem*> OpaqueRitems;
-
-	FrameResource* CurFrameResource = nullptr;
-
-	void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
+	 
+	// List of all the render items.
+	std::vector<std::unique_ptr<RenderItem>> AllRitems;
 };

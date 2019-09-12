@@ -86,8 +86,132 @@ bool D3DApp::Initialize(HWND InWindowHandle)
 	CreateCommandObjects();
 	CreateSwapChain(InWindowHandle);
 	CreateRtvAndDsvDescriptorHeaps();
+	CreateFrameResources();
+
+	OnResize();
 
 	return true;
+}
+
+void D3DApp::OnResize()
+{
+	assert(D3D12Device);
+	assert(SwapChain);
+	assert(CommandListAllocator);
+
+	// Flush before changing any resources.
+	FlushCommandQueue();
+
+	ThrowIfFailed(CommandList->Reset(CommandListAllocator.Get(), nullptr));
+
+	// Release the previous resources we will be recreating.
+	for (int i = 0; i < SwapChainBufferCount; ++i)
+		SwapChainBuffer[i].Reset();
+	DepthStencilBuffer.Reset();
+
+	// Resize the swap chain.
+	ThrowIfFailed(SwapChain->ResizeBuffers(
+		SwapChainBufferCount,
+		ClientWidth, ClientHeight,
+		BackBufferFormat,
+		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+
+	CurBackBufferIndex = 0;
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(RtvHeap->GetCPUDescriptorHandleForHeapStart());
+	for (UINT i = 0; i < SwapChainBufferCount; i++)
+	{
+		ThrowIfFailed(SwapChain->GetBuffer(i, IID_PPV_ARGS(&SwapChainBuffer[i])));
+		D3D12Device->CreateRenderTargetView(SwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
+		rtvHeapHandle.Offset(1, RtvDescriptorSize);
+	}
+
+	// Create the depth/stencil buffer and view.
+	D3D12_RESOURCE_DESC depthStencilDesc;
+	depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	depthStencilDesc.Alignment = 0;
+	depthStencilDesc.Width = ClientWidth;
+	depthStencilDesc.Height = ClientHeight;
+	depthStencilDesc.DepthOrArraySize = 1;
+	depthStencilDesc.MipLevels = 1;
+
+	// Correction 11/12/2016: SSAO chapter requires an SRV to the depth buffer to read from 
+	// the depth buffer.  Therefore, because we need to create two views to the same resource:
+	//   1. SRV format: DXGI_FORMAT_R24_UNORM_X8_TYPELESS
+	//   2. DSV Format: DXGI_FORMAT_D24_UNORM_S8_UINT
+	// we need to create the depth buffer resource with a typeless format.  
+	depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+
+	depthStencilDesc.SampleDesc.Count = IsMsaa4xState ? 4 : 1;
+	depthStencilDesc.SampleDesc.Quality = IsMsaa4xState ? (Msaa4xQuality - 1) : 0;
+	depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+	D3D12_CLEAR_VALUE optClear;
+	optClear.Format = DepthStencilFormat;
+	optClear.DepthStencil.Depth = 1.0f;
+	optClear.DepthStencil.Stencil = 0;
+	ThrowIfFailed(D3D12Device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&depthStencilDesc,
+		D3D12_RESOURCE_STATE_COMMON,
+		&optClear,
+		IID_PPV_ARGS(DepthStencilBuffer.GetAddressOf())));
+
+	// Create descriptor to mip level 0 of entire resource using the format of the resource.
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Format = DepthStencilFormat;
+	dsvDesc.Texture2D.MipSlice = 0;
+	D3D12Device->CreateDepthStencilView(DepthStencilBuffer.Get(), &dsvDesc, GetDepthStencilView());
+
+	// Transition the resource from its initial state to be used as a depth buffer.
+	CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(DepthStencilBuffer.Get(),
+		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+
+	// Execute the resize commands.
+	ThrowIfFailed(CommandList->Close());
+	ID3D12CommandList* cmdsLists[] = { CommandList.Get() };
+	CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+	// Wait until resize is complete.
+	FlushCommandQueue();
+
+	// Update the viewport transform to cover the client area.
+	ScreenViewport.TopLeftX = 0;
+	ScreenViewport.TopLeftY = 0;
+	ScreenViewport.Width = static_cast<float>(ClientWidth);
+	ScreenViewport.Height = static_cast<float>(ClientHeight);
+	ScreenViewport.MinDepth = 0.0f;
+	ScreenViewport.MaxDepth = 1.0f;
+
+	ScissorRect = { 0, 0, ClientWidth, ClientHeight };
+}
+
+void D3DApp::FlushCommandQueue()
+{
+	// Advance the fence value to mark commands up to this fence point.
+	CurrentFenceCount++;
+
+	// Add an instruction to the command queue to set a new fence point.  Because we 
+	// are on the GPU timeline, the new fence point won't be set until the GPU finishes
+	// processing all the commands prior to this Signal().
+	ThrowIfFailed(CommandQueue->Signal(Fence.Get(), CurrentFenceCount));
+
+	// Wait until the GPU has completed commands up to this fence point.
+	if (Fence->GetCompletedValue() < CurrentFenceCount)
+	{
+		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+
+		// Fire event when GPU hits current fence.  
+		ThrowIfFailed(Fence->SetEventOnCompletion(CurrentFenceCount, eventHandle));
+
+		// Wait until the GPU hits current fence event is fired.
+		WaitForSingleObject(eventHandle, INFINITE);
+		CloseHandle(eventHandle);
+	}
 }
 
 void D3DApp::CreateCommandObjects()
@@ -161,6 +285,39 @@ void D3DApp::CreateRtvAndDsvDescriptorHeaps()
 	dsvHeapDesc.NodeMask = 0;
 	ThrowIfFailed(D3D12Device->CreateDescriptorHeap(
 		&dsvHeapDesc, IID_PPV_ARGS(DsvHeap.GetAddressOf())));
+
+	//
+	// Create the SRV heap.
+	//
+	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+	srvHeapDesc.NumDescriptors = 1;
+	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	ThrowIfFailed(D3D12Device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&SrvHeap)));
+
+// 	//
+// 	// Fill out the heap with actual descriptors.
+// 	//
+// 	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(SrvHeap->GetCPUDescriptorHandleForHeapStart());
+// 
+// 	auto woodCrateTex = mTextures["woodCrateTex"]->Resource;
+// 
+// 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+// 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+// 	srvDesc.Format = woodCrateTex->GetDesc().Format;
+// 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+// 	srvDesc.Texture2D.MostDetailedMip = 0;
+// 	srvDesc.Texture2D.MipLevels = woodCrateTex->GetDesc().MipLevels;
+// 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+// 
+// 	D3D12Device->CreateShaderResourceView(woodCrateTex.Get(), &srvDesc, hDescriptor);
+}
+
+void D3DApp::CreateFrameResources()
+{
+	// 개수가 많으면 자료구조로 관리해야함
+	// 멀티쓰레드 개념으로 사용하는것
+	CurFrameResource = std::make_unique<FrameResource>(D3D12Device.Get(), 1, 1, 1);
 }
 
 ID3D12Resource* D3DApp::GetCurrentBackBuffer() const
@@ -184,9 +341,6 @@ D3D12_CPU_DESCRIPTOR_HANDLE D3DApp::GetDepthStencilView() const
 // 1 드로우 = 1 프레임
 void D3DApp::Draw(const GameTimer& gt)
 {
-	std::make_unique<FrameResource>(D3D12Device.Get(), 1, (UINT)AllRitems.size(), (UINT)Materials.size());
-	CurFrameResource = new FrameResource(D3D12Device.Get(), 1, 1, 1);// std::make_unique<FrameResource>(D3D12Device.Get(), 1, 1, 1).get();
-
 	ComPtr<ID3D12CommandAllocator> commandListAllocator = CurFrameResource->CommandListAllocator;
 
 	// GPU가 command list의 명령을 모두 처리한 후에 리셋
@@ -215,8 +369,8 @@ void D3DApp::Draw(const GameTimer& gt)
 
 	CommandList->SetGraphicsRootSignature(RootSignature.Get());
 
-	auto passCB = CurFrameResource->PassConstBuffer->Resource();
-	CommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
+	ID3D12Resource* passCB = CurFrameResource->PassConstBuffer->Resource();
+	///CommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress()); // 임시 주석처리
 
 	/*Renderer::GetInstance().*/DrawRenderItems(CommandList.Get(), OpaqueRitems);
 

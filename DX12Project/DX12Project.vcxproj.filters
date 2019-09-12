@@ -37,6 +37,15 @@
     <Filter Include="Engine\Util\Public">
       <UniqueIdentifier>{77c5249d-591a-458d-a00e-bd5c2a20315e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Renderer">
+      <UniqueIdentifier>{a786e0a9-4cbf-4d8a-a4cc-dd158c74a8af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderer\Private">
+      <UniqueIdentifier>{24a69fa0-0b37-4237-b83f-9e9647556f3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Renderer\Public">
+      <UniqueIdentifier>{f3886cb5-03cf-4cba-8013-7d2372f92f6b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\D3D12\D3DApp.cpp">
@@ -65,6 +74,9 @@
     </ClCompile>
     <ClCompile Include="Source\Util\GameTimer.cpp">
       <Filter>Engine\Util\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\D3D12\D3D12Renderer.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +109,12 @@
     </ClInclude>
     <ClInclude Include="Source\D3D12\UploadBuffer.h">
       <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\D3D12Renderer.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Renderer\CommnadList.h">
+      <Filter>Engine\Renderer\Public</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
