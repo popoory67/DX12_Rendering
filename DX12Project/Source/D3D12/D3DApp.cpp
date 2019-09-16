@@ -310,7 +310,8 @@ void D3DApp::CreateRtvAndDsvDescriptorHeaps()
 // 	srvDesc.Texture2D.MipLevels = woodCrateTex->GetDesc().MipLevels;
 // 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 // 
-// 	D3D12Device->CreateShaderResourceView(woodCrateTex.Get(), &srvDesc, hDescriptor);
+// 	D3D12Device->CreateShaderResourceView(woodCrateTex.Get(), &srvDesc, hDescriptor);
+
 }
 
 void D3DApp::CreateFrameResources()

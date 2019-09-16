@@ -19,11 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\D3D12\D3D12Commands.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Renderer.cpp" />
     <ClCompile Include="Source\D3D12\D3DApp.cpp" />
     <ClCompile Include="Source\D3D12\D3DUtil.cpp" />
     <ClCompile Include="Source\D3D12\FrameResource.cpp" />
     <ClCompile Include="Source\InputManager.cpp" />
+    <ClCompile Include="Source\Renderer\CommandList.cpp" />
     <ClCompile Include="Source\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
@@ -33,6 +35,7 @@
     <ClCompile Include="Source\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\D3D12\D3D12Commands.h" />
     <ClInclude Include="Source\D3D12\D3D12Renderer.h" />
     <ClInclude Include="Source\D3D12\D3DApp.h" />
     <ClInclude Include="Source\D3D12\D3DUtil.h" />

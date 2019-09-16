@@ -78,6 +78,12 @@
     <ClCompile Include="Source\D3D12\D3D12Renderer.cpp">
       <Filter>Engine\D3D12\Private</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Renderer\CommandList.cpp">
+      <Filter>Engine\Renderer\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\D3D12\D3D12Commands.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3DApp.h">
@@ -115,6 +121,9 @@
     </ClInclude>
     <ClInclude Include="Source\Renderer\CommnadList.h">
       <Filter>Engine\Renderer\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\D3D12Commands.h">
+      <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
