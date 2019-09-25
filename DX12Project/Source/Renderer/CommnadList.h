@@ -1,5 +1,24 @@
 #pragma once
 
+// resource
+// 나중에 옮겨야함
+struct ResourceBase
+{
+
+};
+
+// resource params
+class D3DViewportResource : public ResourceBase
+{
+public:
+	FLOAT TopLeftX;
+	FLOAT TopLeftY;
+	FLOAT Width;
+	FLOAT Height;
+	FLOAT MinDepth;
+	FLOAT MaxDepth;
+};
+
 class CommandListBase
 {
 public:
@@ -7,6 +26,10 @@ public:
 	{
 
 	}
+
+	virtual ~CommandListBase() {}
+
+	virtual void CreateAndSetViewports(D3DViewportResource& InResource) {}
 };
 
 class CommandListExecutor
@@ -19,6 +42,14 @@ public:
 template<class TCommand>
 struct CommandBase
 {
+	CommandBase() {}
+	virtual ~CommandBase() {}
+
+	virtual void Execute(CommandListBase& InCmdList)
+	{
+
+	}
+
 	void ExecuteAndDestruct(CommandListBase& InCmdList)
 	{
 		TCommand* pCmd = static_cast<TCommand>(this);

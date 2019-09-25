@@ -163,10 +163,10 @@ private:
 	// root
 	ComPtr<ID3D12RootSignature> RootSignature = nullptr;
 
-	// frame resources
-	std::unique_ptr<FrameResource> CurFrameResource;
+ 	// frame resources
+ 	std::unique_ptr<FrameResource> CurFrameResource;
 
-	void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
+ 	void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
 
 	// Render items divided by PSO.
 	std::vector<RenderItem*> OpaqueRitems;

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "D3D12Commands.h"
+#include "D3D12Device.h"
 
 D3D12CommandList::D3D12CommandList(ComPtr<ID3D12GraphicsCommandList>& InCommandList, ComPtr<ID3D12Device>& InD3D12Device)
 	: CommandList(InCommandList)
@@ -24,13 +25,13 @@ D3D12CommandList::D3D12CommandList(ComPtr<ID3D12GraphicsCommandList>& InCommandL
 	}
 }
 
-D3D12CommandListExecutor::D3D12CommandListExecutor(ComPtr<ID3D12Device>& InD3D12Device)
+D3D12CommandListExecutor::D3D12CommandListExecutor(D3D12Device* InD3D12Device)
 {
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 
-	ThrowIfFailed(InD3D12Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&CommandQueue)));
+	ThrowIfFailed(InD3D12Device->GetDevice()->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&CommandQueue)));
 }
 
 void D3D12CommandListExecutor::Execute(CommandListBase& InCommandList)

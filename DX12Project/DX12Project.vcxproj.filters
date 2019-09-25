@@ -75,13 +75,25 @@
     <ClCompile Include="Source\Util\GameTimer.cpp">
       <Filter>Engine\Util\Private</Filter>
     </ClCompile>
-    <ClCompile Include="Source\D3D12\D3D12Renderer.cpp">
-      <Filter>Engine\D3D12\Private</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Renderer\CommandList.cpp">
       <Filter>Engine\Renderer\Private</Filter>
     </ClCompile>
     <ClCompile Include="Source\D3D12\D3D12Commands.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\D3D12\D3D12Device.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\D3D12\D3D12RenderInterface.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\D3D12\D3D12Resource.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\D3D12\D3D12SwapChain.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\D3D12\D3D12Descriptor.cpp">
       <Filter>Engine\D3D12\Private</Filter>
     </ClCompile>
   </ItemGroup>
@@ -116,13 +128,25 @@
     <ClInclude Include="Source\D3D12\UploadBuffer.h">
       <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
-    <ClInclude Include="Source\D3D12\D3D12Renderer.h">
-      <Filter>Engine\D3D12\Public</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Renderer\CommnadList.h">
       <Filter>Engine\Renderer\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\D3D12\D3D12Commands.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\D3D12Device.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\D3D12RenderInterface.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\D3D12Resource.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\D3D12SwapChain.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\D3D12Descriptor.h">
       <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
   </ItemGroup>

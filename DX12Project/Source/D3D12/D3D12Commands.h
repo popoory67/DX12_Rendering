@@ -13,6 +13,8 @@
 #include "D3DUtil.h"
 #include "GameTimer.h"
 #include "FrameResource.h"
+#include "D3D12Resource.h"
+#include "D3D12Descriptor.h"
 
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
@@ -21,8 +23,6 @@
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
-//struct ID3D12GraphicsCommandList;
-
 class D3D12CommandList : public CommandListBase
 {
 public:
@@ -30,6 +30,45 @@ public:
 	D3D12CommandList(ComPtr<ID3D12GraphicsCommandList>& InCommandList, ComPtr<ID3D12Device>& InD3D12Device);
 
 	ComPtr<ID3D12GraphicsCommandList>& Get() { return CommandList; }
+
+	// command list 안에 모든 기능이 다있음
+	void CreateAndSetViewports(D3DViewportResource& InViewResource) override
+	{
+		D3D12_VIEWPORT viewport;
+		viewport.TopLeftX = InViewResource.TopLeftX;
+		viewport.TopLeftY = InViewResource.TopLeftY;
+		viewport.Width = InViewResource.Width;
+		viewport.Height = InViewResource.Height;
+		viewport.MinDepth = InViewResource.MinDepth;
+		viewport.MaxDepth = InViewResource.MaxDepth;
+
+		CommandList->RSSetViewports(1, &viewport);
+
+		D3D12_RECT ScissorRect = { 0, 0, viewport.Width, viewport.Height };
+		CommandList->RSSetScissorRects(1, &ScissorRect);
+	}
+
+	// Indicate a state transition on the resource usage.
+	void SetResourceTransition(class D3D12Resource* InResource, D3D12_RESOURCE_STATES InPrevState, D3D12_RESOURCE_STATES InNextState)
+	{
+		if (CommandList && InResource && InResource->Get())
+		{
+			CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(InResource->Get().Get(),
+				InPrevState, InNextState));
+		}
+	}
+
+	// test
+	void SetDescriptor(class D3D12Descriptor* InDescriptor)
+	{
+		if (InDescriptor)
+		{
+			// heap이랑 root랑 같이 묶어야함
+			ID3D12DescriptorHeap* descriptorHeaps[] = { InDescriptor->GetDescriptor().Get() };
+			CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+			CommandList->SetGraphicsRootSignature(RootSignature.Get());
+		}
+	}
 
 	// 원래는 base에 있어야하는데 D3D12용 인터페이스라서 일단 여기에 둠
 protected:
@@ -47,7 +86,7 @@ class D3D12CommandListExecutor : public CommandListExecutor
 {
 public:
 	D3D12CommandListExecutor() = delete;
-	D3D12CommandListExecutor(ComPtr<ID3D12Device>& InD3D12Device);
+	D3D12CommandListExecutor(class D3D12Device* InD3D12Device);
 
 	void Execute(CommandListBase& InCommandList) override;
 	void FlushCommands() override;
@@ -60,3 +99,24 @@ private:
 
 	UINT64 CurrentFenceCount = 0;
 };
+
+// 여기부터 command
+// struct D3D12ViewportCommand : public CommandBase<D3D12ViewportCommand>
+// {
+// 	D3D12ViewportCommand() {}
+// 	virtual ~D3D12ViewportCommand() {}
+// 
+// 	virtual void Execute(CommandListBase& InCmdList)
+// 	{
+// 		D3D12CommandList* pList = static_cast<class D3D12CommandList*>(&InCmdList);
+// 		if (pList)
+// 		{
+// 			ComPtr<ID3D12GraphicsCommandList> pD3d12CommantList = pList->Get();
+// 
+// 			pD3d12CommantList->RSSetViewports(1, &ScreenViewport);
+// 		}
+// 	}
+// 
+// private:
+// 	D3D12_VIEWPORT ScreenViewport;
+// };
