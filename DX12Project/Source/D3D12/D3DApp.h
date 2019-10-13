@@ -66,9 +66,28 @@ public:
 	static D3DApp& GetInstance();
 
 	virtual bool Initialize(HWND InWindowHandle);
-	//virtual void Update(const GameTimer& gt)/* = 0*/; // data update
+	virtual void Update(const GameTimer& gt)/* = 0*/; // data update
 	virtual void Draw(const GameTimer& gt)/* = 0*/; // command list update
 	virtual void OnResize();
+
+	void AnimateMaterials(const GameTimer& gt);
+	void UpdateObjectCBs(const GameTimer& gt);
+	void UpdateMaterialCBs(const GameTimer& gt);
+	void UpdateMainPassCB(const GameTimer& gt);
+	void UpdateCamera(const GameTimer& gt);
+
+	void LoadTextures();
+	void BuildRootSignature();
+	void BuildDescriptorHeaps();
+	void BuildShadersAndInputLayout();
+	void BuildShapeGeometry();
+	void BuildPSOs();
+	void BuildFrameResources();
+	void BuildMaterials();
+	void BuildRenderItems();
+	void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
+
+	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 
 protected:
 
@@ -85,6 +104,7 @@ protected:
 	ID3D12Resource* GetCurrentBackBuffer() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const;
+	float AspectRatio() const;
 
 	int ClientWidth = 800;
 	int ClientHeight = 600;
@@ -164,13 +184,33 @@ private:
 	ComPtr<ID3D12RootSignature> RootSignature = nullptr;
 
  	// frame resources
- 	std::unique_ptr<FrameResource> CurFrameResource;
-
- 	void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
+ 	/*std::unique_ptr<FrameResource>*/FrameResource* CurFrameResource;
+	std::vector<std::unique_ptr<FrameResource>> mFrameResources;
+	int CurFrameResourceIndex = 0;
 
 	// Render items divided by PSO.
 	std::vector<RenderItem*> OpaqueRitems;
-	 
+
 	// List of all the render items.
 	std::vector<std::unique_ptr<RenderItem>> AllRitems;
+
+	CommandListResource::PassConstants mMainPassCB;
+
+	XMFLOAT3 mEyePos = { 0.0f, 0.0f, 0.0f };
+	XMFLOAT4X4 mView = MathHelper::Identity4x4();
+	XMFLOAT4X4 mProj = MathHelper::Identity4x4();
+
+	float mTheta = 1.3f*XM_PI;
+	float mPhi = 0.4f*XM_PI;
+	float mRadius = 2.5f;
+
+	POINT mLastMousePos;
+
+	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
+	std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;
+	std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
+	std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
+
+
+	std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 };

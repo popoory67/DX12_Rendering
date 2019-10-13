@@ -96,6 +96,12 @@
     <ClCompile Include="Source\D3D12\D3D12Descriptor.cpp">
       <Filter>Engine\D3D12\Private</Filter>
     </ClCompile>
+    <ClCompile Include="Source\D3D12\GeometryGenerator.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\D3D12\DDSTextureLoader.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3DApp.h">
@@ -147,6 +153,12 @@
       <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\D3D12\D3D12Descriptor.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\GeometryGenerator.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\DDSTextureLoader.h">
       <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
   </ItemGroup>

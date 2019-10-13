@@ -92,7 +92,7 @@ int WindowMain::Run()
 			if (!IsPaused)
 			{
 				//CalculateFrameStats();
-				//D3DApp::GetInstance().Update(GAME_TIMER);
+				D3DApp::GetInstance().Update(GAME_TIMER);
 				D3DApp::GetInstance().Draw(GAME_TIMER);
 			}
 			else
