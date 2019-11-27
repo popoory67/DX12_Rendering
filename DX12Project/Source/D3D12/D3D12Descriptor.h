@@ -22,6 +22,7 @@ public:
 	virtual ~D3D12Descriptor() {}
 
 	UINT GetSize() { return Size; }
+	void SetSize(UINT InSize) { Size = InSize; }
 	ComPtr<ID3D12DescriptorHeap> GetDescriptor() { return DescriptorHeap; }
 
 private:

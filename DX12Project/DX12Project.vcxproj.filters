@@ -102,6 +102,9 @@
     <ClCompile Include="Source\D3D12\DDSTextureLoader.cpp">
       <Filter>Engine\D3D12\Private</Filter>
     </ClCompile>
+    <ClCompile Include="Source\D3D12\D3D12Fence.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3DApp.h">
@@ -159,6 +162,9 @@
       <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\D3D12\DDSTextureLoader.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\D3D12Fence.h">
       <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
   </ItemGroup>

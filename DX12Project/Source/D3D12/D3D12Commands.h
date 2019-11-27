@@ -27,26 +27,26 @@ class D3D12CommandList : public CommandListBase
 {
 public:
 	D3D12CommandList() = delete;
-	D3D12CommandList(ComPtr<ID3D12GraphicsCommandList>& InCommandList, ComPtr<ID3D12Device>& InD3D12Device);
+	D3D12CommandList(ComPtr<ID3D12Device> InD3D12Device);
 
 	ComPtr<ID3D12GraphicsCommandList>& Get() { return CommandList; }
 
 	// command list 안에 모든 기능이 다있음
-	void CreateAndSetViewports(D3DViewportResource& InViewResource) override
-	{
-		D3D12_VIEWPORT viewport;
-		viewport.TopLeftX = InViewResource.TopLeftX;
-		viewport.TopLeftY = InViewResource.TopLeftY;
-		viewport.Width = InViewResource.Width;
-		viewport.Height = InViewResource.Height;
-		viewport.MinDepth = InViewResource.MinDepth;
-		viewport.MaxDepth = InViewResource.MaxDepth;
-
-		CommandList->RSSetViewports(1, &viewport);
-
-		D3D12_RECT ScissorRect = { 0, 0, viewport.Width, viewport.Height };
-		CommandList->RSSetScissorRects(1, &ScissorRect);
-	}
+// 	void CreateAndSetViewports(D3DViewportResource& InViewResource) override
+// 	{
+// 		D3D12_VIEWPORT viewport;
+// 		viewport.TopLeftX = InViewResource.TopLeftX;
+// 		viewport.TopLeftY = InViewResource.TopLeftY;
+// 		viewport.Width = InViewResource.Width;
+// 		viewport.Height = InViewResource.Height;
+// 		viewport.MinDepth = InViewResource.MinDepth;
+// 		viewport.MaxDepth = InViewResource.MaxDepth;
+// 
+// 		CommandList->RSSetViewports(1, &viewport);
+// 
+// 		D3D12_RECT ScissorRect = { 0, 0, viewport.Width, viewport.Height };
+// 		CommandList->RSSetScissorRects(1, &ScissorRect);
+// 	}
 
 	// Indicate a state transition on the resource usage.
 	void SetResourceTransition(class D3D12Resource* InResource, D3D12_RESOURCE_STATES InPrevState, D3D12_RESOURCE_STATES InNextState)
@@ -70,12 +70,32 @@ public:
 		}
 	}
 
+	void ResourceBarrier(D3D12Resource* InResource, D3D12_RESOURCE_STATES InFrom, D3D12_RESOURCE_STATES InTo)
+	{
+		if (CommandList && InResource)
+		{
+			CommandList->ResourceBarrier(1, 
+				&CD3DX12_RESOURCE_BARRIER::Transition(InResource->Get().Get(),
+				InFrom, InTo));
+		}
+	}
+
+	// 나중엔 vertex, index 다 분리해야함 일단 테스트로 이렇게 함
+	void DrawRenderItems();
+
+	void Reset();
+
 	// 원래는 base에 있어야하는데 D3D12용 인터페이스라서 일단 여기에 둠
 protected:
 	ComPtr<ID3D12DescriptorHeap> DescriptorHeap = nullptr;
 	ComPtr<ID3D12RootSignature> RootSignature = nullptr;
-	ID3D12Resource* Pass = nullptr; // The mean of pass is like a buffer (upload buffer)
+
+	//ID3D12Resource* Pass = nullptr; // The mean of pass is like a buffer (upload buffer)
 	//std::vector<RenderItem*> RenderItems;
+
+	ConstantResource<ObjectConstants>* ObjectBuffer;
+	ConstantResource<PassConstants>* MainPassBuffer;
+	ConstantResource<MaterialConstants>* MaterialBuffer;
 
 private:
 	ComPtr<ID3D12GraphicsCommandList> CommandList;

@@ -29,7 +29,7 @@ public:
 
 	virtual ~CommandListBase() {}
 
-	virtual void CreateAndSetViewports(D3DViewportResource& InResource) {}
+	//virtual void CreateAndSetViewports(D3DViewportResource& InResource) {}
 };
 
 class CommandListExecutor

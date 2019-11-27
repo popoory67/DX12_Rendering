@@ -1,7 +1,9 @@
 # folders
 .vs
 Debug
+Textures
 
 # files
 README.md
 *.vcxproj.user
+*.dds

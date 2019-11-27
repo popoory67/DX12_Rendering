@@ -6,12 +6,29 @@
 #include "D3D12Resource.h"
 #include "D3D12Descriptor.h"
 #include "D3D12Commands.h"
+#include "D3D12RenderInterface.h"
 
-D3D12SwapChain::D3D12SwapChain(D3D12Device* InDevice)
+D3D12SwapChain::D3D12SwapChain(D3D12Device* InDevice/*D3D12Descriptor* InRenderTarget*/)
 {
 	memset(SwapChainBuffer, 0x00, _countof(SwapChainBuffer));
 
-	RenderTargetViewDesc = new D3D12Descriptor(InDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	// 	if (InRenderTarget)
+	// 		RenderTargetViewDesc = InRenderTarget;
+
+	if (InDevice)
+	{
+		RenderTargetViewDesc = new D3D12Descriptor(InDevice, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		if (RenderTargetViewDesc)
+		{
+			D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
+			rtvHeapDesc.NumDescriptors = GetSwapChainBufferCount();
+			rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+			rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+			rtvHeapDesc.NodeMask = 0;
+
+			ThrowIfFailed(InDevice->GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(RenderTargetViewDesc->GetDescriptor().GetAddressOf())));
+		}
+	}
 }
 
 void D3D12SwapChain::OnResize(D3D12Device* InDevice)
@@ -19,6 +36,7 @@ void D3D12SwapChain::OnResize(D3D12Device* InDevice)
 	// resize
 	assert(InDevice && InDevice->GetDevice());
 	assert(SwapChain);
+	assert(RenderTargetViewDesc);
 
 	// Release the previous resources we will be recreating.
 	for (int i = 0; i < _countof(SwapChainBuffer); ++i)
@@ -65,11 +83,11 @@ void D3D12SwapChain::OnResize(D3D12Device* InDevice)
 	}
 }
 
-ID3D12Resource* D3D12SwapChain::GetCurrentBackBuffer() const
+D3D12Resource* D3D12SwapChain::GetCurrentBackBuffer() const
 {
-	if (SwapChainBuffer[CurBackBufferIndex] && SwapChainBuffer[CurBackBufferIndex]->Get())
+	if (SwapChainBuffer[CurBackBufferIndex])
 	{
-		return SwapChainBuffer[CurBackBufferIndex]->Get().Get();
+		return SwapChainBuffer[CurBackBufferIndex];
 	}
 
 	return nullptr;
@@ -135,7 +153,7 @@ void D3D12SwapChain::Create(D3D12Device* InDevice, D3D12CommandListExecutor* InE
 	assert(Msaa4xQuality > 0 && "Unexpected MSAA quality level.");
 }
 
-void D3D12SwapChain::SwapChainToFrontBuffer()
+void D3D12SwapChain::SwapBackBufferToFrontBuffer()
 {
 	// Swap the back and front buffers
 	ThrowIfFailed(SwapChain->Present(0, 0)); // ÀüÈ¯
