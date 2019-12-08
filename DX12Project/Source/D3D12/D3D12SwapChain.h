@@ -8,15 +8,15 @@ class D3D12SwapChain
 {
 public:
 	D3D12SwapChain() = delete;
-	D3D12SwapChain(class D3D12Device* InDevice/*class D3D12Descriptor* InRenderTarget*/);
+	D3D12SwapChain(class D3D12Device* InDevice);
 	virtual ~D3D12SwapChain() {}
 
 	ComPtr<IDXGISwapChain> Get() { return SwapChain; }
 
 	D3D12_VIEWPORT& GetViewport() { return ScreenViewport; }
 	D3D12_RECT& GetRect() { return ScissorRect; }
-	unsigned int GetWidth() { return /*ClientWidth*/ScreenViewport.Width; }
-	unsigned int GetHeight() { return /*ClientHeight*/ScreenViewport.Height; }
+	unsigned int GetWidth() { return ScreenViewport.Width; }
+	unsigned int GetHeight() { return ScreenViewport.Height; }
 	unsigned int GetMsaaQuality() { return Msaa4xQuality; }
 	bool IsMsaa4xEnabled() { return IsMsaa4xState; }
 
@@ -27,6 +27,8 @@ public:
 
 	void Create(class D3D12Device* InDevice, class D3D12CommandListExecutor* InExecutor);
 	void SwapBackBufferToFrontBuffer();
+
+	float AspectRatio() const;
 
 private:
 	void CreateBuffer(class D3D12Device* InDevice);

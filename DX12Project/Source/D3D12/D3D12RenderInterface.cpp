@@ -19,9 +19,7 @@ D3D12RenderInterface::D3D12RenderInterface(D3D12Device* pDevice)
 	if (SwapChain)
 		SwapChain->Create(Device, CmdListExecutor);
 
-//	RenderTargetDesc = CreateRenderTarget();
 	ShaderResourceDesc = CreateShaderBuffer();
-//	DepthStencilDesc = CreateDepthStencil();
 }
 
 D3D12RenderInterface::~D3D12RenderInterface()
@@ -29,27 +27,9 @@ D3D12RenderInterface::~D3D12RenderInterface()
 	delete(Device);
 }
 
-// D3D12Descriptor* D3D12RenderInterface::CreateRenderTarget()
-// {
-// 	D3D12Descriptor* pRenderTargetDesc = new D3D12Descriptor(Device, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-// 	if (pRenderTargetDesc && SwapChain)
-// 	{
-// 		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
-// 		rtvHeapDesc.NumDescriptors = SwapChain->GetSwapChainBufferCount();
-// 		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-// 		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-// 		rtvHeapDesc.NodeMask = 0;
-// 
-// 		ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(pRenderTargetDesc->GetDescriptor().GetAddressOf())));
-// 	}
-// 	return pRenderTargetDesc;
-// }
-
 void D3D12RenderInterface::OnResize(D3D12CommandList* InCommandList)
 {
 	assert(InCommandList);
-
-	//FlushCommandQueue();
 
 	InCommandList->Reset();
 
@@ -61,7 +41,7 @@ void D3D12RenderInterface::OnResize(D3D12CommandList* InCommandList)
 	DepthStencilDesc = CreateDepthStencil(InCommandList);
 
 	ExecuteCommandList(InCommandList);
-	//FlushCommandQueue();
+	FlushCommandQueue();
 }
 
 D3D12Descriptor* D3D12RenderInterface::CreateDepthStencil(D3D12CommandList* InCommandList)
@@ -83,17 +63,6 @@ D3D12Descriptor* D3D12RenderInterface::CreateDepthStencil(D3D12CommandList* InCo
 	D3D12Descriptor* pDepthStencilDesc = new D3D12Descriptor(Device, dsvHeapDesc, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	if (pDepthStencilDesc)
 	{
-		// 		if (DepthStencilBuffer)
-		// 		{
-		// 			ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
-		// 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		// 				D3D12_HEAP_FLAG_NONE,
-		// 				&depthStencilDesc,
-		// 				D3D12_RESOURCE_STATE_COMMON,
-		// 				&optClear,
-		// 				IID_PPV_ARGS(DepthStencilBuffer->Get().GetAddressOf())));
-		// 		}
-
 		// Create the depth/stencil buffer and view.
 		D3D12_RESOURCE_DESC depthStencilDesc;
 		depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -187,12 +156,6 @@ void D3D12RenderInterface::DrawRenderItems(D3D12CommandList* InCommandList)
 // 		d3d12CommantList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
 // 	}
 }
-
-// 이건 app 쪽에다가 옮기기
-// void D3D12RenderInterface::Update()
-// {
-// 
-// }
 
 // 
 //  void D3DApp::BuildRootSignature()

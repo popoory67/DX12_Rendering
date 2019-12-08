@@ -59,35 +59,16 @@ void D3D12CommandListExecutor::FlushCommands()
 	// Advance the fence value to mark commands up to this fence point.
 	CurrentFenceCount++;
 
-	Signal();
-// 	// Add an instruction to the command queue to set a new fence point.  Because we 
-// 	// are on the GPU timeline, the new fence point won't be set until the GPU finishes
-// 	// processing all the commands prior to this Signal().
-// 	ThrowIfFailed(CommandQueue->Signal(Fence.Get(), CurrentFenceCount));
+	// Add an instruction to the command queue to set a new fence point.  Because we 
+	// are on the GPU timeline, the new fence point won't be set until the GPU finishes
+	// processing all the commands prior to this Signal().
+	ThrowIfFailed(CommandQueue->Signal(Fence->Get(), CurrentFenceCount));
 
 	// Wait until the GPU has completed commands up to this fence point.
 	if (Fence->Get()->GetCompletedValue() < CurrentFenceCount)
 	{
 		Fence->OnEventCompletion(CurrentFenceCount);
-// 		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
-// 
-// 		// Fire event when GPU hits current fence.  
-// 		ThrowIfFailed(Fence->SetEventOnCompletion(CurrentFenceCount, eventHandle));
-// 
-// 		// Wait until the GPU hits current fence event is fired.
-// 		WaitForSingleObject(eventHandle, INFINITE);
-// 		CloseHandle(eventHandle);
 	}
-}
-
-void D3D12CommandListExecutor::Signal()
-{
-	assert(Fence);
-
-	// Add an instruction to the command queue to set a new fence point.  Because we 
-	// are on the GPU timeline, the new fence point won't be set until the GPU finishes
-	// processing all the commands prior to this Signal().
-	ThrowIfFailed(CommandQueue->Signal(Fence->Get(), CurrentFenceCount));
 }
 
 void D3D12CommandList::Reset()
@@ -97,41 +78,6 @@ void D3D12CommandList::Reset()
  
  	// 이전에 Excute하여 Queue에 command list를 추가했으니 list를 재설정해도 된다.
  	ThrowIfFailed(CommandList->Reset(CommandListAllocator.Get(),/* OpaquePipelineStateObject.Get()*/ nullptr));
-}
-
-void D3D12CommandList::DrawRenderItems()
-{
-	// test
-// 	ID3D12DescriptorHeap* descriptorHeaps[] = { SrvHeap.Get() };
-// 	CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-// 
-// 	UINT objCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
-// 	UINT matCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
-// 
-// 	auto ObjectConstBuffer = ObjectBuffer->Get()->Resource();
-// 	auto matCB = MaterialBuffer->Get()->Resource();
-// 
-// 	// For each render item...
-// 	for (size_t i = 0; i < RenderItems.size(); ++i)
-// 	{
-// 		auto ri = RenderItems[i];
-// 
-// 		CommandList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
-// 		CommandList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
-// 		CommandList->IASetPrimitiveTopology(ri->PrimitiveType);
-// 
-// 		CD3DX12_GPU_DESCRIPTOR_HANDLE tex(SrvHeap->GetGPUDescriptorHandleForHeapStart());
-// 		tex.Offset(ri->Mat->DiffuseSrvHeapIndex, CbvSrvUavDescriptorSize); // CbvSrvUavDescriptorSize = 32
-// 
-// 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = ObjectConstBuffer->GetGPUVirtualAddress() + ri->ObjCBIndex*objCBByteSize;
-// 		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->Mat->MatCBIndex*matCBByteSize;
-// 
-// 		CommandList->SetGraphicsRootDescriptorTable(0, tex);
-// 		CommandList->SetGraphicsRootConstantBufferView(1, objCBAddress);
-// 		CommandList->SetGraphicsRootConstantBufferView(3, matCBAddress);
-// 
-// 		CommandList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
-// 	}
 }
 
 // 

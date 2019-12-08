@@ -31,23 +31,6 @@ public:
 
 	ComPtr<ID3D12GraphicsCommandList>& Get() { return CommandList; }
 
-	// command list 안에 모든 기능이 다있음
-// 	void CreateAndSetViewports(D3DViewportResource& InViewResource) override
-// 	{
-// 		D3D12_VIEWPORT viewport;
-// 		viewport.TopLeftX = InViewResource.TopLeftX;
-// 		viewport.TopLeftY = InViewResource.TopLeftY;
-// 		viewport.Width = InViewResource.Width;
-// 		viewport.Height = InViewResource.Height;
-// 		viewport.MinDepth = InViewResource.MinDepth;
-// 		viewport.MaxDepth = InViewResource.MaxDepth;
-// 
-// 		CommandList->RSSetViewports(1, &viewport);
-// 
-// 		D3D12_RECT ScissorRect = { 0, 0, viewport.Width, viewport.Height };
-// 		CommandList->RSSetScissorRects(1, &ScissorRect);
-// 	}
-
 	// Indicate a state transition on the resource usage.
 	void SetResourceTransition(class D3D12Resource* InResource, D3D12_RESOURCE_STATES InPrevState, D3D12_RESOURCE_STATES InNextState)
 	{
@@ -80,9 +63,6 @@ public:
 		}
 	}
 
-	// 나중엔 vertex, index 다 분리해야함 일단 테스트로 이렇게 함
-	void DrawRenderItems();
-
 	void Reset();
 
 	// 원래는 base에 있어야하는데 D3D12용 인터페이스라서 일단 여기에 둠
@@ -113,9 +93,6 @@ public:
 	void FlushCommands() override;
 
 	ComPtr<ID3D12CommandQueue>& GetExecutor() { return CommandQueue; }
-
-private:
-	void Signal();
 
 private:
 	ComPtr<ID3D12CommandQueue> CommandQueue;

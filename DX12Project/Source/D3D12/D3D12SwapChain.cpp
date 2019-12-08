@@ -8,38 +8,20 @@
 #include "D3D12Commands.h"
 #include "D3D12RenderInterface.h"
 
-D3D12SwapChain::D3D12SwapChain(D3D12Device* InDevice/*D3D12Descriptor* InRenderTarget*/)
+D3D12SwapChain::D3D12SwapChain(D3D12Device* InDevice)
 {
-	// 	if (InRenderTarget)
-	// 		RenderTargetViewDesc = InRenderTarget;
-
-	if (InDevice)
-	{
-		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
-		rtvHeapDesc.NumDescriptors = GetSwapChainBufferCount();
-		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		rtvHeapDesc.NodeMask = 0;
-
-		RenderTargetViewDesc = new D3D12Descriptor(InDevice, rtvHeapDesc, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-/*		CreateBuffer(InDevice);*/
-// 		if (RenderTargetViewDesc)
-// 		{
-// 			memset(SwapChainBuffer, 0x00, _countof(SwapChainBuffer));
-// 
-// 			for (int i = 0; i < _countof(SwapChainBuffer); ++i)
-// 			{
-// 				if (!SwapChainBuffer[i])
-// 				{
-// 					SwapChainBuffer[i] = new D3D12RenderTargetResource(InDevice, this, RenderTargetViewDesc, i);
-// 				}
-// 			}
-// 		}
-	}
+	assert(InDevice);
 
 	ScreenViewport.Width = 800;
 	ScreenViewport.Height = 600;
+
+	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
+	rtvHeapDesc.NumDescriptors = GetSwapChainBufferCount();
+	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	rtvHeapDesc.NodeMask = 0;
+
+	RenderTargetViewDesc = new D3D12Descriptor(InDevice, rtvHeapDesc, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 }
 
 void D3D12SwapChain::CreateBuffer(D3D12Device* InDevice)
@@ -66,7 +48,6 @@ void D3D12SwapChain::CreateBuffer(D3D12Device* InDevice)
 
 void D3D12SwapChain::OnResize(D3D12Device* InDevice)
 {
-	// resize
 	assert(InDevice && InDevice->GetDevice());
 	assert(SwapChain);
 	assert(RenderTargetViewDesc);
@@ -75,9 +56,7 @@ void D3D12SwapChain::OnResize(D3D12Device* InDevice)
 	for (int i = 0; i < _countof(SwapChainBuffer); ++i)
 	{
 		if (SwapChainBuffer[i] && SwapChainBuffer[i]->Get())
-		{
 			SwapChainBuffer[i]->Get().Reset();
-		}
 	}
 
 	// Resize the swap chain.
@@ -91,30 +70,6 @@ void D3D12SwapChain::OnResize(D3D12Device* InDevice)
 	CurBackBufferIndex = 0;
 
 	CreateBuffer(InDevice);
-// 	ComPtr<ID3D12DescriptorHeap> pRenderTargetDesc = RenderTargetViewDesc->GetDescriptor();
-// 	if (pRenderTargetDesc)
-// 	{
-// 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(pRenderTargetDesc->GetCPUDescriptorHandleForHeapStart());
-// 
-// 		for (UINT i = 0; i < _countof(SwapChainBuffer); i++)
-// 		{
-// 			if (SwapChainBuffer[i])
-// 			{
-// 				//ComPtr<class ID3D12Resource> pBuffer = SwapChainBuffer[i]->Get();
-// 				//if (pBuffer)
-// 				{
-// 					ThrowIfFailed(SwapChain->GetBuffer(i, IID_PPV_ARGS(&SwapChainBuffer[i]->Get())));
-// 
-// 					if (InDevice->GetDevice())
-// 					{
-// 						InDevice->GetDevice()->CreateRenderTargetView(SwapChainBuffer[i]->Get().Get(), nullptr, rtvHeapHandle);
-// 					}
-// 
-// 					rtvHeapHandle.Offset(1, RenderTargetViewDesc->GetSize());
-// 				}
-// 			}
-// 		}
-// 	}
 }
 
 D3D12Resource* D3D12SwapChain::GetCurrentBackBuffer() const
@@ -196,4 +151,9 @@ void D3D12SwapChain::SwapBackBufferToFrontBuffer()
 
 	// Advance the fence value to mark commands up to this fence point.
 //	CurFrameResource->Fence = ++CurrentFenceCount;
+}
+
+float D3D12SwapChain::AspectRatio()const
+{
+	return static_cast<float>(ScreenViewport.Width) / ScreenViewport.Height;
 }
