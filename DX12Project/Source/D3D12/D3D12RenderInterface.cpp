@@ -7,22 +7,21 @@
 #include "D3D12Resource.h"
 #include <d3d12.h>
 
-D3D12RenderInterface::D3D12RenderInterface()
+D3D12RenderInterface::D3D12RenderInterface(D3D12Device* pDevice)
 {
-	Device = new D3D12Device();
+	Device = pDevice;
 	if (Device)
 	{
 		CmdListExecutor = new D3D12CommandListExecutor(Device);
 	}
 
-//	RenderTargetDesc = CreateRenderTarget();
-	ShaderResourceDesc = CreateShaderBuffer();
-	DepthStencilDesc = CreateDepthStencil();
-	DepthStencilBuffer = new D3D12Resource();
-
 	SwapChain = new D3D12SwapChain(Device/*RenderTargetDesc*/);
 	if (SwapChain)
 		SwapChain->Create(Device, CmdListExecutor);
+
+//	RenderTargetDesc = CreateRenderTarget();
+	ShaderResourceDesc = CreateShaderBuffer();
+//	DepthStencilDesc = CreateDepthStencil();
 }
 
 D3D12RenderInterface::~D3D12RenderInterface()
@@ -46,80 +45,104 @@ D3D12RenderInterface::~D3D12RenderInterface()
 // 	return pRenderTargetDesc;
 // }
 
-D3D12Descriptor* D3D12RenderInterface::CreateDepthStencil()
+void D3D12RenderInterface::OnResize(D3D12CommandList* InCommandList)
 {
-	D3D12Descriptor* pDepthStencilDesc = new D3D12Descriptor(Device, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-	if (pDepthStencilDesc)
-	{
-		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
-		dsvHeapDesc.NumDescriptors = 1;
-		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		dsvHeapDesc.NodeMask = 0;
+	assert(InCommandList);
 
-		ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(pDepthStencilDesc->GetDescriptor().GetAddressOf())));
-	}
+	//FlushCommandQueue();
 
-	// Create the depth/stencil buffer and view.
-	D3D12_RESOURCE_DESC depthStencilDesc;
-	depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	depthStencilDesc.Alignment = 0;
-	depthStencilDesc.Width = SwapChain->GetWidth();
-	depthStencilDesc.Height = SwapChain->GetHeight();
-	depthStencilDesc.DepthOrArraySize = 1;
-	depthStencilDesc.MipLevels = 1;
+	InCommandList->Reset();
 
-	// Correction 11/12/2016: SSAO chapter requires an SRV to the depth buffer to read from 
-	// the depth buffer.  Therefore, because we need to create two views to the same resource:
-	//   1. SRV format: DXGI_FORMAT_R24_UNORM_X8_TYPELESS
-	//   2. DSV Format: DXGI_FORMAT_D24_UNORM_S8_UINT
-	// we need to create the depth buffer resource with a typeless format.  
-	depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	SwapChain->OnResize(Device);
 
-	depthStencilDesc.SampleDesc.Count = SwapChain->IsMsaa4xEnabled() ? 4 : 1;
-	depthStencilDesc.SampleDesc.Quality = SwapChain->IsMsaa4xEnabled() ? (SwapChain->GetMsaaQuality() - 1) : 0;
-	depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+	if (DepthStencilBuffer && DepthStencilBuffer->Get())
+		DepthStencilBuffer->Get().Reset();
+
+	DepthStencilDesc = CreateDepthStencil(InCommandList);
+
+	ExecuteCommandList(InCommandList);
+	//FlushCommandQueue();
+}
+
+D3D12Descriptor* D3D12RenderInterface::CreateDepthStencil(D3D12CommandList* InCommandList)
+{
+	assert(Device);
+	assert(InCommandList);
 
 	D3D12_CLEAR_VALUE optClear;
 	optClear.Format = DepthStencilFormat;
 	optClear.DepthStencil.Depth = 1.0f;
 	optClear.DepthStencil.Stencil = 0;
-	ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&depthStencilDesc,
-		D3D12_RESOURCE_STATE_COMMON,
-		&optClear,
-		IID_PPV_ARGS(DepthStencilBuffer->Get().GetAddressOf())));
 
-	// Create descriptor to mip level 0 of entire resource using the format of the resource.
-	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
-	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-	dsvDesc.Format = DepthStencilFormat;
-	dsvDesc.Texture2D.MipSlice = 0;
-	Device->GetDevice()->CreateDepthStencilView(DepthStencilBuffer->Get().Get(), &dsvDesc, pDepthStencilDesc->GetDescriptor()->GetCPUDescriptorHandleForHeapStart());
+	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
+	dsvHeapDesc.NumDescriptors = 1;
+	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	dsvHeapDesc.NodeMask = 0;
 
-// 	// Transition the resource from its initial state to be used as a depth buffer.
-// 	CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(DepthStencilBuffer->Get().Get(),
-// 		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+	D3D12Descriptor* pDepthStencilDesc = new D3D12Descriptor(Device, dsvHeapDesc, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	if (pDepthStencilDesc)
+	{
+		// 		if (DepthStencilBuffer)
+		// 		{
+		// 			ThrowIfFailed(Device->GetDevice()->CreateCommittedResource(
+		// 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		// 				D3D12_HEAP_FLAG_NONE,
+		// 				&depthStencilDesc,
+		// 				D3D12_RESOURCE_STATE_COMMON,
+		// 				&optClear,
+		// 				IID_PPV_ARGS(DepthStencilBuffer->Get().GetAddressOf())));
+		// 		}
+
+		// Create the depth/stencil buffer and view.
+		D3D12_RESOURCE_DESC depthStencilDesc;
+		depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		depthStencilDesc.Alignment = 0;
+		depthStencilDesc.Width = SwapChain->GetWidth();
+		depthStencilDesc.Height = SwapChain->GetHeight();
+		depthStencilDesc.DepthOrArraySize = 1;
+		depthStencilDesc.MipLevels = 1;
+
+		// Correction 11/12/2016: SSAO chapter requires an SRV to the depth buffer to read from 
+		// the depth buffer.  Therefore, because we need to create two views to the same resource:
+		//   1. SRV format: DXGI_FORMAT_R24_UNORM_X8_TYPELESS
+		//   2. DSV Format: DXGI_FORMAT_D24_UNORM_S8_UINT
+		// we need to create the depth buffer resource with a typeless format.  
+		depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+
+		depthStencilDesc.SampleDesc.Count = SwapChain->IsMsaa4xEnabled() ? 4 : 1;
+		depthStencilDesc.SampleDesc.Quality = SwapChain->IsMsaa4xEnabled() ? (SwapChain->GetMsaaQuality() - 1) : 0;
+		depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+		// Create descriptor to mip level 0 of entire resource using the format of the resource.
+		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+		dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+		dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+		dsvDesc.Format = DepthStencilFormat;
+		dsvDesc.Texture2D.MipSlice = 0;
+
+		DepthStencilBuffer = new D3D12DepthStencilResource(Device, pDepthStencilDesc, dsvDesc, depthStencilDesc, optClear);
+	}
+
+	// Transition the resource from its initial state to be used as a depth buffer.
+	if (DepthStencilBuffer)
+		InCommandList->ResourceBarrier(DepthStencilBuffer, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
 	return pDepthStencilDesc;
 }
 
 D3D12Descriptor* D3D12RenderInterface::CreateShaderBuffer()
 {
-	D3D12Descriptor* pShaderResourceDesc = new D3D12Descriptor(Device, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	if (pShaderResourceDesc)
-	{
-		D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-		srvHeapDesc.NumDescriptors = 1;
-		srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	assert(Device);
 
-		ThrowIfFailed(Device->GetDevice()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&pShaderResourceDesc->GetDescriptor())));
-	}
+	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+	srvHeapDesc.NumDescriptors = 1;
+	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+
+	D3D12Descriptor* pShaderResourceDesc = new D3D12Descriptor(Device, srvHeapDesc, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
 	return pShaderResourceDesc;
 }
 
@@ -132,7 +155,7 @@ void D3D12RenderInterface::CreateFrameResources()
 // 	CurFrameResource = std::make_unique<FrameResource>(Device->GetDevice().Get(), 1, 1, 1);
 }
 
-void D3D12RenderInterface::DrawRenderItems(D3D12CommandList* cmdList)
+void D3D12RenderInterface::DrawRenderItems(D3D12CommandList* InCommandList)
 {
 // 	ComPtr<ID3D12GraphicsCommandList> d3d12CommantList = cmdList->Get();
 // 

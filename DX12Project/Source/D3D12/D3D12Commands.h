@@ -27,7 +27,7 @@ class D3D12CommandList : public CommandListBase
 {
 public:
 	D3D12CommandList() = delete;
-	D3D12CommandList(ComPtr<ID3D12Device> InD3D12Device);
+	D3D12CommandList(class D3D12Device* InD3D12Device);
 
 	ComPtr<ID3D12GraphicsCommandList>& Get() { return CommandList; }
 
@@ -108,14 +108,19 @@ public:
 	D3D12CommandListExecutor() = delete;
 	D3D12CommandListExecutor(class D3D12Device* InD3D12Device);
 
-	void Execute(CommandListBase& InCommandList) override;
+	void Execute(CommandListBase& InCommandList) override {}
+	void Execute(class D3D12CommandList* InCommandList);
 	void FlushCommands() override;
 
 	ComPtr<ID3D12CommandQueue>& GetExecutor() { return CommandQueue; }
 
 private:
+	void Signal();
+
+private:
 	ComPtr<ID3D12CommandQueue> CommandQueue;
-	ComPtr<ID3D12Fence> Fence;
+	//ComPtr<ID3D12Fence> Fence;
+	class D3D12Fence* Fence = nullptr;
 
 	UINT64 CurrentFenceCount = 0;
 };

@@ -59,7 +59,7 @@ bool WindowMain::InitMainWindow()
 	UpdateWindow(MainWindowHandle);
 
 	// dx test
-	D3DApp::GetInstance().Initialize(GetWindowHandle());
+	D3DApp::GetInstance().Initialize(MainWindowHandle);
 
 	return true;
 }

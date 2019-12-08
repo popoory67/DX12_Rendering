@@ -10,23 +10,56 @@
 
 D3D12SwapChain::D3D12SwapChain(D3D12Device* InDevice/*D3D12Descriptor* InRenderTarget*/)
 {
-	memset(SwapChainBuffer, 0x00, _countof(SwapChainBuffer));
-
 	// 	if (InRenderTarget)
 	// 		RenderTargetViewDesc = InRenderTarget;
 
 	if (InDevice)
 	{
-		RenderTargetViewDesc = new D3D12Descriptor(InDevice, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-		if (RenderTargetViewDesc)
-		{
-			D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
-			rtvHeapDesc.NumDescriptors = GetSwapChainBufferCount();
-			rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-			rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-			rtvHeapDesc.NodeMask = 0;
+		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
+		rtvHeapDesc.NumDescriptors = GetSwapChainBufferCount();
+		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		rtvHeapDesc.NodeMask = 0;
 
-			ThrowIfFailed(InDevice->GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(RenderTargetViewDesc->GetDescriptor().GetAddressOf())));
+		RenderTargetViewDesc = new D3D12Descriptor(InDevice, rtvHeapDesc, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+/*		CreateBuffer(InDevice);*/
+// 		if (RenderTargetViewDesc)
+// 		{
+// 			memset(SwapChainBuffer, 0x00, _countof(SwapChainBuffer));
+// 
+// 			for (int i = 0; i < _countof(SwapChainBuffer); ++i)
+// 			{
+// 				if (!SwapChainBuffer[i])
+// 				{
+// 					SwapChainBuffer[i] = new D3D12RenderTargetResource(InDevice, this, RenderTargetViewDesc, i);
+// 				}
+// 			}
+// 		}
+	}
+
+	ScreenViewport.Width = 800;
+	ScreenViewport.Height = 600;
+}
+
+void D3D12SwapChain::CreateBuffer(D3D12Device* InDevice)
+{
+	if (RenderTargetViewDesc)
+	{
+		memset(SwapChainBuffer, 0x00, _countof(SwapChainBuffer));
+
+		ComPtr<ID3D12DescriptorHeap> pRenderTargetDesc = RenderTargetViewDesc->GetDescriptor();
+		if (pRenderTargetDesc)
+		{
+			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(pRenderTargetDesc->GetCPUDescriptorHandleForHeapStart());
+
+			for (int i = 0; i < _countof(SwapChainBuffer); ++i)
+			{
+				if (!SwapChainBuffer[i])
+				{
+					SwapChainBuffer[i] = new D3D12RenderTargetResource(InDevice, this, rtvHeapHandle, RenderTargetViewDesc->GetSize(), i);
+				}
+			}
 		}
 	}
 }
@@ -50,37 +83,38 @@ void D3D12SwapChain::OnResize(D3D12Device* InDevice)
 	// Resize the swap chain.
 	ThrowIfFailed(SwapChain->ResizeBuffers(
 		_countof(SwapChainBuffer),
-		ClientWidth, 
-		ClientHeight,
+		ScreenViewport.Width,
+		ScreenViewport.Height,
 		BackBufferFormat,
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 
 	CurBackBufferIndex = 0;
 
-	ComPtr<ID3D12DescriptorHeap> pRenderTargetDesc = RenderTargetViewDesc->GetDescriptor();
-	if (pRenderTargetDesc)
-	{
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(pRenderTargetDesc->GetCPUDescriptorHandleForHeapStart());
-
-		for (UINT i = 0; i < _countof(SwapChainBuffer); i++)
-		{
-			if (SwapChainBuffer[i])
-			{
-				ComPtr<class ID3D12Resource> pBuffer = SwapChainBuffer[i]->Get();
-				if (pBuffer)
-				{
-					ThrowIfFailed(SwapChain->GetBuffer(i, IID_PPV_ARGS(&pBuffer)));
-
-					if (InDevice->GetDevice())
-					{
-						InDevice->GetDevice()->CreateRenderTargetView(pBuffer.Get(), nullptr, rtvHeapHandle);
-					}
-
-					rtvHeapHandle.Offset(1, RenderTargetViewDesc->GetSize());
-				}
-			}
-		}
-	}
+	CreateBuffer(InDevice);
+// 	ComPtr<ID3D12DescriptorHeap> pRenderTargetDesc = RenderTargetViewDesc->GetDescriptor();
+// 	if (pRenderTargetDesc)
+// 	{
+// 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(pRenderTargetDesc->GetCPUDescriptorHandleForHeapStart());
+// 
+// 		for (UINT i = 0; i < _countof(SwapChainBuffer); i++)
+// 		{
+// 			if (SwapChainBuffer[i])
+// 			{
+// 				//ComPtr<class ID3D12Resource> pBuffer = SwapChainBuffer[i]->Get();
+// 				//if (pBuffer)
+// 				{
+// 					ThrowIfFailed(SwapChain->GetBuffer(i, IID_PPV_ARGS(&SwapChainBuffer[i]->Get())));
+// 
+// 					if (InDevice->GetDevice())
+// 					{
+// 						InDevice->GetDevice()->CreateRenderTargetView(SwapChainBuffer[i]->Get().Get(), nullptr, rtvHeapHandle);
+// 					}
+// 
+// 					rtvHeapHandle.Offset(1, RenderTargetViewDesc->GetSize());
+// 				}
+// 			}
+// 		}
+// 	}
 }
 
 D3D12Resource* D3D12SwapChain::GetCurrentBackBuffer() const
@@ -104,15 +138,14 @@ D3D12_CPU_DESCRIPTOR_HANDLE D3D12SwapChain::GetCurrentBackBufferView() const
 void D3D12SwapChain::Create(D3D12Device* InDevice, D3D12CommandListExecutor* InExecutor)
 {
 	assert(InDevice && InDevice->GetWindowHandle());
-	assert(SwapChain);
 	assert(InExecutor);
 
 	// Release the previous swapchain we will be recreating.
 	SwapChain.Reset();
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
-	swapChainDesc.BufferDesc.Width = ClientWidth;
-	swapChainDesc.BufferDesc.Height = ClientHeight;
+	swapChainDesc.BufferDesc.Width = ScreenViewport.Width;
+	swapChainDesc.BufferDesc.Height = ScreenViewport.Height;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 	swapChainDesc.BufferDesc.Format = BackBufferFormat;
@@ -149,6 +182,8 @@ void D3D12SwapChain::Create(D3D12Device* InDevice, D3D12CommandListExecutor* InE
 		sizeof(MultiSampleQualityLevels)));
 
 	Msaa4xQuality = MultiSampleQualityLevels.NumQualityLevels;
+
+	//CreateBuffer(InDevice);
 
 	assert(Msaa4xQuality > 0 && "Unexpected MSAA quality level.");
 }

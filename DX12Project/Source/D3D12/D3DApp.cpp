@@ -59,7 +59,11 @@ bool D3DApp::Initialize(HWND InWindowHandle)
 // 			D3D_FEATURE_LEVEL_11_0,
 // 			IID_PPV_ARGS(&D3D12Device)));
 // 	}
-	RenderInterface = new D3D12RenderInterface();
+
+	D3D12Device* pDevice = new D3D12Device(InWindowHandle);
+	assert(pDevice);
+
+	RenderInterface = new D3D12RenderInterface(pDevice);
 	assert(RenderInterface);
 
 	//ThrowIfFailed(D3D12Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&Fence)));
@@ -113,9 +117,10 @@ bool D3DApp::Initialize(HWND InWindowHandle)
 	// 	D3D12Device->CreateShaderResourceView(woodCrateTex.Get(), &srvDesc, hDescriptor);
 
 	//OnResize();
-	RenderInterface->OnResize();
+	CommandList = new D3D12CommandList(pDevice);
 
-	CommandList = new class D3D12CommandList(RenderInterface->GetDevice()->GetDevice());
+ //	RenderInterface->FlushCommandQueue();
+ 	RenderInterface->OnResize(CommandList);
 
 	D3DViewportResource ScreenViewport;
 
@@ -153,10 +158,10 @@ bool D3DApp::Initialize(HWND InWindowHandle)
 	//ThrowIfFailed(CommandList->Close());
 	//ID3D12CommandList* cmdsLists[] = { CommandList.Get() };
 	//CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-	RenderInterface->ExecuteCommandList(*CommandList);
-
-	// Wait until initialization is complete.
-	RenderInterface->FlushCommandQueue();
+//  	RenderInterface->ExecuteCommandList(CommandList);
+// // 
+// // 	// Wait until initialization is complete.
+//  	RenderInterface->FlushCommandQueue();
 
 	return true;
 }
@@ -447,7 +452,6 @@ ID3D12Resource* D3DApp::GetCurrentBackBuffer() const
 // 1 드로우 = 1 프레임
 void D3DApp::Draw(const GameTimer& gt)
 {
-
 	CommandList->Reset();
 // 	ComPtr<ID3D12CommandAllocator> commandListAllocator = CurFrameResource->CommandListAllocator;
 // 
@@ -494,7 +498,7 @@ void D3DApp::Draw(const GameTimer& gt)
 // 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
 	// 자원 기록 끝
-	RenderInterface->ExecuteCommandList(*CommandList);
+	RenderInterface->ExecuteCommandList(CommandList);
 // 	// Done recording commands.
 // 	ThrowIfFailed(CommandList->Close());
 // 
@@ -508,6 +512,7 @@ void D3DApp::Draw(const GameTimer& gt)
 // 	ThrowIfFailed(SwapChain->Present(0, 0)); // 전환
 // 	CurBackBufferIndex = (CurBackBufferIndex + 1) % SwapChainBufferCount;
 
+	RenderInterface->FlushCommandQueue();
 	// 테스트 주석
 // 	// Advance the fence value to mark commands up to this fence point.
 // 	CurFrameResource->Fence = ++CurrentFenceCount;

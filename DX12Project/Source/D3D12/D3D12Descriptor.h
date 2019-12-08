@@ -8,7 +8,7 @@ class D3D12Descriptor
 {
 public:
 	D3D12Descriptor() = delete;
-	D3D12Descriptor(class D3D12Device* InDevice, D3D12_DESCRIPTOR_HEAP_TYPE InDescriptorType)
+	D3D12Descriptor(class D3D12Device* InDevice, D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc, D3D12_DESCRIPTOR_HEAP_TYPE InDescriptorType)
 	{
 		if (InDevice)
 		{
@@ -16,6 +16,8 @@ public:
 			if (pD3D12Device)
 			{
 				Size = pD3D12Device->GetDescriptorHandleIncrementSize(InDescriptorType);
+
+				ThrowIfFailed(pD3D12Device->CreateDescriptorHeap(&InHeapDesc, IID_PPV_ARGS(DescriptorHeap.GetAddressOf())));
 			}
 		}
 	}

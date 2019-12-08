@@ -7,14 +7,36 @@ using namespace Microsoft::WRL;
 class D3D12Resource
 {
 public:
-	D3D12Resource() {}
+	D3D12Resource();
+	D3D12Resource(class D3D12Device* InDevice, D3D12_RESOURCE_DESC InDesc, D3D12_CLEAR_VALUE InValue);
+	D3D12Resource(class D3D12Device* InDevice, UINT64 InByteSize, D3D12_CLEAR_VALUE InValue);
 	virtual ~D3D12Resource() {}
 
 	ComPtr<struct ID3D12Resource> Get() { return Resource; }
 
-	void CreateResource(class D3D12Device* InDevice, struct D3D12_RESOURCE_DESC* InDesc = nullptr, struct D3D12_CLEAR_VALUE* InValue = nullptr);
-	void CreateResource(class D3D12Device* InDevice, UINT64 InByteSize, struct D3D12_CLEAR_VALUE* InValue = nullptr);
+protected:
+	void CreateResource(class D3D12Device* InDevice, D3D12_RESOURCE_DESC InDesc, D3D12_CLEAR_VALUE InValue);
+	void CreateResource(class D3D12Device* InDevice, UINT64 InByteSize, D3D12_CLEAR_VALUE InValue);
 
-private:
+protected:
 	ComPtr<struct ID3D12Resource> Resource = nullptr;
+};
+
+class D3D12RenderTargetResource : public D3D12Resource
+{
+public:
+	D3D12RenderTargetResource() = delete;
+	D3D12RenderTargetResource(class D3D12Device* InDevice, class D3D12SwapChain* InSwapChain, CD3DX12_CPU_DESCRIPTOR_HANDLE& IntDescriptorHandle, UINT InDescriptorSize, unsigned int InIndex);
+
+	virtual ~D3D12RenderTargetResource() {}
+};
+
+class D3D12DepthStencilResource : public D3D12Resource
+{
+public:
+	D3D12DepthStencilResource() = delete;
+	D3D12DepthStencilResource(class D3D12Device* InDevice, class D3D12Descriptor* InDescriptor, D3D12_DEPTH_STENCIL_VIEW_DESC InDepthStencilDesc, 
+		D3D12_RESOURCE_DESC InDesc, D3D12_CLEAR_VALUE InValue);
+
+	virtual ~D3D12DepthStencilResource() {}
 };

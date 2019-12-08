@@ -47,16 +47,12 @@ struct RenderItem
 class D3D12RenderInterface
 {
 public:
-	D3D12RenderInterface();
+	D3D12RenderInterface(class D3D12Device* pDevice);
 	~D3D12RenderInterface();
 
 	void CreateFrameResources();
-	void DrawRenderItems(class D3D12CommandList* cmdList);
-	void OnResize()
-	{
-		SwapChain->OnResize(Device);
-		CreateDepthStencil();
-	}
+	void DrawRenderItems(class D3D12CommandList* InCommandList);
+	void OnResize(class D3D12CommandList* InCommandList);
 
 /*
 
@@ -95,7 +91,7 @@ void FD3D12CommandContext::RHIDrawPrimitive(uint32 BaseVertexIndex, uint32 NumPr
 	//class D3D12Descriptor* GetRenderTarget() { return RenderTargetDesc; }
 	//class D3D12Descriptor* GetDepthStencil() { return DepthStencilDesc; }
 	//class D3D12CommandListExecutor* GetCommandListExecutor() { return CmdListExecutor; }
-	void ExecuteCommandList(class CommandListBase& InCommandList)
+	void ExecuteCommandList(class D3D12CommandList* InCommandList)
 	{
 		CmdListExecutor->Execute(InCommandList);
 	}
@@ -121,8 +117,8 @@ void FD3D12CommandContext::RHIDrawPrimitive(uint32 BaseVertexIndex, uint32 NumPr
 	{
 		if (SwapChain)
 		{
-			// & 이렇게 사용하는게 맞나?
 			D3D12_VIEWPORT& viewport = SwapChain->GetViewport();
+
 			viewport.TopLeftX = InViewResource.TopLeftX;
 			viewport.TopLeftY = InViewResource.TopLeftY;
 			viewport.Width = InViewResource.Width;
@@ -131,6 +127,7 @@ void FD3D12CommandContext::RHIDrawPrimitive(uint32 BaseVertexIndex, uint32 NumPr
 			viewport.MaxDepth = InViewResource.MaxDepth;
 
 			D3D12_RECT& ScissorRect = SwapChain->GetRect();
+
 			ScissorRect = { 0, 0, (LONG)viewport.Width, (LONG)viewport.Height };
 		}
 	}
@@ -185,7 +182,7 @@ void FD3D12CommandContext::RHIDrawPrimitive(uint32 BaseVertexIndex, uint32 NumPr
 private:	
 	// test -> virtual
 //	class D3D12Descriptor* CreateRenderTarget();
-	class D3D12Descriptor* CreateDepthStencil();
+	class D3D12Descriptor* CreateDepthStencil(class D3D12CommandList* InCommandList);
 	class D3D12Descriptor* CreateShaderBuffer();
 
 // 	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const

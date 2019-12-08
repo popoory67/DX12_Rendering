@@ -14,6 +14,8 @@ public:
 	D3D12Fence(class D3D12Device* InDevice);
 	virtual ~D3D12Fence();
 
+	ID3D12Fence* Get() { return Fence.Get(); }
+
 	void OnEventCompletion(UINT64 InFence);
 	void SetFenceCount(UINT64 InFence) { FenceCount = InFence; }
 

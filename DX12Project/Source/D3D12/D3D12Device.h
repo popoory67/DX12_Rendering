@@ -17,7 +17,7 @@ public:
 class D3D12Device : public D3DDeviceBase
 {
 public:
-	D3D12Device();
+	D3D12Device(HWND InWindowHandle);
 	virtual ~D3D12Device();
 
 	ComPtr<ID3D12Device> GetDevice() { return Device; }

@@ -3,8 +3,9 @@
 #include "D3D12Commands.h"
 
 
-D3D12Device::D3D12Device()
+D3D12Device::D3D12Device(HWND InWindowHandle)
 {
+	MainWindowHandle = InWindowHandle;
 	CreateDevice();
 }
 
@@ -14,14 +15,14 @@ D3D12Device::~D3D12Device()
 
 void D3D12Device::CreateDevice()
 {
-// #if defined(DEBUG) || defined(_DEBUG) 
-// 	// Enable the D3D12 debug layer.
-// 	{
-// 		ComPtr<ID3D12Debug> debugController;
-// 		ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)));
-// 		debugController->EnableDebugLayer();
-// 	}
-// #endif
+#if defined(DEBUG) || defined(_DEBUG) 
+	// Enable the D3D12 debug layer.
+	{
+		ComPtr<ID3D12Debug> debugController;
+		ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)));
+		debugController->EnableDebugLayer();
+	}
+#endif
 
 	ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&DxgiFactory)));
 

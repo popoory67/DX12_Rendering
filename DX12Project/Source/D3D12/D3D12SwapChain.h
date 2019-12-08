@@ -11,6 +11,8 @@ public:
 	D3D12SwapChain(class D3D12Device* InDevice/*class D3D12Descriptor* InRenderTarget*/);
 	virtual ~D3D12SwapChain() {}
 
+	ComPtr<IDXGISwapChain> Get() { return SwapChain; }
+
 	D3D12_VIEWPORT& GetViewport() { return ScreenViewport; }
 	D3D12_RECT& GetRect() { return ScissorRect; }
 	unsigned int GetWidth() { return /*ClientWidth*/ScreenViewport.Width; }
@@ -27,11 +29,12 @@ public:
 	void SwapBackBufferToFrontBuffer();
 
 private:
+	void CreateBuffer(class D3D12Device* InDevice);
+
+private:
 	// 화면을 표시하는 전면/후면 버퍼를 전환해주는 인터페이스(이중 버퍼링)
 	ComPtr<IDXGISwapChain> SwapChain = nullptr;
 
-	int ClientWidth = 800;
-	int ClientHeight = 600;
 	bool IsMsaa4xState = false;		// 4X MSAA enabled
 	UINT Msaa4xQuality = 0;			// quality level of 4X MSAA
 
@@ -40,7 +43,7 @@ private:
 
 	// Buffers
 	static const unsigned int SwapChainBufferCount = 2;
-	class D3D12Resource* SwapChainBuffer[SwapChainBufferCount];
+	class D3D12RenderTargetResource* SwapChainBuffer[SwapChainBufferCount];
 
 	int CurBackBufferIndex = 0;
 
