@@ -1,38 +1,16 @@
 #pragma once
 
+#include "D3D12Device.h"
 #include "D3DUtil.h"
 #include "UploadBuffer.h"
 #include "../Util/MathHelper.h"
 
-// test
-#include "CommnadList.h"
+// resource
+// 나중에 옮겨야함
+struct ResourceBase
+{
 
-// 
-// // Command list에서 요구하는 리소스들
-// struct FrameResource
-// {
-// public:
-// 
-// 	FrameResource() = delete;
-// 	FrameResource(const FrameResource& rhs) = delete;
-// 	FrameResource& operator=(const FrameResource& rhs) = delete;
-// 
-// 	FrameResource(ID3D12Device* pDevice, UINT passCount, UINT objectCount, UINT materialCount);
-// 	~FrameResource();
-// 
-// 	// We cannot reset the allocator until the GPU is done processing the commands.
-// 	// So each frame needs their own allocator.
-// 	ComPtr<ID3D12CommandAllocator> CommandListAllocator;
-// 
-// 	// We cannot update a cbuffer until the GPU is done processing the commands that reference it.
-// 	// So each frame needs their own cbuffers.
-// 	std::unique_ptr<UploadBuffer<CommandListResource::PassConstants>> PassConstBuffer = nullptr;
-// 	std::unique_ptr<UploadBuffer<CommandListResource::ObjectConstants>> ObjectConstBuffer = nullptr;
-// 	std::unique_ptr<UploadBuffer<MaterialConstants>> MaterialConstBuffer = nullptr;
-// 
-// 	// This lets us check if these frame resources are still in use by the GPU.
-// 	UINT64 Fence = 0;
-// };
+};
 
 struct ObjectConstants
 {
@@ -82,16 +60,16 @@ public:
 	ConstantResource& operator=(const ConstantResource& rhs) = delete;
 
 	template<class T>
-	ConstantResource(ID3D12Device* pDevice, UINT elementCount)
+	ConstantResource(class D3D12Device* InDevice, UINT elementCount)
 	{
-		ThrowIfFailed(pDevice->CreateCommandAllocator(
-			D3D12_COMMAND_LIST_TYPE_DIRECT,
-			IID_PPV_ARGS(CommandListAllocator.GetAddressOf())));
+		assert(InDevice);
 
-		ConstBuffer = std::make_unique<UploadBuffer<T>>(pDevice, elementCount, true);
+		InDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, CommandListAllocator);
+
+		ConstBuffer = std::make_unique<UploadBuffer<T>>(InDevice, elementCount, true);
 	}
 
-	~ConstantResource();
+	~ConstantResource() {}
 
 	UploadBuffer<T>* Get() { return ConstBuffer.get(); }
 
@@ -106,3 +84,7 @@ public:
 	// This lets us check if these frame resources are still in use by the GPU.
 	UINT64 Fence = 0;
 };
+
+// 	std::unique_ptr<UploadBuffer<CommandListResource::PassConstants>> PassConstBuffer = nullptr;
+// 	std::unique_ptr<UploadBuffer<CommandListResource::ObjectConstants>> ObjectConstBuffer = nullptr;
+// 	std::unique_ptr<UploadBuffer<MaterialConstants>> MaterialConstBuffer = nullptr;

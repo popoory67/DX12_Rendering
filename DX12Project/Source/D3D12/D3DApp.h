@@ -109,52 +109,27 @@ private:
 	D3D12_VIEWPORT ScreenViewport;
 	D3D12_RECT ScissorRect;
 
-	ComPtr<ID3D12PipelineState> OpaquePipelineStateObject = nullptr;
-
-	// Buffers
-	static const int SwapChainBufferCount = 2;
-	ComPtr<ID3D12Resource> SwapChainBuffer[SwapChainBufferCount];
-	int CurBackBufferIndex = 0;
-
-	ComPtr<ID3D12Resource> DepthStencilBuffer;
-	DXGI_FORMAT DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-
-	// root
-	ComPtr<ID3D12RootSignature> RootSignature = nullptr;
-
- 	// frame resources
-//  	/*std::unique_ptr<FrameResource>*/FrameResource* CurFrameResource;
-// 	std::vector<std::unique_ptr<FrameResource>> mFrameResources;
-// 	int CurFrameResourceIndex = 0;
+// 	ComPtr<ID3D12PipelineState> OpaquePipelineStateObject = nullptr;
 // 
+// 	XMFLOAT3 mEyePos = { 0.0f, 0.0f, 0.0f };
+// 	XMFLOAT4X4 mView = MathHelper::Identity4x4();
+// 	XMFLOAT4X4 mProj = MathHelper::Identity4x4();
 // 
-// 	CommandListResource::PassConstants mMainPassCB;
-
-// 	ConstantResource<ObjectConstants> ObjectBuffer;
-// 	ConstantResource<PassConstants> MainPassBuffer;
-// 	ConstantResource<MaterialConstants> MaterialBuffer;
-
-	XMFLOAT3 mEyePos = { 0.0f, 0.0f, 0.0f };
-	XMFLOAT4X4 mView = MathHelper::Identity4x4();
-	XMFLOAT4X4 mProj = MathHelper::Identity4x4();
-
-	float mTheta = 1.3f*XM_PI;
-	float mPhi = 0.4f*XM_PI;
-	float mRadius = 2.5f;
-
-	POINT mLastMousePos;
+// 	float mTheta = 1.3f*XM_PI;
+// 	float mPhi = 0.4f*XM_PI;
+// 	float mRadius = 2.5f;
+// 
+// 	POINT mLastMousePos;
 
 // 	// Render items divided by PSO.
 // 	std::vector<RenderItem*> OpaqueRitems;
 // 
 // 	// List of all the render items.
 // 	std::vector<std::unique_ptr<RenderItem>> AllRitems;
-	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
-	std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;
-	std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
-	std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
-
-
-	std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
+// 	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
+// 	std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;
+// 	std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
+// 	std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
+// 
+// 	std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 };

@@ -1,6 +1,7 @@
 #pragma once
 #include <dxgi.h>
 #include <d3d12.h>
+#include "D3DUtil.h"
 
 using namespace Microsoft::WRL;
 
@@ -11,12 +12,12 @@ public:
 	D3D12SwapChain(class D3D12Device* InDevice);
 	virtual ~D3D12SwapChain() {}
 
-	ComPtr<IDXGISwapChain> Get() { return SwapChain; }
+	ComPtr<IDXGISwapChain>& Get() { return SwapChain; }
 
 	D3D12_VIEWPORT& GetViewport() { return ScreenViewport; }
 	D3D12_RECT& GetRect() { return ScissorRect; }
-	unsigned int GetWidth() { return ScreenViewport.Width; }
-	unsigned int GetHeight() { return ScreenViewport.Height; }
+	float GetWidth() { return ScreenViewport.Width; }
+	float GetHeight() { return ScreenViewport.Height; }
 	unsigned int GetMsaaQuality() { return Msaa4xQuality; }
 	bool IsMsaa4xEnabled() { return IsMsaa4xState; }
 

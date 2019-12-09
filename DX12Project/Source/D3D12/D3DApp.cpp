@@ -93,8 +93,8 @@ void D3DApp::Update(const GameTimer& gt)
 {
 // 	OnKeyboardInput(gt);
 // 	UpdateCamera(gt);
-
-	// Cycle through the circular frame resource array.
+// 
+// 	// Cycle through the circular frame resource array.
 // 	CurFrameResourceIndex = (CurFrameResourceIndex + 1) % gNumFrameResources;
 // 	CurFrameResource = mFrameResources[CurFrameResourceIndex].get();
 // 
@@ -107,7 +107,7 @@ void D3DApp::Update(const GameTimer& gt)
 // 		WaitForSingleObject(eventHandle, INFINITE);
 // 		CloseHandle(eventHandle);
 // 	}
-
+// 
 // 	AnimateMaterials(gt);
 // 	UpdateObjectCBs(gt);
 // 	UpdateMaterialCBs(gt);
@@ -124,15 +124,15 @@ void D3DApp::Draw(const GameTimer& gt)
 	RenderInterface->ReadyToRenderTarget(CommandList);
 
 	// --test
-// 	ID3D12DescriptorHeap* descriptorHeaps[] = { SrvHeap.Get() };
-// 	CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+//  	ID3D12DescriptorHeap* descriptorHeaps[] = { SrvHeap.Get() };
+//  	CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+//  
+//  	CommandList->SetGraphicsRootSignature(RootSignature.Get());
+//  
+//  	ID3D12Resource* PassConstBuffer = CurFrameResource->PassConstBuffer->Resource();
+//  	CommandList->SetGraphicsRootConstantBufferView(2, PassConstBuffer->GetGPUVirtualAddress()); // 烙矫 林籍贸府
 // 
-// 	CommandList->SetGraphicsRootSignature(RootSignature.Get());
-// 
-// 	ID3D12Resource* PassConstBuffer = CurFrameResource->PassConstBuffer->Resource();
-// 	CommandList->SetGraphicsRootConstantBufferView(2, PassConstBuffer->GetGPUVirtualAddress()); // 烙矫 林籍贸府
-
-	//DrawRenderItems(CommandList.Get(), OpaqueRitems);
+// 	DrawRenderItems(CommandList.Get(), OpaqueRitems);
 
 	// End draw
 	RenderInterface->FinishToRenderTarget(CommandList);

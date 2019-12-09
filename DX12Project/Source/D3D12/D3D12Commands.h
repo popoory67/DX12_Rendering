@@ -30,6 +30,7 @@ public:
 	D3D12CommandList(class D3D12Device* InD3D12Device);
 
 	ComPtr<ID3D12GraphicsCommandList>& Get() { return CommandList; }
+	ID3D12CommandList* GetCommandLists();
 
 	// Indicate a state transition on the resource usage.
 	void SetResourceTransition(class D3D12Resource* InResource, D3D12_RESOURCE_STATES InPrevState, D3D12_RESOURCE_STATES InNextState)
@@ -92,7 +93,8 @@ public:
 	void Execute(class D3D12CommandList* InCommandList);
 	void FlushCommands() override;
 
-	ComPtr<ID3D12CommandQueue>& GetExecutor() { return CommandQueue; }
+	ComPtr<ID3D12CommandQueue>& GetExecutor() { ReturnCheckAssert(CommandQueue); }
+	ID3D12CommandQueue* GetExecutorInterface() { ReturnCheckAssert(CommandQueue.Get()); }
 
 private:
 	ComPtr<ID3D12CommandQueue> CommandQueue;

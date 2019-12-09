@@ -27,7 +27,6 @@ inline std::wstring AnsiToWString(const std::string& str)
 	return std::wstring(buffer);
 }
 
-
 #ifndef ThrowIfFailed
 #define ThrowIfFailed(x)                                              \
 {                                                                     \
@@ -39,6 +38,10 @@ inline std::wstring AnsiToWString(const std::string& str)
 
 #ifndef ReleaseCom
 #define ReleaseCom(x) { if(x){ x->Release(); x = 0; } }
+#endif
+
+#ifndef ReturnCheckAssert
+#define ReturnCheckAssert(x) { assert(x); return x; }
 #endif
 
 class DxException
@@ -54,7 +57,6 @@ public:
 	std::wstring Filename;
 	int LineNumber = -1;
 };
-
 
 // Defines a subrange of geometry in a MeshGeometry.  This is for when multiple
 // geometries are stored in one vertex and index buffer.  It provides the offsets

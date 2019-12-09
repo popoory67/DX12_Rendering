@@ -5,19 +5,9 @@
 
 D3D12CommandList::D3D12CommandList(D3D12Device* InD3D12Device)
 {
-	assert(InD3D12Device || InD3D12Device->GetDevice());
+	assert(InD3D12Device);
 
-	auto pDevice = InD3D12Device->GetDevice().Get();
-
-	assert(pDevice);
-
-	ThrowIfFailed(pDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(CommandListAllocator.GetAddressOf())));
-	ThrowIfFailed(pDevice->CreateCommandList(
-		0,
-		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		CommandListAllocator.Get(), // Associated command allocator
-		nullptr,                   // Initial PipelineStateObject
-		IID_PPV_ARGS(CommandList.GetAddressOf())));
+	InD3D12Device->CreateCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT, CommandListAllocator, CommandList);
 
 	// Start off in a closed state.  This is because the first time we refer 
 	// to the command list we will Reset it, and it needs to be closed before
@@ -25,31 +15,43 @@ D3D12CommandList::D3D12CommandList(D3D12Device* InD3D12Device)
 	CommandList->Close();
 }
 
+void D3D12CommandList::Reset()
+{
+	// GPU가 command list의 명령을 모두 처리한 후에 리셋
+	ThrowIfFailed(CommandListAllocator->Reset());
+
+	// 이전에 Excute하여 Queue에 command list를 추가했으니 list를 재설정해도 된다.
+	ThrowIfFailed(CommandList->Reset(CommandListAllocator.Get(),/* OpaquePipelineStateObject.Get()*/ nullptr));
+}
+
+ID3D12CommandList* D3D12CommandList::GetCommandLists()
+{
+	assert(CommandList || CommandList.Get());
+	ThrowIfFailed(CommandList->Close());
+
+	return CommandList.Get();
+}
+
 D3D12CommandListExecutor::D3D12CommandListExecutor(D3D12Device* InD3D12Device)
 {
-	assert(InD3D12Device || InD3D12Device->GetDevice());
+	assert(InD3D12Device);
 
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 
-	ThrowIfFailed(InD3D12Device->GetDevice()->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&CommandQueue)));
+	InD3D12Device->CreateCommandQueue(queueDesc, CommandQueue);
 
 	Fence = new D3D12Fence(InD3D12Device);
 }
 
 void D3D12CommandListExecutor::Execute(D3D12CommandList* InCommandList)
 {
-	if (InCommandList)
-	{
-		ComPtr<ID3D12GraphicsCommandList> d3d12CommandList = InCommandList->Get();
+	assert(InCommandList);
 
-		assert(d3d12CommandList);
-		ThrowIfFailed(d3d12CommandList->Close());
-
-		ID3D12CommandList* cmdsLists[] = { d3d12CommandList.Get() };
-		CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-	}
+	// 이부분은 연습해야함
+	ID3D12CommandList* cmdsLists[] = { InCommandList->GetCommandLists() };
+	CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 }
 
 void D3D12CommandListExecutor::FlushCommands()
@@ -69,15 +71,6 @@ void D3D12CommandListExecutor::FlushCommands()
 	{
 		Fence->OnEventCompletion(CurrentFenceCount);
 	}
-}
-
-void D3D12CommandList::Reset()
-{
-	// GPU가 command list의 명령을 모두 처리한 후에 리셋
- 	ThrowIfFailed(CommandListAllocator->Reset());
- 
- 	// 이전에 Excute하여 Queue에 command list를 추가했으니 list를 재설정해도 된다.
- 	ThrowIfFailed(CommandList->Reset(CommandListAllocator.Get(),/* OpaquePipelineStateObject.Get()*/ nullptr));
 }
 
 // 

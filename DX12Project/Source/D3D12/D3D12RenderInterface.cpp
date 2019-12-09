@@ -15,7 +15,7 @@ D3D12RenderInterface::D3D12RenderInterface(D3D12Device* pDevice)
 		CmdListExecutor = new D3D12CommandListExecutor(Device);
 	}
 
-	SwapChain = new D3D12SwapChain(Device/*RenderTargetDesc*/);
+	SwapChain = new D3D12SwapChain(Device);
 	if (SwapChain)
 		SwapChain->Create(Device, CmdListExecutor);
 
@@ -35,8 +35,8 @@ void D3D12RenderInterface::OnResize(D3D12CommandList* InCommandList)
 
 	SwapChain->OnResize(Device);
 
-	if (DepthStencilBuffer && DepthStencilBuffer->Get())
-		DepthStencilBuffer->Get().Reset();
+	if (DepthStencilBuffer)
+		DepthStencilBuffer->Reset();
 
 	DepthStencilDesc = CreateDepthStencil(InCommandList);
 
@@ -67,8 +67,8 @@ D3D12Descriptor* D3D12RenderInterface::CreateDepthStencil(D3D12CommandList* InCo
 		D3D12_RESOURCE_DESC depthStencilDesc;
 		depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 		depthStencilDesc.Alignment = 0;
-		depthStencilDesc.Width = SwapChain->GetWidth();
-		depthStencilDesc.Height = SwapChain->GetHeight();
+		depthStencilDesc.Width = (UINT64)SwapChain->GetWidth();
+		depthStencilDesc.Height = (UINT)SwapChain->GetHeight();
 		depthStencilDesc.DepthOrArraySize = 1;
 		depthStencilDesc.MipLevels = 1;
 

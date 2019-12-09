@@ -48,22 +48,22 @@ void D3D12SwapChain::CreateBuffer(D3D12Device* InDevice)
 
 void D3D12SwapChain::OnResize(D3D12Device* InDevice)
 {
-	assert(InDevice && InDevice->GetDevice());
+	assert(InDevice);
 	assert(SwapChain);
 	assert(RenderTargetViewDesc);
 
 	// Release the previous resources we will be recreating.
 	for (int i = 0; i < _countof(SwapChainBuffer); ++i)
 	{
-		if (SwapChainBuffer[i] && SwapChainBuffer[i]->Get())
-			SwapChainBuffer[i]->Get().Reset();
+		if (SwapChainBuffer[i])
+			SwapChainBuffer[i]->Reset();
 	}
 
 	// Resize the swap chain.
 	ThrowIfFailed(SwapChain->ResizeBuffers(
 		_countof(SwapChainBuffer),
-		ScreenViewport.Width,
-		ScreenViewport.Height,
+		(UINT)ScreenViewport.Width,
+		(UINT)ScreenViewport.Height,
 		BackBufferFormat,
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 
@@ -78,7 +78,6 @@ D3D12Resource* D3D12SwapChain::GetCurrentBackBuffer() const
 	{
 		return SwapChainBuffer[CurBackBufferIndex];
 	}
-
 	return nullptr;
 }
 
@@ -98,49 +97,43 @@ void D3D12SwapChain::Create(D3D12Device* InDevice, D3D12CommandListExecutor* InE
 	// Release the previous swapchain we will be recreating.
 	SwapChain.Reset();
 
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
-	swapChainDesc.BufferDesc.Width = ScreenViewport.Width;
-	swapChainDesc.BufferDesc.Height = ScreenViewport.Height;
-	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-	swapChainDesc.BufferDesc.Format = BackBufferFormat;
-	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	swapChainDesc.SampleDesc.Count = IsMsaa4xState ? 4 : 1;
-	swapChainDesc.SampleDesc.Quality = IsMsaa4xState ? (Msaa4xQuality - 1) : 0;
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.BufferCount = SwapChainBufferCount;
-	swapChainDesc.OutputWindow = InDevice->GetWindowHandle();
-	swapChainDesc.Windowed = true;
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	{
+		DXGI_SWAP_CHAIN_DESC swapChainDesc;
+		swapChainDesc.BufferDesc.Width = (UINT)ScreenViewport.Width;
+		swapChainDesc.BufferDesc.Height = (UINT)ScreenViewport.Height;
+		swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
+		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+		swapChainDesc.BufferDesc.Format = BackBufferFormat;
+		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+		swapChainDesc.SampleDesc.Count = IsMsaa4xState ? 4 : 1;
+		swapChainDesc.SampleDesc.Quality = IsMsaa4xState ? (Msaa4xQuality - 1) : 0;
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapChainDesc.BufferCount = SwapChainBufferCount;
+		swapChainDesc.OutputWindow = InDevice->GetWindowHandle();
+		swapChainDesc.Windowed = true;
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-	// Note: Swap chain uses queue to perform flush.
-	ThrowIfFailed(InDevice->GetDxgi()->CreateSwapChain(
-		InExecutor->GetExecutor().Get(),
-		&swapChainDesc,
-		SwapChain.GetAddressOf()));
+		// Note: Swap chain uses queue to perform flush.
+		InDevice->CreateSwapChain(InExecutor, this, swapChainDesc);
+	}
+	{
+		// Check 4X MSAA quality support for our back buffer format.
+		// All Direct3D 11 capable devices support 4X MSAA for all render target formats, 
+		// so we only need to check quality support.
+		D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS MultiSampleQualityLevels;
+		MultiSampleQualityLevels.Format = BackBufferFormat;
+		MultiSampleQualityLevels.SampleCount = 4;
+		MultiSampleQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
+		MultiSampleQualityLevels.NumQualityLevels = 0;
 
-	// Check 4X MSAA quality support for our back buffer format.
-	// All Direct3D 11 capable devices support 4X MSAA for all render target formats, 
-	// so we only need to check quality support.
-	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS MultiSampleQualityLevels;
+		InDevice->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, MultiSampleQualityLevels);
 
-	MultiSampleQualityLevels.Format = BackBufferFormat;
-	MultiSampleQualityLevels.SampleCount = 4;
-	MultiSampleQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
-	MultiSampleQualityLevels.NumQualityLevels = 0;
+		Msaa4xQuality = MultiSampleQualityLevels.NumQualityLevels;
+	}
 
-	ThrowIfFailed(InDevice->GetDevice()->CheckFeatureSupport(
-		D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
-		&MultiSampleQualityLevels,
-		sizeof(MultiSampleQualityLevels)));
-
-	Msaa4xQuality = MultiSampleQualityLevels.NumQualityLevels;
-
-	//CreateBuffer(InDevice);
-
-	assert(Msaa4xQuality > 0 && "Unexpected MSAA quality level.");
+	assert(Msaa4xQuality > 0 && "Unexpected MSAA quality level."); // ??
 }
 
 void D3D12SwapChain::SwapBackBufferToFrontBuffer()

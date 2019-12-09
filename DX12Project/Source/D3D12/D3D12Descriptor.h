@@ -12,7 +12,7 @@ public:
 	{
 		if (InDevice)
 		{
-			ComPtr<ID3D12Device> pD3D12Device = InDevice->GetDevice();
+			ComPtr<ID3D12Device> pD3D12Device = InDevice->Get();
 			if (pD3D12Device)
 			{
 				Size = pD3D12Device->GetDescriptorHandleIncrementSize(InDescriptorType);
@@ -25,7 +25,8 @@ public:
 
 	UINT GetSize() { return Size; }
 	void SetSize(UINT InSize) { Size = InSize; }
-	ComPtr<ID3D12DescriptorHeap> GetDescriptor() { return DescriptorHeap; }
+	ComPtr<ID3D12DescriptorHeap>& GetDescriptor() { return DescriptorHeap; }
+	D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle() { return DescriptorHeap->GetCPUDescriptorHandleForHeapStart(); }
 
 private:
 	ComPtr<ID3D12DescriptorHeap> DescriptorHeap = nullptr;

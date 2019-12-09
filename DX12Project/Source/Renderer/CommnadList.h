@@ -1,11 +1,6 @@
 #pragma once
 
-// resource
-// 나중에 옮겨야함
-struct ResourceBase
-{
-
-};
+#include "FrameResource.h"
 
 // resource params
 class D3DViewportResource : public ResourceBase
