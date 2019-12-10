@@ -34,11 +34,11 @@ bool D3DApp::Initialize(HWND InWindowHandle)
 	D3D12Device* pDevice = new D3D12Device(InWindowHandle);
 	assert(pDevice);
 
-	RenderInterface = new D3D12RenderInterface(pDevice);
-	assert(RenderInterface);
-
 	CommandList = new D3D12CommandList(pDevice);
 	assert(CommandList);
+
+	RenderInterface = new D3D12RenderInterface(pDevice, CommandList);
+	assert(RenderInterface);
 
  	RenderInterface->OnResize(CommandList);
 
@@ -54,6 +54,7 @@ bool D3DApp::Initialize(HWND InWindowHandle)
 	RenderInterface->SetViewport(ScreenViewport);
 
 	// 리소스가 있을때 사용되는거라 일단 주석처리
+	// mat, tex에 이용됨
 	//CbvSrvUavDescriptorSize = D3D12Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 //	RenderInterface->GetDescriptorHandleIncrementSize();
 

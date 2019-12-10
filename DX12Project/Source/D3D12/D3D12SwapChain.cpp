@@ -8,6 +8,11 @@
 #include "D3D12Commands.h"
 #include "D3D12RenderInterface.h"
 
+D3D12_VIEWPORT D3D12SwapChain::ScreenViewport;
+
+bool D3D12SwapChain::IsMsaa4xState = false;
+UINT D3D12SwapChain::Msaa4xQuality = 0;
+
 D3D12SwapChain::D3D12SwapChain(D3D12Device* InDevice)
 {
 	assert(InDevice);

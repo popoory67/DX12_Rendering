@@ -16,10 +16,10 @@ public:
 
 	D3D12_VIEWPORT& GetViewport() { return ScreenViewport; }
 	D3D12_RECT& GetRect() { return ScissorRect; }
-	float GetWidth() { return ScreenViewport.Width; }
-	float GetHeight() { return ScreenViewport.Height; }
-	unsigned int GetMsaaQuality() { return Msaa4xQuality; }
-	bool IsMsaa4xEnabled() { return IsMsaa4xState; }
+	static float GetWidth() { return ScreenViewport.Width; }
+	static float GetHeight() { return ScreenViewport.Height; }
+	static unsigned int GetMsaaQuality() { return Msaa4xQuality; }
+	static bool IsMsaa4xEnabled() { return IsMsaa4xState; }
 
 	void OnResize(class D3D12Device* InDevice);
 	class D3D12Resource* GetCurrentBackBuffer() const;
@@ -38,10 +38,10 @@ private:
 	// 화면을 표시하는 전면/후면 버퍼를 전환해주는 인터페이스(이중 버퍼링)
 	ComPtr<IDXGISwapChain> SwapChain = nullptr;
 
-	bool IsMsaa4xState = false;		// 4X MSAA enabled
-	UINT Msaa4xQuality = 0;			// quality level of 4X MSAA
+	static bool IsMsaa4xState;		// 4X MSAA enabled
+	static UINT Msaa4xQuality;			// quality level of 4X MSAA
 
-	D3D12_VIEWPORT ScreenViewport;
+	static D3D12_VIEWPORT ScreenViewport;
 	D3D12_RECT ScissorRect;
 
 	// Buffers

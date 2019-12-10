@@ -104,3 +104,15 @@ void D3D12Device::CreateDepthStencilView(ComPtr<ID3D12Resource>& InResource, cla
 
 	Get()->CreateDepthStencilView(InResource.Get(), &InDepthStencilDesc, InDescriptor->GetDescriptorHandle());
 }
+
+void D3D12Device::CreateShaderView(ComPtr<ID3D12Resource>& InResource, class D3D12Descriptor* InDescriptor, D3D12_SHADER_RESOURCE_VIEW_DESC& InShaderDesc)
+{
+	assert(InDescriptor);
+
+	Get()->CreateShaderResourceView(InResource.Get(), &InShaderDesc, InDescriptor->GetDescriptorHandle());
+}
+
+UINT D3D12Device::GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE InDescriptorHeapType)
+{
+	return Get()->GetDescriptorHandleIncrementSize(InDescriptorHeapType);
+}

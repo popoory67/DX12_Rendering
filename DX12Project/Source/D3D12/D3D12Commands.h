@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <comdef.h>
 #include "d3dx12.h"
+#include <DirectXColors.h>
 #include "D3DUtil.h"
 #include "GameTimer.h"
 #include "FrameResource.h"
@@ -30,17 +31,16 @@ public:
 	D3D12CommandList(class D3D12Device* InD3D12Device);
 
 	ComPtr<ID3D12GraphicsCommandList>& Get() { return CommandList; }
+	ID3D12GraphicsCommandList* GetGraphics() { return CommandList.Get(); }
 	ID3D12CommandList* GetCommandLists();
 
 	// Indicate a state transition on the resource usage.
-	void SetResourceTransition(class D3D12Resource* InResource, D3D12_RESOURCE_STATES InPrevState, D3D12_RESOURCE_STATES InNextState)
-	{
-		if (CommandList && InResource && InResource->Get())
-		{
-			CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(InResource->Get().Get(),
-				InPrevState, InNextState));
-		}
-	}
+	void SetResourceTransition(class D3D12Resource* InResource, D3D12_RESOURCE_STATES InPrevState, D3D12_RESOURCE_STATES InNextState);
+	void ResourceBarrier(class D3D12Resource* InResource, D3D12_RESOURCE_STATES InFrom, D3D12_RESOURCE_STATES InTo);
+
+	void ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptorHandle, XMVECTORF32 InBackColor, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
+	void ClearDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
+	void SetRenderTargets(UINT InNumRenderTargetDescriptors, D3D12_CPU_DESCRIPTOR_HANDLE InRenderTargetDescriptorHandle, bool InSingleHandleToDescriptorRange, D3D12_CPU_DESCRIPTOR_HANDLE InDepthStencilDescriptorHandle);
 
 	// test
 	void SetDescriptor(class D3D12Descriptor* InDescriptor)
@@ -51,16 +51,6 @@ public:
 			ID3D12DescriptorHeap* descriptorHeaps[] = { InDescriptor->GetDescriptor().Get() };
 			CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 			CommandList->SetGraphicsRootSignature(RootSignature.Get());
-		}
-	}
-
-	void ResourceBarrier(D3D12Resource* InResource, D3D12_RESOURCE_STATES InFrom, D3D12_RESOURCE_STATES InTo)
-	{
-		if (CommandList && InResource)
-		{
-			CommandList->ResourceBarrier(1, 
-				&CD3DX12_RESOURCE_BARRIER::Transition(InResource->Get().Get(),
-				InFrom, InTo));
 		}
 	}
 

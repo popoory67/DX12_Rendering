@@ -2,6 +2,7 @@
 #include "D3D12Commands.h"
 #include "D3D12Device.h"
 #include "D3D12Fence.h"
+#include "D3D12Resource.h"
 
 D3D12CommandList::D3D12CommandList(D3D12Device* InD3D12Device)
 {
@@ -30,6 +31,41 @@ ID3D12CommandList* D3D12CommandList::GetCommandLists()
 	ThrowIfFailed(CommandList->Close());
 
 	return CommandList.Get();
+}
+
+void D3D12CommandList::SetResourceTransition(D3D12Resource* InResource, D3D12_RESOURCE_STATES InPrevState, D3D12_RESOURCE_STATES InNextState)
+{
+	assert(CommandList);
+	assert(InResource);
+
+	// Indicate a state transition on the resource usage.
+	CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(InResource->GetInterface(), InPrevState, InNextState));
+}
+
+void D3D12CommandList::ResourceBarrier(D3D12Resource* InResource, D3D12_RESOURCE_STATES InFrom, D3D12_RESOURCE_STATES InTo)
+{
+	assert(CommandList);
+	assert(InResource);
+
+	CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(InResource->GetInterface(), InFrom, InTo));
+}
+
+void D3D12CommandList::ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptorHandle, XMVECTORF32 InBackColor, UINT InNumRects, const D3D12_RECT* InRect/* = nullptr*/)
+{
+	assert(CommandList);
+	CommandList->ClearRenderTargetView(InDescriptorHandle, InBackColor, InNumRects, InRect);
+}
+
+void D3D12CommandList::ClearDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect/* = nullptr*/)
+{
+	assert(CommandList);
+	CommandList->ClearDepthStencilView(InDescriptorHandle, ClearFlags, InDepthValue, InStencil, InNumRects, InRect);
+}
+
+void D3D12CommandList::SetRenderTargets(UINT InNumRenderTargetDescriptors, D3D12_CPU_DESCRIPTOR_HANDLE InRenderTargetDescriptorHandle, bool InSingleHandleToDescriptorRange, D3D12_CPU_DESCRIPTOR_HANDLE InDepthStencilDescriptorHandle)
+{
+	assert(CommandList);
+	CommandList->OMSetRenderTargets(InNumRenderTargetDescriptors, &InRenderTargetDescriptorHandle, InSingleHandleToDescriptorRange, &InDepthStencilDescriptorHandle);
 }
 
 D3D12CommandListExecutor::D3D12CommandListExecutor(D3D12Device* InD3D12Device)

@@ -1,18 +1,18 @@
 #pragma once
-#include <intsafe.h>
+#include "D3DUtil.h"
 
 using namespace Microsoft::WRL;
 
-// buffer
 class D3D12Resource
 {
 public:
 	D3D12Resource();
 	D3D12Resource(class D3D12Device* InDevice, D3D12_RESOURCE_DESC InDesc, D3D12_CLEAR_VALUE InValue);
 	D3D12Resource(class D3D12Device* InDevice, UINT64 InByteSize, D3D12_CLEAR_VALUE InValue);
-	virtual ~D3D12Resource() {}
+	virtual ~D3D12Resource() { ReleaseCom(Resource); }
 
-	ComPtr<struct ID3D12Resource>& Get() { return Resource; }
+	ComPtr<ID3D12Resource>& Get() { return Resource; }
+	ID3D12Resource* GetInterface() { return Resource.Get(); }
 	void Reset();
 
 protected:
@@ -37,7 +37,39 @@ class D3D12DepthStencilResource : public D3D12Resource
 {
 public:
 	D3D12DepthStencilResource() = delete;
-	D3D12DepthStencilResource(class D3D12Device* InDevice, class D3D12Descriptor* InDescriptor, D3D12_DEPTH_STENCIL_VIEW_DESC& InDepthStencilDesc, D3D12_RESOURCE_DESC& InDesc, D3D12_CLEAR_VALUE InValue);
+	D3D12DepthStencilResource(class D3D12Device* InDevice, class D3D12CommandList* InCommandList);
 
 	virtual ~D3D12DepthStencilResource() {}
+
+	D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const;
+
+private:
+	class D3D12Descriptor* DepthStencilDesc = nullptr;
+	DXGI_FORMAT DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+};
+
+struct TextureData
+{
+	// Unique material name for lookup.
+	std::string Name;
+	std::wstring Filename;
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> UploadHeap = nullptr;
+};
+
+class D3D12ShaderResource : public D3D12Resource
+{
+public:
+	D3D12ShaderResource() = delete;
+	D3D12ShaderResource(class D3D12Device* InDevice, class D3D12CommandList* InCommandList = nullptr, std::string InName = nullptr, std::wstring InFilePath = nullptr);
+
+	virtual ~D3D12ShaderResource() {}
+
+	void LoadTextures(class D3D12Device* InDevice, class D3D12CommandList* InCommandList, std::string InName = nullptr, std::wstring InFilePath = nullptr);
+
+	UINT GetDescriptorHandleIncrementSize();
+
+private:
+	class D3D12Descriptor* ShaderResourceDesc = nullptr;
+	std::unique_ptr<TextureData> Texture;
 };

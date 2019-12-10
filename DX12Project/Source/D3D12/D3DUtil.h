@@ -37,7 +37,7 @@ inline std::wstring AnsiToWString(const std::string& str)
 #endif
 
 #ifndef ReleaseCom
-#define ReleaseCom(x) { if(x){ x->Release(); x = 0; } }
+#define ReleaseCom(x) { if(x){ x->Release(); x = nullptr; } }
 #endif
 
 #ifndef ReturnCheckAssert
@@ -181,18 +181,6 @@ struct Material
 	float Roughness = .25f;
 	DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
 };
-
-struct Texture
-{
-	// Unique material name for lookup.
-	std::string Name;
-
-	std::wstring Filename;
-
-	Microsoft::WRL::ComPtr<ID3D12Resource> Resource = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> UploadHeap = nullptr;
-};
-
 
 class D3DUtil
 {

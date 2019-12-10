@@ -1,25 +1,26 @@
 #include "stdafx.h"
+//#include <d3d12.h>
 #include "D3D12RenderInterface.h"
 #include "D3D12Device.h"
 #include "D3D12Commands.h"
 #include "D3D12Descriptor.h"
 #include "D3D12SwapChain.h"
 #include "D3D12Resource.h"
-#include <d3d12.h>
 
-D3D12RenderInterface::D3D12RenderInterface(D3D12Device* pDevice)
+D3D12RenderInterface::D3D12RenderInterface(D3D12Device* InDevice, D3D12CommandList* InCommandList)
 {
-	Device = pDevice;
-	if (Device)
-	{
-		CmdListExecutor = new D3D12CommandListExecutor(Device);
-	}
+	assert(InDevice);
+	assert(InCommandList);
+
+	Device = InDevice;
+
+	CmdListExecutor = new D3D12CommandListExecutor(Device);
 
 	SwapChain = new D3D12SwapChain(Device);
 	if (SwapChain)
 		SwapChain->Create(Device, CmdListExecutor);
 
-	ShaderResourceDesc = CreateShaderBuffer();
+	DepthStencilBuffer = new D3D12DepthStencilResource(Device, InCommandList);
 }
 
 D3D12RenderInterface::~D3D12RenderInterface()
@@ -38,81 +39,94 @@ void D3D12RenderInterface::OnResize(D3D12CommandList* InCommandList)
 	if (DepthStencilBuffer)
 		DepthStencilBuffer->Reset();
 
-	DepthStencilDesc = CreateDepthStencil(InCommandList);
+	DepthStencilBuffer = new D3D12DepthStencilResource(Device, InCommandList);
 
 	ExecuteCommandList(InCommandList);
 	FlushCommandQueue();
 }
 
-D3D12Descriptor* D3D12RenderInterface::CreateDepthStencil(D3D12CommandList* InCommandList)
+void D3D12RenderInterface::ExecuteCommandList(D3D12CommandList* InCommandList) const
 {
-	assert(Device);
-	assert(InCommandList);
-
-	D3D12_CLEAR_VALUE optClear;
-	optClear.Format = DepthStencilFormat;
-	optClear.DepthStencil.Depth = 1.0f;
-	optClear.DepthStencil.Stencil = 0;
-
-	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
-	dsvHeapDesc.NumDescriptors = 1;
-	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	dsvHeapDesc.NodeMask = 0;
-
-	D3D12Descriptor* pDepthStencilDesc = new D3D12Descriptor(Device, dsvHeapDesc, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-	if (pDepthStencilDesc)
-	{
-		// Create the depth/stencil buffer and view.
-		D3D12_RESOURCE_DESC depthStencilDesc;
-		depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		depthStencilDesc.Alignment = 0;
-		depthStencilDesc.Width = (UINT64)SwapChain->GetWidth();
-		depthStencilDesc.Height = (UINT)SwapChain->GetHeight();
-		depthStencilDesc.DepthOrArraySize = 1;
-		depthStencilDesc.MipLevels = 1;
-
-		// Correction 11/12/2016: SSAO chapter requires an SRV to the depth buffer to read from 
-		// the depth buffer.  Therefore, because we need to create two views to the same resource:
-		//   1. SRV format: DXGI_FORMAT_R24_UNORM_X8_TYPELESS
-		//   2. DSV Format: DXGI_FORMAT_D24_UNORM_S8_UINT
-		// we need to create the depth buffer resource with a typeless format.  
-		depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-
-		depthStencilDesc.SampleDesc.Count = SwapChain->IsMsaa4xEnabled() ? 4 : 1;
-		depthStencilDesc.SampleDesc.Quality = SwapChain->IsMsaa4xEnabled() ? (SwapChain->GetMsaaQuality() - 1) : 0;
-		depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-		// Create descriptor to mip level 0 of entire resource using the format of the resource.
-		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-		dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
-		dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-		dsvDesc.Format = DepthStencilFormat;
-		dsvDesc.Texture2D.MipSlice = 0;
-
-		DepthStencilBuffer = new D3D12DepthStencilResource(Device, pDepthStencilDesc, dsvDesc, depthStencilDesc, optClear);
-	}
-
-	// Transition the resource from its initial state to be used as a depth buffer.
-	if (DepthStencilBuffer)
-		InCommandList->ResourceBarrier(DepthStencilBuffer, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-
-	return pDepthStencilDesc;
+	CmdListExecutor->Execute(InCommandList);
 }
 
-D3D12Descriptor* D3D12RenderInterface::CreateShaderBuffer()
+void D3D12RenderInterface::FlushCommandQueue() const
 {
-	assert(Device);
+	CmdListExecutor->FlushCommands();
+}
 
-	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = 1;
-	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+void D3D12RenderInterface::UpdateViewport(class D3D12CommandList* InCommandList)
+{
+	if (InCommandList && SwapChain)
+	{
+		InCommandList->Get()->RSSetViewports(1, &SwapChain->GetViewport());
+		InCommandList->Get()->RSSetScissorRects(1, &SwapChain->GetRect());
+	}
+}
+void D3D12RenderInterface::SetViewport(class D3DViewportResource& InViewResource)
+{
+	if (SwapChain)
+	{
+		D3D12_VIEWPORT& viewport = SwapChain->GetViewport();
 
-	D3D12Descriptor* pShaderResourceDesc = new D3D12Descriptor(Device, srvHeapDesc, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		viewport.TopLeftX = InViewResource.TopLeftX;
+		viewport.TopLeftY = InViewResource.TopLeftY;
+		viewport.Width = InViewResource.Width;
+		viewport.Height = InViewResource.Height;
+		viewport.MinDepth = InViewResource.MinDepth;
+		viewport.MaxDepth = InViewResource.MaxDepth;
 
-	return pShaderResourceDesc;
+		D3D12_RECT& ScissorRect = SwapChain->GetRect();
+
+		ScissorRect = { 0, 0, (LONG)viewport.Width, (LONG)viewport.Height };
+	}
+}
+
+void D3D12RenderInterface::ReadyToRenderTarget(class D3D12CommandList* InCommandList)
+{
+	assert(InCommandList);
+
+	// Indicate a state transition on the resource usage.
+	InCommandList->ResourceBarrier(GetCurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+	// Clear the back buffer and depth buffer.
+	InCommandList->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0);
+	InCommandList->ClearDepthStencilView(GetDepthStencilBufferView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0);
+
+	// Specify the buffers we are going to render to.
+	InCommandList->SetRenderTargets(1, GetCurrentBackBufferView(), true, GetDepthStencilBufferView());
+}
+
+void D3D12RenderInterface::FinishToRenderTarget(class D3D12CommandList* InCommandList)
+{
+	assert(InCommandList);
+
+	// Indicate a state transition on the resource usage.
+	InCommandList->ResourceBarrier(SwapChain->GetCurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+}
+
+D3D12Resource* D3D12RenderInterface::GetCurrentBackBuffer() const
+{
+	assert(SwapChain);
+	return SwapChain->GetCurrentBackBuffer();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE D3D12RenderInterface::GetCurrentBackBufferView() const
+{
+	assert(SwapChain);
+	return SwapChain->GetCurrentBackBufferView();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE D3D12RenderInterface::GetDepthStencilBufferView() const
+{
+	assert(DepthStencilBuffer);
+	return DepthStencilBuffer->GetDepthStencilView();
+}
+
+void D3D12RenderInterface::SwapBackBufferToFrontBuffer()
+{
+	assert(SwapChain);
+	SwapChain->SwapBackBufferToFrontBuffer();
 }
 
 void D3D12RenderInterface::CreateFrameResources()
@@ -196,35 +210,6 @@ void D3D12RenderInterface::DrawRenderItems(D3D12CommandList* InCommandList)
 // 		serializedRootSig->GetBufferPointer(),
 // 		serializedRootSig->GetBufferSize(),
 // 		IID_PPV_ARGS(RootSignature.GetAddressOf())));
-// }
-// 
-// void D3DApp::BuildDescriptorHeaps()
-// {
-// 	//
-// 	// Create the SRV heap.
-// 	//
-// 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-// 	srvHeapDesc.NumDescriptors = 1;
-// 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-// 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-// 	ThrowIfFailed(D3D12Device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&SrvHeap)));
-// 
-// 	//
-// 	// Fill out the heap with actual descriptors.
-// 	//
-// 	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(SrvHeap->GetCPUDescriptorHandleForHeapStart());
-// 
-// 	auto woodCrateTex = mTextures["woodCrateTex"]->Resource;
-// 
-// 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-// 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-// 	srvDesc.Format = woodCrateTex->GetDesc().Format;
-// 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-// 	srvDesc.Texture2D.MostDetailedMip = 0;
-// 	srvDesc.Texture2D.MipLevels = woodCrateTex->GetDesc().MipLevels;
-// 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-// 
-// 	D3D12Device->CreateShaderResourceView(woodCrateTex.Get(), &srvDesc, hDescriptor);
 // }
 // 
 // void D3DApp::BuildShadersAndInputLayout()
