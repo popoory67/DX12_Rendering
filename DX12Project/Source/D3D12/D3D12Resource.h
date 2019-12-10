@@ -42,6 +42,7 @@ public:
 	virtual ~D3D12DepthStencilResource() {}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const;
+	DXGI_FORMAT GetDepthStencilFormat() { return DepthStencilFormat; }
 
 private:
 	class D3D12Descriptor* DepthStencilDesc = nullptr;
@@ -55,6 +56,36 @@ struct TextureData
 	std::wstring Filename;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> UploadHeap = nullptr;
+};
+
+// Simple struct to represent a material for our demos.  A production 3D engine
+// would likely create a class hierarchy of Materials.
+struct MaterialData
+{
+	// Unique material name for lookup.
+	std::string Name;
+
+	// Index into constant buffer corresponding to this material.
+	int MatCBIndex = -1;
+
+	// Index into SRV heap for diffuse texture.
+	int DiffuseSrvHeapIndex = -1;
+
+	// Index into SRV heap for normal texture.
+	int NormalSrvHeapIndex = -1;
+
+	// Dirty flag indicating the material has changed and we need to update the constant buffer.
+	// Because we have a material constant buffer for each FrameResource, we have to apply the
+	// update to each FrameResource.  Thus, when we modify a material we should set 
+	// NumFramesDirty = gNumFrameResources so that each frame resource gets the update.
+	int NumFramesDirty = gNumFrameResources;
+
+	// Material constant buffer data used for shading.
+	DirectX::XMFLOAT4 DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
+	DirectX::XMFLOAT3 FresnelR0 = { 0.01f, 0.01f, 0.01f };
+	float Roughness = .25f;
+
+	DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
 };
 
 class D3D12ShaderResource : public D3D12Resource
@@ -71,5 +102,7 @@ public:
 
 private:
 	class D3D12Descriptor* ShaderResourceDesc = nullptr;
+
 	std::unique_ptr<TextureData> Texture;
+	std::unique_ptr<MaterialData> Material;
 };

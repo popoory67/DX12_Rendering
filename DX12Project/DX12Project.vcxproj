@@ -23,6 +23,7 @@
     <ClCompile Include="Source\D3D12\D3D12Descriptor.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Device.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Fence.cpp" />
+    <ClCompile Include="Source\D3D12\D3D12PipelineState.cpp" />
     <ClCompile Include="Source\D3D12\D3D12RenderInterface.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Resource.cpp" />
     <ClCompile Include="Source\D3D12\D3D12SwapChain.cpp" />
@@ -46,6 +47,7 @@
     <ClInclude Include="Source\D3D12\D3D12Descriptor.h" />
     <ClInclude Include="Source\D3D12\D3D12Device.h" />
     <ClInclude Include="Source\D3D12\D3D12Fence.h" />
+    <ClInclude Include="Source\D3D12\D3D12PipelineState.h" />
     <ClInclude Include="Source\D3D12\D3D12RenderInterface.h" />
     <ClInclude Include="Source\D3D12\D3D12Resource.h" />
     <ClInclude Include="Source\D3D12\D3D12SwapChain.h" />

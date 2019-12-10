@@ -20,6 +20,7 @@ public:
 	static float GetHeight() { return ScreenViewport.Height; }
 	static unsigned int GetMsaaQuality() { return Msaa4xQuality; }
 	static bool IsMsaa4xEnabled() { return IsMsaa4xState; }
+	DXGI_FORMAT GetBackBufferFormat() { return BackBufferFormat; }
 
 	void OnResize(class D3D12Device* InDevice);
 	class D3D12Resource* GetCurrentBackBuffer() const;

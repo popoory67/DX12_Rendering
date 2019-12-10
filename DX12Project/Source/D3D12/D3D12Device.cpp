@@ -2,6 +2,7 @@
 #include "D3D12Device.h"
 #include "D3D12Commands.h"
 #include "D3D12SwapChain.h"
+#include "D3D12PipelineState.h"
 
 D3D12Device::D3D12Device(HWND InWindowHandle)
 {
@@ -115,4 +116,9 @@ void D3D12Device::CreateShaderView(ComPtr<ID3D12Resource>& InResource, class D3D
 UINT D3D12Device::GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE InDescriptorHeapType)
 {
 	return Get()->GetDescriptorHandleIncrementSize(InDescriptorHeapType);
+}
+
+void D3D12Device::CreateGraphicsPipelineState(ComPtr<ID3D12PipelineState> InPipelineState, D3D12_GRAPHICS_PIPELINE_STATE_DESC& InPipelineStateDesc)
+{
+	ThrowIfFailed(Get()->CreateGraphicsPipelineState(&InPipelineStateDesc, IID_PPV_ARGS(&InPipelineState)));
 }

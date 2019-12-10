@@ -172,6 +172,21 @@ D3D12ShaderResource::D3D12ShaderResource(D3D12Device* InDevice, D3D12CommandList
 	InDevice->CreateShaderView(Resource, ShaderResourceDesc, srvDesc);
 }
 
+// 
+// void D3DApp::BuildMaterials()
+// {
+// 	auto woodCrate = std::make_unique<Material>();
+// 	woodCrate->Name = "woodCrate";
+// 	woodCrate->MatCBIndex = 0;
+// 	woodCrate->DiffuseSrvHeapIndex = 0;
+// 	woodCrate->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+// 	woodCrate->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+// 	woodCrate->Roughness = 0.2f;
+// 
+// 	mMaterials["woodCrate"] = std::move(woodCrate);
+// }
+// 
+
 void D3D12ShaderResource::LoadTextures(class D3D12Device* InDevice, class D3D12CommandList* InCommandList, std::string InName/* = nullptr*/, std::wstring InFilePath/* = nullptr*/)
 {
 	assert(InDevice);

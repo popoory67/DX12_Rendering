@@ -32,7 +32,7 @@ struct RenderItem
 	// Index into GPU constant buffer corresponding to the ObjectCB for this render item.
 	UINT ObjCBIndex = -1;
 
-	Material* Mat = nullptr;
+	MaterialData* Mat = nullptr;
 	MeshGeometry* Geo = nullptr;
 
 	// Primitive topology.
@@ -52,41 +52,18 @@ public:
 	D3D12RenderInterface(class D3D12Device* InDevice, class D3D12CommandList* InCommandList);
 	~D3D12RenderInterface();
 
-	void CreateFrameResources();
-	void DrawRenderItems(class D3D12CommandList* InCommandList);
-	void OnResize(class D3D12CommandList* InCommandList);
-
-/*
-
-void FD3D12CommandContext::RHIDrawPrimitive(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances)
-{
-	CommitGraphicsResourceTables();
-	CommitNonComputeShaderConstants();
-
-	uint32 VertexCount = GetVertexCountForPrimitiveCount(NumPrimitives, StateCache.GetGraphicsPipelinePrimitiveType());
-
-	NumInstances = FMath::Max<uint32>(1, NumInstances);
-	numDraws++;
-	numPrimitives += NumInstances * NumPrimitives;
-	if (bTrackingEvents)
-	{
-		GetParentDevice()->RegisterGPUWork(NumPrimitives * NumInstances, VertexCount * NumInstances);
-	}
-
-	StateCache.ApplyState<D3D12PT_Graphics>(); // RSSetViewports 이런애들 들어가있는거
-	CommandListHandle->DrawInstanced(VertexCount, NumInstances, BaseVertexIndex, 0);
-
-#if UE_BUILD_DEBUG
-	OwningRHI.DrawCount++;
-#endif
-	DEBUG_EXECUTE_COMMAND_LIST(this);
-}
-
-파라미터로 commandlist를 넣어서 처리하도록 함
-굳이 불러와서 commmandlist에 넣어주는게 아니라
-*/
 	class D3D12Device* GetDevice() { return Device; }
 	class D3D12SwapChain* GetSwapChain() { return SwapChain; }
+
+	DXGI_FORMAT GetBackBufferFormat() const;
+	DXGI_FORMAT GetDepthStencilFormat() const;
+
+	// 미구현
+	void CreateFrameResources();
+	void DrawRenderItems(class D3D12CommandList* InCommandList);
+
+	// 구현
+	void OnResize(class D3D12CommandList* InCommandList);
 	
 	// draw
 	void ExecuteCommandList(class D3D12CommandList* InCommandList) const;
@@ -118,9 +95,7 @@ private:
 	class D3D12Device* Device = nullptr;
 	class D3D12SwapChain* SwapChain = nullptr;
 	class D3D12CommandListExecutor* CmdListExecutor = nullptr;
-
 	class D3D12DepthStencilResource* DepthStencilBuffer = nullptr;
-
 	class D3D12Fence* Fence = nullptr;
 };
 

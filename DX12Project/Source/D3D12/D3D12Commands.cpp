@@ -3,6 +3,7 @@
 #include "D3D12Device.h"
 #include "D3D12Fence.h"
 #include "D3D12Resource.h"
+#include "D3D12PipelineState.h"
 
 D3D12CommandList::D3D12CommandList(D3D12Device* InD3D12Device)
 {
@@ -66,6 +67,14 @@ void D3D12CommandList::SetRenderTargets(UINT InNumRenderTargetDescriptors, D3D12
 {
 	assert(CommandList);
 	CommandList->OMSetRenderTargets(InNumRenderTargetDescriptors, &InRenderTargetDescriptorHandle, InSingleHandleToDescriptorRange, &InDepthStencilDescriptorHandle);
+}
+
+void D3D12CommandList::SetPipelineState(D3D12PipelineState* InPipelineState)
+{
+	assert(CommandList);
+	assert(InPipelineState);
+
+	CommandList->SetPipelineState(InPipelineState->GetInterface());
 }
 
 D3D12CommandListExecutor::D3D12CommandListExecutor(D3D12Device* InD3D12Device)

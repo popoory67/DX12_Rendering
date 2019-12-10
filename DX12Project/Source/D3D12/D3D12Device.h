@@ -45,6 +45,9 @@ public:
 	// Descriptor interfaces
 	UINT GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE InDescriptorHeapType);
 
+	// Pipeline state interfaces
+	void CreateGraphicsPipelineState(ComPtr<ID3D12PipelineState> InPipelineState, D3D12_GRAPHICS_PIPELINE_STATE_DESC& InPipelineStateDesc);
+
 private:
 	void CreateDevice();
 

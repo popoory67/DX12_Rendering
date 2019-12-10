@@ -28,6 +28,18 @@ D3D12RenderInterface::~D3D12RenderInterface()
 	delete(Device);
 }
 
+DXGI_FORMAT D3D12RenderInterface::GetBackBufferFormat() const
+{ 
+	assert(SwapChain); 
+	return SwapChain->GetBackBufferFormat(); 
+}
+
+DXGI_FORMAT D3D12RenderInterface::GetDepthStencilFormat() const
+{ 
+	assert(DepthStencilBuffer); 
+	return DepthStencilBuffer->GetDepthStencilFormat(); 
+}
+
 void D3D12RenderInterface::OnResize(D3D12CommandList* InCommandList)
 {
 	assert(InCommandList);
@@ -171,6 +183,35 @@ void D3D12RenderInterface::DrawRenderItems(D3D12CommandList* InCommandList)
 // 	}
 }
 
+/*
+
+void FD3D12CommandContext::RHIDrawPrimitive(uint32 BaseVertexIndex, uint32 NumPrimitives, uint32 NumInstances)
+{
+	CommitGraphicsResourceTables();
+	CommitNonComputeShaderConstants();
+
+	uint32 VertexCount = GetVertexCountForPrimitiveCount(NumPrimitives, StateCache.GetGraphicsPipelinePrimitiveType());
+
+	NumInstances = FMath::Max<uint32>(1, NumInstances);
+	numDraws++;
+	numPrimitives += NumInstances * NumPrimitives;
+	if (bTrackingEvents)
+	{
+		GetParentDevice()->RegisterGPUWork(NumPrimitives * NumInstances, VertexCount * NumInstances);
+	}
+
+	StateCache.ApplyState<D3D12PT_Graphics>(); // RSSetViewports 이런애들 들어가있는거
+	CommandListHandle->DrawInstanced(VertexCount, NumInstances, BaseVertexIndex, 0);
+
+#if UE_BUILD_DEBUG
+	OwningRHI.DrawCount++;
+#endif
+	DEBUG_EXECUTE_COMMAND_LIST(this);
+}
+
+파라미터로 commandlist를 넣어서 처리하도록 함
+굳이 불러와서 commmandlist에 넣어주는게 아니라
+*/
 // 
 //  void D3DApp::BuildRootSignature()
 // {
@@ -224,6 +265,35 @@ void D3D12RenderInterface::DrawRenderItems(D3D12CommandList* InCommandList)
 // 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 // 	};
 // }
+
+// 
+// 
+// void D3DApp::BuildFrameResources()
+// {
+// 	for (int i = 0; i < gNumFrameResources; ++i)
+// 	{
+// 		mFrameResources.push_back(std::make_unique<FrameResource>(D3D12Device.Get(),
+// 			1, (UINT)AllRitems.size(), (UINT)mMaterials.size()));
+// 	}
+// }
+// 
+// // 얘네는 좀 애매함
+// void D3DApp::BuildRenderItems()
+// {
+// 	auto boxRitem = std::make_unique<RenderItem>();
+// 	boxRitem->ObjCBIndex = 0;
+// 	boxRitem->Mat = mMaterials["woodCrate"].get();
+// 	boxRitem->Geo = mGeometries["boxGeo"].get();
+// 	boxRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+// 	boxRitem->IndexCount = boxRitem->Geo->DrawArgs["box"].IndexCount;
+// 	boxRitem->StartIndexLocation = boxRitem->Geo->DrawArgs["box"].StartIndexLocation;
+// 	boxRitem->BaseVertexLocation = boxRitem->Geo->DrawArgs["box"].BaseVertexLocation;
+// 	AllRitems.push_back(std::move(boxRitem));
+// 
+// 	// All the render items are opaque.
+// 	for (auto& e : AllRitems)
+// 		OpaqueRitems.push_back(e.get());
+// }
 // 
 // void D3DApp::BuildShapeGeometry()
 // {
@@ -274,76 +344,147 @@ void D3D12RenderInterface::DrawRenderItems(D3D12CommandList* InCommandList)
 // 
 // 	mGeometries[geo->Name] = std::move(geo);
 // }
+
+///////////////////////////////
+
 // 
-// void D3DApp::BuildPSOs()
+// void D3DApp::AnimateMaterials(const GameTimer& gt)
 // {
-// 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
 // 
-// 	//
-// 	// PSO for opaque objects.
-// 	//
-// 	ZeroMemory(&opaquePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-// 	opaquePsoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
-// 	opaquePsoDesc.pRootSignature = RootSignature.Get();
-// 	opaquePsoDesc.VS =
-// 	{
-// 		reinterpret_cast<BYTE*>(mShaders["standardVS"]->GetBufferPointer()),
-// 		mShaders["standardVS"]->GetBufferSize()
-// 	};
-// 	opaquePsoDesc.PS =
-// 	{
-// 		reinterpret_cast<BYTE*>(mShaders["opaquePS"]->GetBufferPointer()),
-// 		mShaders["opaquePS"]->GetBufferSize()
-// 	};
-// 	opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-// 	opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-// 	opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-// 	opaquePsoDesc.SampleMask = UINT_MAX;
-// 	opaquePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-// 	opaquePsoDesc.NumRenderTargets = 1;
-// 	opaquePsoDesc.RTVFormats[0] = BackBufferFormat;
-// 	opaquePsoDesc.SampleDesc.Count = IsMsaa4xState ? 4 : 1;
-// 	opaquePsoDesc.SampleDesc.Quality = IsMsaa4xState ? (Msaa4xQuality - 1) : 0;
-// 	opaquePsoDesc.DSVFormat = DepthStencilFormat;
-// 	ThrowIfFailed(Device->GetDevice()->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&OpaquePipelineStateObject)));
 // }
 // 
-// void D3DApp::BuildFrameResources()
+// void D3DApp::UpdateObjectCBs(const GameTimer& gt)
 // {
-// 	for (int i = 0; i < gNumFrameResources; ++i)
+// 	for (auto& e : AllRitems)
 // 	{
-// 		mFrameResources.push_back(std::make_unique<FrameResource>(D3D12Device.Get(),
-// 			1, (UINT)AllRitems.size(), (UINT)mMaterials.size()));
+// 		// Only update the cbuffer data if the constants have changed.  
+// 		// This needs to be tracked per frame resource.
+// 		if (e->NumFramesDirty > 0)
+// 		{
+// 			XMMATRIX world = XMLoadFloat4x4(&e->World);
+// 			XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
+// 
+// 			ObjectConstants objConstants;
+// 			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
+// 			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
+// 
+// 			ObjectBuffer.Get()->CopyData(e->ObjCBIndex, objConstants);
+// 
+// 			// Next FrameResource need to be updated too.
+// 			e->NumFramesDirty--;
+// 		}
 // 	}
 // }
 // 
-// // 얘네는 좀 애매함
-// void D3DApp::BuildMaterials()
+// void D3DApp::UpdateMaterialCBs(const GameTimer& gt)
 // {
-// 	auto woodCrate = std::make_unique<Material>();
-// 	woodCrate->Name = "woodCrate";
-// 	woodCrate->MatCBIndex = 0;
-// 	woodCrate->DiffuseSrvHeapIndex = 0;
-// 	woodCrate->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-// 	woodCrate->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-// 	woodCrate->Roughness = 0.2f;
+// 	for (auto& e : mMaterials)
+// 	{
+// 		// Only update the cbuffer data if the constants have changed.  If the cbuffer
+// 		// data changes, it needs to be updated for each FrameResource.
+// 		Material* mat = e.second.get();
+// 		if (mat->NumFramesDirty > 0)
+// 		{
+// 			XMMATRIX matTransform = XMLoadFloat4x4(&mat->MatTransform);
 // 
-// 	mMaterials["woodCrate"] = std::move(woodCrate);
+// 			MaterialConstants matConstants;
+// 			matConstants.DiffuseAlbedo = mat->DiffuseAlbedo;
+// 			matConstants.FresnelR0 = mat->FresnelR0;
+// 			matConstants.Roughness = mat->Roughness;
+// 			XMStoreFloat4x4(&matConstants.MatTransform, XMMatrixTranspose(matTransform));
+// 
+// 			MaterialBuffer.Get()->CopyData(mat->MatCBIndex, matConstants);
+// 
+// 			// Next FrameResource need to be updated too.
+// 			mat->NumFramesDirty--;
+// 		}
+// 	}
 // }
 // 
-// void D3DApp::BuildRenderItems()
+// void D3DApp::UpdateMainPassCB(const GameTimer& gt)
 // {
-// 	auto boxRitem = std::make_unique<RenderItem>();
-// 	boxRitem->ObjCBIndex = 0;
-// 	boxRitem->Mat = mMaterials["woodCrate"].get();
-// 	boxRitem->Geo = mGeometries["boxGeo"].get();
-// 	boxRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-// 	boxRitem->IndexCount = boxRitem->Geo->DrawArgs["box"].IndexCount;
-// 	boxRitem->StartIndexLocation = boxRitem->Geo->DrawArgs["box"].StartIndexLocation;
-// 	boxRitem->BaseVertexLocation = boxRitem->Geo->DrawArgs["box"].BaseVertexLocation;
-// 	AllRitems.push_back(std::move(boxRitem));
+// 	XMMATRIX view = XMLoadFloat4x4(&mView);
+// 	XMMATRIX proj = XMLoadFloat4x4(&mProj);
 // 
-// 	// All the render items are opaque.
-// 	for (auto& e : AllRitems)
-// 		OpaqueRitems.push_back(e.get());
+// 	XMMATRIX viewProj = XMMatrixMultiply(view, proj);
+// 	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);
+// 	XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
+// 	XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
+// 
+// 	XMStoreFloat4x4(&mMainPassCB.View, XMMatrixTranspose(view));
+// 	XMStoreFloat4x4(&mMainPassCB.InvView, XMMatrixTranspose(invView));
+// 	XMStoreFloat4x4(&mMainPassCB.Proj, XMMatrixTranspose(proj));
+// 	XMStoreFloat4x4(&mMainPassCB.InvProj, XMMatrixTranspose(invProj));
+// 	XMStoreFloat4x4(&mMainPassCB.ViewProj, XMMatrixTranspose(viewProj));
+// 	XMStoreFloat4x4(&mMainPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
+// 	mMainPassCB.EyePosW = mEyePos;
+// 	mMainPassCB.RenderTargetSize = XMFLOAT2((float)ClientWidth, (float)ClientHeight);
+// 	mMainPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / ClientWidth, 1.0f / ClientHeight);
+// 	mMainPassCB.NearZ = 1.0f;
+// 	mMainPassCB.FarZ = 1000.0f;
+// 	mMainPassCB.TotalTime = gt.TotalTime();
+// 	mMainPassCB.DeltaTime = gt.DeltaTime();
+// 	mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+// 	mMainPassCB.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
+// 	mMainPassCB.Lights[0].Strength = { 0.6f, 0.6f, 0.6f };
+// 	mMainPassCB.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
+// 	mMainPassCB.Lights[1].Strength = { 0.3f, 0.3f, 0.3f };
+// 	mMainPassCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
+// 	mMainPassCB.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
+// 
+// 	auto currPassCB = CurFrameResource->PassConstBuffer.get();
+// 	currPassCB->CopyData(0, mMainPassCB);
+// }
+
+// void D3DApp::BuildRootSignature()
+// {
+// 	CD3DX12_DESCRIPTOR_RANGE texTable;
+// 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+// 
+// 	// Root parameter can be a table, root descriptor or root constants.
+// 	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+// 
+// 	// Perfomance TIP: Order from most frequent to least frequent.
+// 	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+// 	slotRootParameter[1].InitAsConstantBufferView(0);
+// 	slotRootParameter[2].InitAsConstantBufferView(1);
+// 	slotRootParameter[3].InitAsConstantBufferView(2);
+// 
+// 	auto staticSamplers = GetStaticSamplers();
+// 
+// 	// A root signature is an array of root parameters.
+// 	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
+// 		(UINT)staticSamplers.size(), staticSamplers.data(),
+// 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+// 
+// 	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+// 	ComPtr<ID3DBlob> serializedRootSig = nullptr;
+// 	ComPtr<ID3DBlob> errorBlob = nullptr;
+// 	HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+// 		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+// 
+// 	if (errorBlob != nullptr)
+// 	{
+// 		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+// 	}
+// 	ThrowIfFailed(hr);
+// 
+// 	ThrowIfFailed(D3D12Device->CreateRootSignature(
+// 		0,
+// 		serializedRootSig->GetBufferPointer(),
+// 		serializedRootSig->GetBufferSize(),
+// 		IID_PPV_ARGS(RootSignature.GetAddressOf())));
+// }
+
+// void D3DApp::BuildShadersAndInputLayout()
+// {
+// 	mShaders["standardVS"] = D3DUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "VS", "vs_5_0");
+// 	mShaders["opaquePS"] = D3DUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "PS", "ps_5_0");
+// 
+// 	mInputLayout =
+// 	{
+// 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+// 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+// 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+// 	};
 // }
