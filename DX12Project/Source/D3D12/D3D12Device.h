@@ -46,7 +46,10 @@ public:
 	UINT GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE InDescriptorHeapType);
 
 	// Pipeline state interfaces
-	void CreateGraphicsPipelineState(ComPtr<ID3D12PipelineState> InPipelineState, D3D12_GRAPHICS_PIPELINE_STATE_DESC& InPipelineStateDesc);
+	void CreateGraphicsPipelineState(ComPtr<ID3D12PipelineState>& InPipelineState, D3D12_GRAPHICS_PIPELINE_STATE_DESC& InPipelineStateDesc);
+
+	// Root signature interfaces
+	void CreateRootSignature(class D3D12RootSignature* InRootSignature, class D3D12BinaryLargeObject* InBlob);
 
 private:
 	void CreateDevice();
@@ -62,10 +65,10 @@ private:
 	// 말하자면, Com 인터페이스를 하나의 클래스 오브젝트로 생각하고 사용하면 된다는 의미
 
 	// ComPtr is like a smart pointer.
-	ComPtr<ID3D12Device> Device; // Render를 위한 기능을 담고 있는 인터페이스
+	ComPtr<ID3D12Device> Device = nullptr; // Render를 위한 기능을 담고 있는 인터페이스
 
 	// DirectX Graphics Infrastructure : 공통 그래픽 API
-	ComPtr<IDXGIFactory4> DxgiFactory; // Swap chain 인터페이스 생성, 디스플레이 어댑터(= 그래픽카드) 정보
+	ComPtr<IDXGIFactory4> DxgiFactory = nullptr; // Swap chain 인터페이스 생성, 디스플레이 어댑터(= 그래픽카드) 정보
 
 	HWND MainWindowHandle = nullptr;
 };

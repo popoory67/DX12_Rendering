@@ -69,25 +69,6 @@ public:
 	virtual void Update(const GameTimer& gt)/* = 0*/; // data update
 	virtual void Draw(const GameTimer& gt)/* = 0*/; // command list update
 
-// 	void AnimateMaterials(const GameTimer& gt);
-// 	void UpdateObjectCBs(const GameTimer& gt);
-// 	void UpdateMaterialCBs(const GameTimer& gt);
-// 	void UpdateMainPassCB(const GameTimer& gt);
-// 	void UpdateCamera(const GameTimer& gt);
-// 
-// 	void LoadTextures();
-// 	void BuildRootSignature();
-// 	void BuildDescriptorHeaps();
-// 	void BuildShadersAndInputLayout();
-// 	void BuildShapeGeometry();
-// 	void BuildPSOs();
-// 	void BuildFrameResources();
-// 	void BuildMaterials();
-// 	void BuildRenderItems();
-// 	void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
-
-	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
-
 protected:
 
 
@@ -105,9 +86,6 @@ private:
 	UINT64 CurrentFenceCount = 0;
 
 	class D3D12CommandList* CommandList; // юс╫ц
-
-	D3D12_VIEWPORT ScreenViewport;
-	D3D12_RECT ScissorRect;
 
 // 	ComPtr<ID3D12PipelineState> OpaquePipelineStateObject = nullptr;
 // 

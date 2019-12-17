@@ -3,6 +3,8 @@
 #include "D3D12Commands.h"
 #include "D3D12SwapChain.h"
 #include "D3D12PipelineState.h"
+#include "D3D12BinaryLargeObject.h"
+#include "D3D12RootSignature.h"
 
 D3D12Device::D3D12Device(HWND InWindowHandle)
 {
@@ -118,7 +120,15 @@ UINT D3D12Device::GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE In
 	return Get()->GetDescriptorHandleIncrementSize(InDescriptorHeapType);
 }
 
-void D3D12Device::CreateGraphicsPipelineState(ComPtr<ID3D12PipelineState> InPipelineState, D3D12_GRAPHICS_PIPELINE_STATE_DESC& InPipelineStateDesc)
+void D3D12Device::CreateGraphicsPipelineState(ComPtr<ID3D12PipelineState>& InPipelineState, D3D12_GRAPHICS_PIPELINE_STATE_DESC& InPipelineStateDesc)
 {
 	ThrowIfFailed(Get()->CreateGraphicsPipelineState(&InPipelineStateDesc, IID_PPV_ARGS(&InPipelineState)));
+}
+
+void D3D12Device::CreateRootSignature(D3D12RootSignature* InRootSignature, D3D12BinaryLargeObject* InBlob)
+{
+	assert(InRootSignature);
+	assert(InBlob);
+
+	ThrowIfFailed(Get()->CreateRootSignature(0, InBlob->GetBufferPointer(), InBlob->GetBufferSize(), IID_PPV_ARGS(InRootSignature->GetAddressOf())));
 }

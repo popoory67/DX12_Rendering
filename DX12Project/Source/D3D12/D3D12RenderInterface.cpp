@@ -6,6 +6,7 @@
 #include "D3D12Descriptor.h"
 #include "D3D12SwapChain.h"
 #include "D3D12Resource.h"
+#include "D3D12PipelineState.h"
 
 D3D12RenderInterface::D3D12RenderInterface(D3D12Device* InDevice, D3D12CommandList* InCommandList)
 {
@@ -18,9 +19,18 @@ D3D12RenderInterface::D3D12RenderInterface(D3D12Device* InDevice, D3D12CommandLi
 
 	SwapChain = new D3D12SwapChain(Device);
 	if (SwapChain)
+	{
 		SwapChain->Create(Device, CmdListExecutor);
+	}
 
 	DepthStencilBuffer = new D3D12DepthStencilResource(Device, InCommandList);
+
+	// test
+	D3D12PipelineState* pPipelineState = new D3D12PipelineState(InDevice, GetBackBufferFormat(), GetDepthStencilFormat());
+	if (pPipelineState)
+	{
+		PipelineStates.emplace_back(pPipelineState);
+	}
 }
 
 D3D12RenderInterface::~D3D12RenderInterface()
@@ -59,6 +69,12 @@ void D3D12RenderInterface::OnResize(D3D12CommandList* InCommandList)
 
 void D3D12RenderInterface::ExecuteCommandList(D3D12CommandList* InCommandList) const
 {
+	for (D3D12PipelineState* pPso : PipelineStates)
+	{
+		InCommandList->SetPipelineState(pPso);
+		// render
+	}
+
 	CmdListExecutor->Execute(InCommandList);
 }
 

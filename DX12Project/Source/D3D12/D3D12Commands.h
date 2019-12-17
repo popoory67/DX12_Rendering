@@ -70,8 +70,8 @@ protected:
 	ConstantResource<MaterialConstants>* MaterialBuffer;
 
 private:
-	ComPtr<ID3D12GraphicsCommandList> CommandList;
-	ComPtr<ID3D12CommandAllocator> CommandListAllocator;
+	ComPtr<ID3D12GraphicsCommandList> CommandList = nullptr;
+	ComPtr<ID3D12CommandAllocator> CommandListAllocator = nullptr;
 };
 
 class D3D12CommandListExecutor : public CommandListExecutor
@@ -88,7 +88,7 @@ public:
 	ID3D12CommandQueue* GetExecutorInterface() { ReturnCheckAssert(CommandQueue.Get()); }
 
 private:
-	ComPtr<ID3D12CommandQueue> CommandQueue;
+	ComPtr<ID3D12CommandQueue> CommandQueue = nullptr;
 	//ComPtr<ID3D12Fence> Fence;
 	class D3D12Fence* Fence = nullptr;
 

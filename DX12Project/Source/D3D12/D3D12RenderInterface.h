@@ -87,7 +87,7 @@ private:
 	//std::unique_ptr<FrameResource> CurFrameResource;
 
 	// Render items divided by PSO.
-	std::vector<RenderItem*> OpaqueRitems;
+//	std::vector<RenderItem*> OpaqueRitems;
 
 // 	// List of all the render items.
 // 	std::vector<std::unique_ptr<RenderItem>> AllRitems;
@@ -97,5 +97,6 @@ private:
 	class D3D12CommandListExecutor* CmdListExecutor = nullptr;
 	class D3D12DepthStencilResource* DepthStencilBuffer = nullptr;
 	class D3D12Fence* Fence = nullptr;
+	std::vector<class D3D12PipelineState*> PipelineStates;
 };
 

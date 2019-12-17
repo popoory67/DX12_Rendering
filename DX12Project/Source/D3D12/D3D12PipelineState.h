@@ -17,7 +17,7 @@ public:
 	void SetPixelShader(D3D12_SHADER_BYTECODE& InShaderByte);
 
 private:
-	ComPtr<ID3D12PipelineState> PipelineState;
+	ComPtr<ID3D12PipelineState> PipelineState = nullptr;
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC PipelineStateDesc;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> InputLayout;
