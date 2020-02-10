@@ -51,6 +51,15 @@ void D3D12CommandList::ResourceBarrier(D3D12Resource* InResource, D3D12_RESOURCE
 	CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(InResource->GetInterface(), InFrom, InTo));
 }
 
+template <UINT MaxResources>
+void D3D12CommandList::UpdateResources(class D3D12Resource* InDestResource, class D3D12Resource* InFromResource, UINT InFirstSubresource, UINT InNumSubresources, UINT64 InRequiredSize, std::optional<D3D12_SUBRESOURCE_DATA> InSubresourceData/* = {}*/)
+{
+	assert(InDestResource);
+	assert(InFromResource);
+
+	UpdateSubresources<MaxResources>(CommandList.Get(), InDestResource->GetInterface(), InFromResource->GetInterface(), InRequiredSize, InFirstSubresource, InNumSubresources, &InSubresourceData.value());
+}
+
 void D3D12CommandList::ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptorHandle, XMVECTORF32 InBackColor, UINT InNumRects, const D3D12_RECT* InRect/* = nullptr*/)
 {
 	assert(CommandList);
@@ -75,6 +84,30 @@ void D3D12CommandList::SetPipelineState(D3D12PipelineState* InPipelineState)
 	assert(InPipelineState);
 
 	CommandList->SetPipelineState(InPipelineState->GetInterface());
+}
+
+void D3D12CommandList::SetVertexBuffers(UINT InStartSlot, UINT InNumViews, std::optional<D3D12_VERTEX_BUFFER_VIEW> InViews/* = {}*/)
+{
+	assert(CommandList);
+	CommandList->IASetVertexBuffers(InStartSlot, InNumViews, &InViews.value());
+}
+
+void D3D12CommandList::SetIndexBuffer(std::optional<D3D12_INDEX_BUFFER_VIEW> InView/* = {}*/)
+{
+	assert(CommandList);
+	CommandList->IASetIndexBuffer(&InView.value());
+}
+
+void D3D12CommandList::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY InPrimitiveTopology)
+{
+	assert(CommandList);
+	CommandList->IASetPrimitiveTopology(InPrimitiveTopology);
+}
+
+void D3D12CommandList::DrawIndexedInstanced(UINT InIndexCountPerInstance, UINT InInstanceCount, UINT InStartIndexLocation, INT InBaseVertexLocation, UINT InStartInstanceLocation)
+{
+	assert(CommandList);
+	CommandList->DrawIndexedInstanced(InIndexCountPerInstance, InInstanceCount, InStartIndexLocation, InBaseVertexLocation, InStartInstanceLocation);
 }
 
 D3D12CommandListExecutor::D3D12CommandListExecutor(D3D12Device* InD3D12Device)

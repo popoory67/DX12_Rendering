@@ -33,9 +33,15 @@
     <ClCompile Include="Source\D3D12\D3DUtil.cpp" />
     <ClCompile Include="Source\D3D12\DDSTextureLoader.cpp" />
     <ClCompile Include="Source\D3D12\FrameResource.cpp" />
-    <ClCompile Include="Source\D3D12\GeometryGenerator.cpp" />
     <ClCompile Include="Source\InputManager.cpp" />
+    <ClCompile Include="Source\Object\Object.cpp" />
+    <ClCompile Include="Source\Object\UpdateManager.cpp" />
     <ClCompile Include="Source\Renderer\CommandList.cpp" />
+    <ClCompile Include="Source\Renderer\GeometryGenerator.cpp" />
+    <ClCompile Include="Source\Renderer\Light.cpp" />
+    <ClCompile Include="Source\Renderer\Material.cpp" />
+    <ClCompile Include="Source\Renderer\Mesh.cpp" />
+    <ClCompile Include="Source\Renderer\Texture.cpp" />
     <ClCompile Include="Source\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
@@ -43,6 +49,7 @@
     <ClCompile Include="Source\Util\MathHelper.cpp" />
     <ClCompile Include="Source\WindowMain.cpp" />
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3D12BinaryLargeObject.h" />
@@ -60,14 +67,21 @@
     <ClInclude Include="Source\D3D12\d3dx12.h" />
     <ClInclude Include="Source\D3D12\DDSTextureLoader.h" />
     <ClInclude Include="Source\D3D12\FrameResource.h" />
-    <ClInclude Include="Source\D3D12\GeometryGenerator.h" />
     <ClInclude Include="Source\D3D12\UploadBuffer.h" />
     <ClInclude Include="Source\InputManager.h" />
+    <ClInclude Include="Source\Object\Object.h" />
+    <ClInclude Include="Source\Object\UpdateManager.h" />
     <ClInclude Include="Source\Renderer\CommnadList.h" />
+    <ClInclude Include="Source\Renderer\GeometryGenerator.h" />
+    <ClInclude Include="Source\Renderer\Light.h" />
+    <ClInclude Include="Source\Renderer\Material.h" />
+    <ClInclude Include="Source\Renderer\Mesh.h" />
+    <ClInclude Include="Source\Renderer\Texture.h" />
     <ClInclude Include="Source\stdafx.h" />
     <ClInclude Include="Source\Util\GameTimer.h" />
     <ClInclude Include="Source\Util\MathHelper.h" />
     <ClInclude Include="Source\WindowMain.h" />
+    <ClInclude Include="TestScene.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -128,6 +142,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>..\DX12Project\Source;..\DX12Project\Source\Util;..\DX12Project\Source\Renderer;..\DX12Project\Source\Object;..\DX12Project\Source\D3D12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -140,7 +156,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
-      <AdditionalIncludeDirectories>F:\DX12_Rendering\DX12Project\Source;F:\DX12_Rendering\DX12Project\Source\Util;F:\DX12_Rendering\DX12Project\Source\Renderer;F:\DX12_Rendering\DX12Project\Source\D3D12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\DX12Project\Source;..\DX12Project\Source\Util;..\DX12Project\Source\Renderer;..\DX12Project\Source\Object;..\DX12Project\Source\D3D12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -151,6 +168,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>..\DX12Project\Source;..\DX12Project\Source\Util;..\DX12Project\Source\Renderer;..\DX12Project\Source\Object;..\DX12Project\Source\D3D12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -165,6 +184,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>..\DX12Project\Source;..\DX12Project\Source\Util;..\DX12Project\Source\Renderer;..\DX12Project\Source\Object;..\DX12Project\Source\D3D12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

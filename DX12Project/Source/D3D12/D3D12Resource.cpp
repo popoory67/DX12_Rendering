@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <intsafe.h>
+#include <optional>
 #include <d3d12.h>
 #include "d3dx12.h"
 #include "D3D12Resource.h"
@@ -8,6 +9,8 @@
 #include "D3D12SwapChain.h"
 #include "D3D12Commands.h"
 #include "DDSTextureLoader.h"
+#include "Material.h"
+#include "Texture.h"
 
 D3D12Resource::D3D12Resource()
 {
@@ -29,14 +32,14 @@ void D3D12Resource::Reset()
 	Resource.Reset();
 }
 
-void D3D12Resource::CreateResource(D3D12Device* InDevice, D3D12_RESOURCE_DESC InDesc, D3D12_CLEAR_VALUE InValue)
+void D3D12Resource::CreateResource(D3D12Device* InDevice, D3D12_RESOURCE_DESC& InDesc, D3D12_CLEAR_VALUE& InValue)
 {
 	assert(InDevice);
 
 	Resource.Reset();
 
 	InDevice->CreateCommittedResource(
-		Resource,
+		this,
 		D3D12_HEAP_TYPE_DEFAULT,
 		D3D12_HEAP_FLAG_NONE,
 		InDesc,
@@ -44,7 +47,7 @@ void D3D12Resource::CreateResource(D3D12Device* InDevice, D3D12_RESOURCE_DESC In
 		InValue);
 }
 
-void D3D12Resource::CreateResource(D3D12Device* InDevice, UINT64 InByteSize, D3D12_CLEAR_VALUE InValue)
+void D3D12Resource::CreateResource(D3D12Device* InDevice, UINT64 InByteSize, D3D12_CLEAR_VALUE& InValue)
 {
 	assert(InDevice);
 
@@ -54,7 +57,7 @@ void D3D12Resource::CreateResource(D3D12Device* InDevice, UINT64 InByteSize, D3D
 	memcpy((void*)&desc, (void*)&CD3DX12_RESOURCE_DESC::Buffer(InByteSize), sizeof(CD3DX12_RESOURCE_DESC));
 
 	InDevice->CreateCommittedResource(
-		Resource,
+		this,
 		D3D12_HEAP_TYPE_DEFAULT,
 		D3D12_HEAP_FLAG_NONE,
 		desc,
@@ -62,13 +65,64 @@ void D3D12Resource::CreateResource(D3D12Device* InDevice, UINT64 InByteSize, D3D
 		InValue);
 }
 
-// D3D12RenderTargetResource::D3D12RenderTargetResource(class D3D12Device* InDevice, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize)
-// {
-// 	assert(InDevice);
-// 
-// 	InDevice->CreateRenderTargetView(Resource, nullptr, InDescriptorHandle);
-// 	InDescriptorHandle.Offset(1, InDescriptorSize);
-// }
+
+void D3D12UploadResource::CreateDefaultBuffer(class D3D12Device* InDevice, class D3D12CommandList* InCommandList, const void* InInitData, UINT64 InByteSize)
+{
+	assert(InDevice);
+	assert(InCommandList);
+
+	D3D12Resource* defaultBuffer = new D3D12Resource();
+
+	// Create the actual default buffer resource.
+	InDevice->CreateCommittedResource(defaultBuffer, D3D12_HEAP_TYPE_DEFAULT, D3D12_HEAP_FLAG_NONE, InByteSize, D3D12_RESOURCE_STATE_COMMON);
+	// 	ThrowIfFailed(device->CreateCommittedResource(
+	// 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+	// 		D3D12_HEAP_FLAG_NONE,
+	// 		&CD3DX12_RESOURCE_DESC::Buffer(InByteSize),
+	// 		D3D12_RESOURCE_STATE_COMMON,
+	// 		nullptr,
+	// 		IID_PPV_ARGS(defaultBuffer.GetAddressOf())));
+
+		// In order to copy CPU memory data into our default buffer, we need to create
+		// an intermediate upload heap. 
+	InDevice->CreateCommittedResource(UploadBuffer, D3D12_HEAP_TYPE_UPLOAD, D3D12_HEAP_FLAG_NONE, InByteSize, D3D12_RESOURCE_STATE_GENERIC_READ);
+	// 	ThrowIfFailed(device->CreateCommittedResource(
+	// 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+	// 		D3D12_HEAP_FLAG_NONE,
+	// 		&CD3DX12_RESOURCE_DESC::Buffer(InByteSize),
+	// 		D3D12_RESOURCE_STATE_GENERIC_READ,
+	// 		nullptr,
+	// 		IID_PPV_ARGS(UploadBuffer.GetAddressOf())));
+
+
+		// Describe the data we want to copy into the default buffer.
+	D3D12_SUBRESOURCE_DATA subResourceData = {};
+	subResourceData.pData = InInitData;
+	subResourceData.RowPitch = InByteSize;
+	subResourceData.SlicePitch = subResourceData.RowPitch;
+
+	// Schedule to copy the data to the default buffer resource.  At a high level, the helper function UpdateSubresources
+	// will copy the CPU memory into the intermediate upload heap.  Then, using ID3D12CommandList::CopySubresourceRegion,
+	// the intermediate upload heap data will be copied to mBuffer.
+	InCommandList->ResourceBarrier(defaultBuffer, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+
+	InCommandList->UpdateResources<1>(defaultBuffer, UploadBuffer, 0, 0, 1, subResourceData);
+
+	InCommandList->ResourceBarrier(defaultBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
+
+	// Note: UploadBuffer has to be kept alive after the above function calls because
+	// the command list has not been executed yet that performs the actual copy.
+	// The caller can Release the UploadBuffer after it knows the copy has been executed.
+
+}
+
+D3D12RenderTargetResource::D3D12RenderTargetResource(class D3D12Device* InDevice, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize)
+{
+	assert(InDevice);
+
+	InDevice->CreateRenderTargetView(Resource, nullptr, InDescriptorHandle);
+	InDescriptorHandle.Offset(1, InDescriptorSize);
+}
 
 D3D12RenderTargetResource::D3D12RenderTargetResource(D3D12Device* InDevice, D3D12SwapChain* InSwapChain, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize, unsigned int InIndex)
 {

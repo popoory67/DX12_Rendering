@@ -46,6 +46,15 @@
     <Filter Include="Engine\Renderer\Public">
       <UniqueIdentifier>{f3886cb5-03cf-4cba-8013-7d2372f92f6b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Object">
+      <UniqueIdentifier>{bec03008-a2ec-48a3-8ac8-46dc0099e6f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Object\Public">
+      <UniqueIdentifier>{515c0c06-4793-4bef-b566-d775e0270f13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Object\Private">
+      <UniqueIdentifier>{fc9c2a22-e6d7-4ce8-8ba6-9640aa59f625}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\D3D12\D3DApp.cpp">
@@ -96,9 +105,6 @@
     <ClCompile Include="Source\D3D12\D3D12Descriptor.cpp">
       <Filter>Engine\D3D12\Private</Filter>
     </ClCompile>
-    <ClCompile Include="Source\D3D12\GeometryGenerator.cpp">
-      <Filter>Engine\D3D12\Private</Filter>
-    </ClCompile>
     <ClCompile Include="Source\D3D12\DDSTextureLoader.cpp">
       <Filter>Engine\D3D12\Private</Filter>
     </ClCompile>
@@ -113,6 +119,30 @@
     </ClCompile>
     <ClCompile Include="Source\D3D12\D3D12RootSignature.cpp">
       <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\Material.cpp">
+      <Filter>Engine\Renderer\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\Mesh.cpp">
+      <Filter>Engine\Renderer\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\Texture.cpp">
+      <Filter>Engine\Renderer\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\GeometryGenerator.cpp">
+      <Filter>Engine\Renderer\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\Light.cpp">
+      <Filter>Engine\Renderer\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Object\Object.cpp">
+      <Filter>Engine\Object\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="TestScene.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Object\UpdateManager.cpp">
+      <Filter>Engine\Object\Private</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -167,9 +197,6 @@
     <ClInclude Include="Source\D3D12\D3D12Descriptor.h">
       <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
-    <ClInclude Include="Source\D3D12\GeometryGenerator.h">
-      <Filter>Engine\D3D12\Public</Filter>
-    </ClInclude>
     <ClInclude Include="Source\D3D12\DDSTextureLoader.h">
       <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
@@ -184,6 +211,30 @@
     </ClInclude>
     <ClInclude Include="Source\D3D12\D3D12RootSignature.h">
       <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Renderer\Material.h">
+      <Filter>Engine\Renderer\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Renderer\Mesh.h">
+      <Filter>Engine\Renderer\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Renderer\Texture.h">
+      <Filter>Engine\Renderer\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Renderer\GeometryGenerator.h">
+      <Filter>Engine\Renderer\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Renderer\Light.h">
+      <Filter>Engine\Renderer\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object\Object.h">
+      <Filter>Engine\Object\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="TestScene.h">
+      <Filter>Test</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object\UpdateManager.h">
+      <Filter>Engine\Object\Public</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

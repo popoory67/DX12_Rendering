@@ -2,6 +2,7 @@
 #include "D3DUtil.h"
 #include <comdef.h>
 #include "d3dx12.h"
+#include "D3D12Resource.h"
 
 DxException::DxException(HRESULT hr, const std::wstring& functionName, const std::wstring& filename, int lineNumber) :
 	ErrorCode(hr),
@@ -28,7 +29,6 @@ D3DUtil::D3DUtil()
 D3DUtil::~D3DUtil()
 {
 }
-
 
 Microsoft::WRL::ComPtr<ID3D12Resource> D3DUtil::CreateDefaultBuffer(
 	ID3D12Device* device,

@@ -38,10 +38,19 @@ public:
 	void SetResourceTransition(class D3D12Resource* InResource, D3D12_RESOURCE_STATES InPrevState, D3D12_RESOURCE_STATES InNextState);
 	void ResourceBarrier(class D3D12Resource* InResource, D3D12_RESOURCE_STATES InFrom, D3D12_RESOURCE_STATES InTo);
 
+	template <UINT MaxResources>
+	void UpdateResources(class D3D12Resource* InFromResource, class D3D12Resource* InToResource, UINT InFirstSubresource, UINT InNumSubresources, UINT64 InRequiredSize, std::optional<D3D12_SUBRESOURCE_DATA> InSubresourceData = {});
+
 	void ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptorHandle, XMVECTORF32 InBackColor, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
 	void ClearDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
 	void SetRenderTargets(UINT InNumRenderTargetDescriptors, D3D12_CPU_DESCRIPTOR_HANDLE InRenderTargetDescriptorHandle, bool InSingleHandleToDescriptorRange, D3D12_CPU_DESCRIPTOR_HANDLE InDepthStencilDescriptorHandle);
 	void SetPipelineState(class D3D12PipelineState* InPipelineState);
+
+	// Primitive
+	void SetVertexBuffers(UINT InStartSlot, UINT InNumViews, std::optional<D3D12_VERTEX_BUFFER_VIEW> InViews = {});
+	void SetIndexBuffer(std::optional<D3D12_INDEX_BUFFER_VIEW> InView = {});
+	void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY InPrimitiveTopology);
+	void DrawIndexedInstanced(UINT InIndexCountPerInstance, UINT InInstanceCount, UINT InStartIndexLocation, INT InBaseVertexLocation, UINT InStartInstanceLocation);
 
 	// test
 	void SetDescriptor(class D3D12Descriptor* InDescriptor)

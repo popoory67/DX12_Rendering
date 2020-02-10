@@ -17,6 +17,8 @@ public:
 
 	ID3DBlob** GetAddressOf();
 
+	void CreateBlob(const UINT InByteSize = 0);
+
 protected:
 	void CompileShader(const std::wstring& InFilename, const D3D_SHADER_MACRO* InShaderMacros, const std::string& InEntrypoint, const std::string& InTarget);
 

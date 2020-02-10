@@ -35,6 +35,11 @@ ID3DBlob** D3D12BinaryLargeObject::GetAddressOf()
 	return BinaryLargeObject.GetAddressOf();
 }
 
+void D3D12BinaryLargeObject::CreateBlob(const UINT InByteSize /*= 0*/)
+{
+	ThrowIfFailed(D3DCreateBlob(InByteSize, GetAddressOf()));
+}
+
 void D3D12BinaryLargeObject::CompileShader(const std::wstring& InFilename, const D3D_SHADER_MACRO* InShaderMacros, const std::string& InEntrypoint, const std::string& InTarget)
 {
 	UINT compileFlags = 0;

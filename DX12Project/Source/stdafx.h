@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <vector>
 #include <array>
+#include <map>
 #include <unordered_map>
 #include <cstdint>
 #include <fstream>
@@ -13,6 +14,7 @@
 #include <iostream>
 #include <cassert>
 #include <wrl.h>
+#include <optional>
 
 #if defined(DEBUG) || defined(_DEBUG)
 #define _CRTDBG_MAP_ALLOC

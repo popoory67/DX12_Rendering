@@ -85,15 +85,26 @@ void D3D12Device::CheckFeatureSupport(D3D12_FEATURE InFeature, D3D12_FEATURE_DAT
 	ThrowIfFailed(Get()->CheckFeatureSupport(InFeature, &InMultisampleQualityLevels, sizeof(InMultisampleQualityLevels)));
 }
 
-void D3D12Device::CreateCommittedResource(ComPtr<ID3D12Resource>& InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, D3D12_RESOURCE_DESC& InDesc, D3D12_RESOURCE_STATES InResourceStates, D3D12_CLEAR_VALUE InValue)
+void D3D12Device::CreateCommittedResource(D3D12Resource* InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, D3D12_RESOURCE_DESC& InDesc, D3D12_RESOURCE_STATES InResourceStates, std::optional<D3D12_CLEAR_VALUE> InValue/* = {}*/)
 {
 	ThrowIfFailed(Get()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(InHeapType),
 		InHeapFlags,
 		&InDesc,
 		InResourceStates,
-		&InValue,
-		IID_PPV_ARGS(InResource.GetAddressOf())));
+		&InValue.value(),
+		IID_PPV_ARGS(InResource->GetAddressOf())));
+}
+
+void D3D12Device::CreateCommittedResource(D3D12Resource* InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, UINT64 InByteSize, D3D12_RESOURCE_STATES InResourceStates, std::optional<D3D12_CLEAR_VALUE> InValue/* = {}*/)
+{
+	ThrowIfFailed(Get()->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(InHeapType),
+		InHeapFlags,
+		&CD3DX12_RESOURCE_DESC::Buffer(InByteSize),
+		InResourceStates,
+		&InValue.value(),
+		IID_PPV_ARGS(InResource->GetAddressOf())));
 }
 
 void D3D12Device::CreateRenderTargetView(ComPtr<ID3D12Resource>& InResource, const D3D12_RENDER_TARGET_VIEW_DESC* InDesc, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle)

@@ -3,7 +3,7 @@
 #include "FrameResource.h"
 
 // resource params
-class D3DViewportResource : public ResourceBase
+class D3DViewportResource
 {
 public:
 	FLOAT TopLeftX;

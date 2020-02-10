@@ -37,7 +37,8 @@ public:
 	void CheckFeatureSupport(D3D12_FEATURE InFeature, D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS& InMultisampleQualityLevels);
 
 	// Resource interfaces
-	void CreateCommittedResource(ComPtr<ID3D12Resource>& InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, D3D12_RESOURCE_DESC& InDesc, D3D12_RESOURCE_STATES InResourceStates, D3D12_CLEAR_VALUE InValue);
+	void CreateCommittedResource(class D3D12Resource* InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, D3D12_RESOURCE_DESC& InDesc, D3D12_RESOURCE_STATES InResourceStates, std::optional<D3D12_CLEAR_VALUE> InValue = {});
+	void CreateCommittedResource(class D3D12Resource* InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, UINT64 InByteSize, D3D12_RESOURCE_STATES InResourceStates, std::optional<D3D12_CLEAR_VALUE> InValue = {});
 	void CreateRenderTargetView(ComPtr<ID3D12Resource>& InResource, const D3D12_RENDER_TARGET_VIEW_DESC* InDesc, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle);
 	void CreateDepthStencilView(ComPtr<ID3D12Resource>& InResource, class D3D12Descriptor* InDescriptor, D3D12_DEPTH_STENCIL_VIEW_DESC& InDepthStencilDesc);
 	void CreateShaderView(ComPtr<ID3D12Resource>& InResource, class D3D12Descriptor* InDescriptor, D3D12_SHADER_RESOURCE_VIEW_DESC& InShaderDesc);

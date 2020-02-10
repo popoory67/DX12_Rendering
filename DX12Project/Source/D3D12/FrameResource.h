@@ -4,19 +4,7 @@
 #include "D3DUtil.h"
 #include "UploadBuffer.h"
 #include "../Util/MathHelper.h"
-
-// resource
-// 나중에 옮겨야함
-struct ResourceBase
-{
-
-};
-
-struct ObjectConstants
-{
-	DirectX::XMFLOAT4X4 World = MathHelper::Identity4x4();
-	DirectX::XMFLOAT4X4 TexTransform = MathHelper::Identity4x4();
-};
+#include "Light.h"
 
 struct PassConstants
 {
@@ -44,15 +32,8 @@ struct PassConstants
 	Light Lights[MaxLights];
 };
 
-struct Vertex
-{
-	DirectX::XMFLOAT3 Pos;
-	DirectX::XMFLOAT3 Normal;
-	DirectX::XMFLOAT2 TexC;
-};
-
 template<class T>
-class ConstantResource : public ResourceBase
+class ConstantResource
 {
 public:
 	ConstantResource() = delete;
@@ -84,7 +65,3 @@ public:
 	// This lets us check if these frame resources are still in use by the GPU.
 	UINT64 Fence = 0;
 };
-
-// 	std::unique_ptr<UploadBuffer<CommandListResource::PassConstants>> PassConstBuffer = nullptr;
-// 	std::unique_ptr<UploadBuffer<CommandListResource::ObjectConstants>> ObjectConstBuffer = nullptr;
-// 	std::unique_ptr<UploadBuffer<MaterialConstants>> MaterialConstBuffer = nullptr;
