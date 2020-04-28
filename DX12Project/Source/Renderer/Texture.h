@@ -8,5 +8,5 @@ struct TextureData
 	std::string Name;
 	std::wstring Filename;
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> UploadHeap = nullptr;
+	ComPtr<ID3D12Resource> UploadHeap = nullptr;
 };

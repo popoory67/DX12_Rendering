@@ -5,7 +5,7 @@
 
 D3D12RootSignature::D3D12RootSignature()
 {
-
+	RootParameterSlots.clear();
 }
 
 D3D12RootSignature::~D3D12RootSignature()
@@ -18,12 +18,46 @@ ID3D12RootSignature** D3D12RootSignature::GetAddressOf()
 	return RootSignature.GetAddressOf();
 }
 
+void D3D12RootSignature::InitTable(D3D12_DESCRIPTOR_RANGE_TYPE InType, D3D12_SHADER_VISIBILITY InVisibility, unsigned InCount)
+{
+	CD3DX12_DESCRIPTOR_RANGE table;
+	table.Init(InType, InCount, 0, 0);
+
+	CD3DX12_ROOT_PARAMETER param;
+	param.InitAsDescriptorTable(1, &table, InVisibility); // 1 : table 개수
+	// append를 쓰도록 하자 => 책 참고(7장)
+
+	AddParam(param);
+
+	++TableCount;
+}
+
+void D3D12RootSignature::InitConstBuffer()
+{
+	CD3DX12_ROOT_PARAMETER param;
+	param.InitAsConstantBufferView(ConstBufferOffset);
+
+	AddParam(param);
+
+	++ConstBufferOffset;
+}
+
+void D3D12RootSignature::InitShaderResource()
+{
+	CD3DX12_ROOT_PARAMETER param;
+	param.InitAsShaderResourceView(ShaderResourceOffset, 1);
+
+	AddParam(param);
+
+	++ShaderResourceOffset;
+}
+
 void D3D12RootSignature::SetRootSignature(D3D12Device* InDevice)
 {
 	assert(InDevice);
 
-	CD3DX12_DESCRIPTOR_RANGE texTable;
-	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 0);
+// 	CD3DX12_DESCRIPTOR_RANGE texTable;
+// 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 0);
 
 	// Perfomance TIP: Order from most frequent to least frequent.
 // 	SlotRootParameter[0].InitAsConstantBufferView(0); // b0
@@ -31,15 +65,22 @@ void D3D12RootSignature::SetRootSignature(D3D12Device* InDevice)
 // 	SlotRootParameter[2].InitAsShaderResourceView(0, 1); // t0 space1
 // 	SlotRootParameter[3].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
 
-	SlotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
-	SlotRootParameter[1].InitAsConstantBufferView(0);
-	SlotRootParameter[2].InitAsConstantBufferView(1);
-	SlotRootParameter[3].InitAsConstantBufferView(2);
+// 	SlotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+// 	SlotRootParameter[1].InitAsConstantBufferView(0);
+// 	SlotRootParameter[2].InitAsConstantBufferView(1);
+// 	SlotRootParameter[3].InitAsConstantBufferView(2);
+
+	// test
+	InitTable(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_SHADER_VISIBILITY_PIXEL, 2);
+	InitConstBuffer();
+	InitConstBuffer();
+	InitConstBuffer();
 
 	auto staticSamplers = GetStaticSamplers();
 
 	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, SlotRootParameter, (UINT)staticSamplers.size(), staticSamplers.data(), D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	UINT count = TableCount + ConstBufferOffset + ShaderResourceOffset;
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(count, &*RootParameterSlots.begin(), (UINT)staticSamplers.size(), staticSamplers.data(), D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
 	D3D12BinaryLargeObject* pSerializedRootSig = new D3D12BinaryLargeObject();
@@ -56,6 +97,11 @@ void D3D12RootSignature::SetRootSignature(D3D12Device* InDevice)
 
 		InDevice->CreateRootSignature(this, pSerializedRootSig);
 	}
+}
+
+void D3D12RootSignature::AddParam(CD3DX12_ROOT_PARAMETER& InParam)
+{
+	RootParameterSlots.emplace_back(InParam);
 }
 
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> D3D12RootSignature::GetStaticSamplers()

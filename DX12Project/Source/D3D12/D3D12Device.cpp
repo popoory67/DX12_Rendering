@@ -6,11 +6,8 @@
 #include "D3D12BinaryLargeObject.h"
 #include "D3D12RootSignature.h"
 
-D3D12Device::D3D12Device(HWND InWindowHandle)
+D3D12Device::D3D12Device()
 {
-	MainWindowHandle = InWindowHandle;
-	assert(MainWindowHandle);
-
 	CreateDevice();
 }
 

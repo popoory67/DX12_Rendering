@@ -24,6 +24,14 @@
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
+enum class RenderType : UINT
+{
+	Primitive,
+	Material,
+
+	Max
+};
+
 class D3D12CommandList : public CommandListBase
 {
 public:
@@ -52,35 +60,31 @@ public:
 	void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY InPrimitiveTopology);
 	void DrawIndexedInstanced(UINT InIndexCountPerInstance, UINT InInstanceCount, UINT InStartIndexLocation, INT InBaseVertexLocation, UINT InStartInstanceLocation);
 
-	// test
-	void SetDescriptor(class D3D12Descriptor* InDescriptor)
-	{
-		if (InDescriptor)
-		{
-			// heap이랑 root랑 같이 묶어야함
-			ID3D12DescriptorHeap* descriptorHeaps[] = { InDescriptor->GetDescriptor().Get() };
-			CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-			CommandList->SetGraphicsRootSignature(RootSignature.Get());
-		}
-	}
+	// Descriptor heap
+	void AddDescriptorHeap(class D3D12Descriptor* InDescriptor);
+	void ExecuteHeaps();
+	void FlushHeaps();
+
+	// Root signature
+	void SetRootSignature(class D3D12RootSignature* InRootSignature);
+	void BindTable(RenderType InRenderType, CD3DX12_GPU_DESCRIPTOR_HANDLE InDescriptorHandle);
+	void BindConstBuffer(RenderType InRenderType, std::vector<D3D12_GPU_VIRTUAL_ADDRESS>& InAddresses);
+	void BindConstBuffer(RenderType InRenderType, D3D12_GPU_VIRTUAL_ADDRESS& InAddress);
+	void BindShaderResource(RenderType InRenderType, std::vector<D3D12_GPU_VIRTUAL_ADDRESS>& InAddresses);
+	void BindShaderResource(RenderType InRenderType, D3D12_GPU_VIRTUAL_ADDRESS& InAddress);
 
 	void Reset();
 
-	// 원래는 base에 있어야하는데 D3D12용 인터페이스라서 일단 여기에 둠
+	// 원래는 base에 있어야하는데 D3D12용 인터페이스라서 일단 여기에 둠1
 protected:
-	ComPtr<ID3D12DescriptorHeap> DescriptorHeap = nullptr;
-	ComPtr<ID3D12RootSignature> RootSignature = nullptr;
-
-	//ID3D12Resource* Pass = nullptr; // The mean of pass is like a buffer (upload buffer)
-	//std::vector<RenderItem*> RenderItems;
-
-	ConstantResource<ObjectConstants>* ObjectBuffer;
-	ConstantResource<PassConstants>* MainPassBuffer;
-	ConstantResource<MaterialConstants>* MaterialBuffer;
+// 	ComPtr<ID3D12DescriptorHeap> DescriptorHeap = nullptr;
+// 	ComPtr<ID3D12RootSignature> RootSignature = nullptr;
 
 private:
 	ComPtr<ID3D12GraphicsCommandList> CommandList = nullptr;
 	ComPtr<ID3D12CommandAllocator> CommandListAllocator = nullptr;
+
+	std::vector<ID3D12DescriptorHeap*> Heaps;
 };
 
 class D3D12CommandListExecutor : public CommandListExecutor

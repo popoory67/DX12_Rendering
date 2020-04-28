@@ -3,7 +3,7 @@
 #include <Windows.h>
 #include <WindowsX.h>
 #include <windows.h>
-#include "Util/GameTimer.h"
+#include "GameTimer.h"
 
 class InputManager
 {
@@ -14,7 +14,7 @@ public:
 
 	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	GameTimer GetTimer() const { return Timer; }
+	class GameTimer* GetTimer() const;
 
 private:
 
@@ -22,7 +22,5 @@ private:
 
 	static InputManager* Instance;
 
-	GameTimer Timer;
+	class GameTimer* Timer;
 };
-
-#define GAME_TIMER		InputManager::GetInstance().GetTimer()

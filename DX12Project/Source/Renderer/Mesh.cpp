@@ -6,17 +6,17 @@
 #include "D3D12Commands.h"
 #include "D3D12Device.h"
 
-Primitive::Primitive()
+PrimitiveComponent::PrimitiveComponent()
 {
 	GeometryData = new GeometryUploader();
 }
 
-Primitive::~Primitive()
+PrimitiveComponent::~PrimitiveComponent()
 {
 	delete(GeometryData);
 }
 
-void Primitive::Build(D3D12Device* InDevice, D3D12CommandList* InCommandList)
+void PrimitiveComponent::Build(D3D12Device* InDevice, D3D12CommandList* InCommandList)
 {
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData box = geoGen.CreateBox(1.0f, 1.0f, 1.0f, 3);
@@ -61,13 +61,13 @@ void Primitive::Build(D3D12Device* InDevice, D3D12CommandList* InCommandList)
 //	mGeometries[GeometryData->Name] = std::move(GeometryData);
 }
 
-D3D12_VERTEX_BUFFER_VIEW Primitive::VertexBufferView() const
+D3D12_VERTEX_BUFFER_VIEW PrimitiveComponent::VertexBufferView() const
 {
 	assert(GeometryData);
 	return GeometryData->VertexBufferView();
 }
 
-D3D12_INDEX_BUFFER_VIEW Primitive::IndexBufferView() const
+D3D12_INDEX_BUFFER_VIEW PrimitiveComponent::IndexBufferView() const
 {
 	assert(GeometryData);
 	return GeometryData->IndexBufferView();

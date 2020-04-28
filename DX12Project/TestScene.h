@@ -1,28 +1,30 @@
 #pragma once
-#include "Object.h"
-#include "Mesh.h"
-#include "Material.h"
 
-class TestObject
+#include "Scene.h"
+
+class TransformSystem
 {
 public:
-	TestObject();
-	
-private:
-	void BuildTestObject();
-
-private:
-	Object* ObjectData = nullptr;
-	Material* MaterialData = nullptr;
-	Primitive* PrimitiveData = nullptr;
+	void Update(std::shared_ptr<class EntityQuery> InQuery);
 };
 
-class TestScene
+class TestScene : public Scene
 {
 public:
 	TestScene();
 	virtual ~TestScene();
 
+	virtual void Start();
+	virtual void Update();
+	virtual void End();
+
 private:
-	TestObject* Test = nullptr;
+	void BuildRenderItems();
+
+private:
+	std::shared_ptr<class TransformSystem> TestTransform;
+
+	// Render items
+	std::shared_ptr<MaterialComponent> MaterialData;
+	std::shared_ptr<PrimitiveComponent> PrimitiveData;
 };

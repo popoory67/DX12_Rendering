@@ -25,7 +25,8 @@ public:
 
 	UINT GetSize() { return Size; }
 	void SetSize(UINT InSize) { Size = InSize; }
-	ComPtr<ID3D12DescriptorHeap>& GetDescriptor() { return DescriptorHeap; }
+	ComPtr<ID3D12DescriptorHeap>& GetHeap() { return DescriptorHeap; }
+	ID3D12DescriptorHeap* Get() { return DescriptorHeap.Get(); }
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle() { return DescriptorHeap->GetCPUDescriptorHandleForHeapStart(); }
 
 private:

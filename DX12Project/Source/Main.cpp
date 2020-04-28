@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "WindowMain.h"
-#include "D3D12/D3DUtil.h"
+#include "D3DUtil.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd)
 {
@@ -14,12 +14,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 	{
 		WindowMain app(hInstance);
 
-		if (app.InitMainWindow())
+		if (app.Init())
 		{
-			//if ()
-			{
-				return app.Run();
-			}
+			return app.Run();
 		}
 
 		return 0;

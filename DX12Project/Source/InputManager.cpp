@@ -5,6 +5,8 @@ InputManager* InputManager::Instance = nullptr;
 
 InputManager::InputManager()
 {
+	Timer = new GameTimer();
+	assert(Timer);
 }
 
 InputManager::~InputManager()
@@ -156,4 +158,9 @@ LRESULT InputManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
+}
+
+class GameTimer* InputManager::GetTimer() const
+{
+	return Timer;
 }

@@ -57,9 +57,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\D3D12\D3DApp.cpp">
-      <Filter>Engine\D3D12\Private</Filter>
-    </ClCompile>
     <ClCompile Include="Source\stdafx.cpp">
       <Filter>Engine\Launch\Private</Filter>
     </ClCompile>
@@ -135,20 +132,32 @@
     <ClCompile Include="Source\Renderer\Light.cpp">
       <Filter>Engine\Renderer\Private</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Object\Object.cpp">
-      <Filter>Engine\Object\Private</Filter>
-    </ClCompile>
     <ClCompile Include="TestScene.cpp">
       <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Object\UpdateManager.cpp">
+    <ClCompile Include="Source\Renderer\SceneRendering.cpp">
+      <Filter>Engine\Renderer\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Object\EntityQuery.cpp">
       <Filter>Engine\Object\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Object\Component.cpp">
+      <Filter>Engine\Object\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Object\Entity.cpp">
+      <Filter>Engine\Object\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\Scene.cpp">
+      <Filter>Engine\Renderer\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\D3D12\D3D12Rendering.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application.cpp">
+      <Filter>Engine\Launch\Private</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\D3D12\D3DApp.h">
-      <Filter>Engine\D3D12\Public</Filter>
-    </ClInclude>
     <ClInclude Include="Source\stdafx.h">
       <Filter>Engine\Launch\Public</Filter>
     </ClInclude>
@@ -227,14 +236,29 @@
     <ClInclude Include="Source\Renderer\Light.h">
       <Filter>Engine\Renderer\Public</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Object\Object.h">
-      <Filter>Engine\Object\Public</Filter>
-    </ClInclude>
     <ClInclude Include="TestScene.h">
       <Filter>Test</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Object\UpdateManager.h">
+    <ClInclude Include="Source\Renderer\SceneRendering.h">
+      <Filter>Engine\Renderer\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object\EntityQuery.h">
       <Filter>Engine\Object\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object\Component.h">
+      <Filter>Engine\Object\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object\Entity.h">
+      <Filter>Engine\Object\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Renderer\Scene.h">
+      <Filter>Engine\Renderer\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\D3D12Rendering.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Application.h">
+      <Filter>Engine\Launch\Public</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

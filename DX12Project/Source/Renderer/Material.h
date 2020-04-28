@@ -1,5 +1,6 @@
 #pragma once
-#include "Object.h"
+
+#include "Component.h"
 
 using namespace DirectX;
 
@@ -13,16 +14,22 @@ struct MaterialConstants
 	DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
 };
 
-// Simple struct to represent a material for our demos.  A production 3D engine
-// would likely create a class hierarchy of Materials.
-struct MaterialData
+class MaterialComponent : public Component
 {
-	// Unique material name for lookup.
-	std::string Name;
+public:
+	MaterialComponent();
+	virtual ~MaterialComponent();
 
-	// Index into constant buffer corresponding to this material.
-	int MatCBIndex = -1;
+	int GetDiffuseSrvHeapIndex() const { return DiffuseSrvHeapIndex; }
+	unsigned GetIndex() const { return Index; }
 
+public:
+	// Material constant buffer data used for shading.
+	DirectX::XMFLOAT4 DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
+	DirectX::XMFLOAT3 FresnelR0 = { 0.01f, 0.01f, 0.01f };
+	float Roughness = .25f;
+
+private:
 	// Index into SRV heap for diffuse texture.
 	int DiffuseSrvHeapIndex = -1;
 
@@ -33,26 +40,12 @@ struct MaterialData
 	// Because we have a material constant buffer for each FrameResource, we have to apply the
 	// update to each FrameResource.  Thus, when we modify a material we should set 
 	// NumFramesDirty = gNumFrameResources so that each frame resource gets the update.
-	int NumFramesDirty = gNumFrameResources;
-
-	// Material constant buffer data used for shading.
-	DirectX::XMFLOAT4 DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
-	DirectX::XMFLOAT3 FresnelR0 = { 0.01f, 0.01f, 0.01f };
-	float Roughness = .25f;
+//	int NumFramesDirty = gNumFrameResources;
 
 	DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
-};
 
-class Material : public Component
-{
-public:
-	Material();
-	virtual ~Material();
-
-	int GetDiffuseSrvHeapIndex() { return Data->DiffuseSrvHeapIndex; }
-
-private:
-	MaterialData* Data = nullptr;
+	// Index into constant buffer corresponding to this material.
+	unsigned int Index = 0;
 };
 
 // 

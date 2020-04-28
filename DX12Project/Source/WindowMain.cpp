@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "WindowMain.h"
 #include "InputManager.h"
-#include "D3D12/D3DApp.h"
 
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -58,9 +57,6 @@ bool WindowMain::InitMainWindow()
 	ShowWindow(MainWindowHandle, SW_SHOW);
 	UpdateWindow(MainWindowHandle);
 
-	// dx test
-	D3DApp::GetInstance().Initialize(MainWindowHandle);
-
 	return true;
 }
 
@@ -69,12 +65,17 @@ HWND WindowMain::GetWindowHandle()
 	return MainWindowHandle;
 }
 
+bool WindowMain::Init()
+{
+	if (InitMainWindow())
+		Parent::Init();
+}
 
 int WindowMain::Run()
 {
 	MSG msg = { 0 };
 
-	GAME_TIMER.Reset();
+	GetTimer().Reset();
 
 	while (msg.message != WM_QUIT)
 	{
@@ -87,13 +88,11 @@ int WindowMain::Run()
 		// Otherwise, do animation/game stuff.
 		else
 		{
-			GAME_TIMER.Tick();
+			GetTimer().Tick();
 
 			if (!IsPaused)
 			{
-				//CalculateFrameStats();
-				D3DApp::GetInstance().Update(GAME_TIMER);
-				D3DApp::GetInstance().Draw(GAME_TIMER);
+				Parent::Run();
 			}
 			else
 			{

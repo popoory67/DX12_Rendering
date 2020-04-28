@@ -35,7 +35,7 @@ void D3D12SwapChain::CreateBuffer(D3D12Device* InDevice)
 	{
 		memset(SwapChainBuffer, 0x00, _countof(SwapChainBuffer));
 
-		ComPtr<ID3D12DescriptorHeap> pRenderTargetDesc = RenderTargetViewDesc->GetDescriptor();
+		ComPtr<ID3D12DescriptorHeap> pRenderTargetDesc = RenderTargetViewDesc->GetHeap();
 		if (pRenderTargetDesc)
 		{
 			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(pRenderTargetDesc->GetCPUDescriptorHandleForHeapStart());
@@ -89,7 +89,7 @@ D3D12Resource* D3D12SwapChain::GetCurrentBackBuffer() const
 D3D12_CPU_DESCRIPTOR_HANDLE D3D12SwapChain::GetCurrentBackBufferView() const
 {
 	return CD3DX12_CPU_DESCRIPTOR_HANDLE(
-		RenderTargetViewDesc->GetDescriptor()->GetCPUDescriptorHandleForHeapStart(),
+		RenderTargetViewDesc->GetHeap()->GetCPUDescriptorHandleForHeapStart(),
 		CurBackBufferIndex,
 		RenderTargetViewDesc->GetSize());
 }

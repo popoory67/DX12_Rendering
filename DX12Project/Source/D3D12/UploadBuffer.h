@@ -1,13 +1,14 @@
 #pragma once
 #include "D3DUtil.h"
 #include <d3dx12.h>
+#include "D3D12Device.h"
 
 template<typename T>
 class UploadBuffer
 {
 public:
-	UploadBuffer(ID3D12Device* pDevice, UINT elementCount, bool isConstantBuffer) :
-		IsConstantBuffer(isConstantBuffer)
+	UploadBuffer(D3D12Device* InD3D12Device, UINT InElementCount = 0, bool InIsConstantBuffer = false) :
+		IsConstantBuffer(InIsConstantBuffer)
 	{
 		ElementByteSize = sizeof(T);
 
@@ -18,18 +19,20 @@ public:
 		// UINT64 OffsetInBytes; // multiple of 256
 		// UINT   SizeInBytes;   // multiple of 256
 		// } D3D12_CONSTANT_BUFFER_VIEW_DESC;
-		if (isConstantBuffer)
+		if (InIsConstantBuffer)
 			ElementByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(T));
 
-		ThrowIfFailed(pDevice->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(ElementByteSize*elementCount),
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&Buffer)));
+		if (InElementCount > 0)
+		{
+			ThrowIfFailed(InD3D12Device->CreateCommittedResource(
+				Buffer,
+				D3D12_HEAP_TYPE_UPLOAD,
+				D3D12_HEAP_FLAG_NONE,
+				ElementByteSize * InElementCount,
+				D3D12_RESOURCE_STATE_GENERIC_READ));
 
-		ThrowIfFailed(Buffer->Map(0, nullptr, reinterpret_cast<void**>(&MappedData)));
+			ThrowIfFailed(Buffer->Map(0, nullptr, reinterpret_cast<void**>(&MappedData)));
+		}
 
 		// We do not need to unmap until we are done with the resource.  However, we must not write to
 		// the resource while it is in use by the GPU (so we must use synchronization techniques).
@@ -43,6 +46,18 @@ public:
 			Buffer->Unmap(0, nullptr);
 
 		MappedData = nullptr;
+	}
+
+	void CreateBuffer(UINT InElementCount)
+	{
+		ThrowIfFailed(InD3D12Device->CreateCommittedResource(
+			Buffer,
+			D3D12_HEAP_TYPE_UPLOAD,
+			D3D12_HEAP_FLAG_NONE,
+			ElementByteSize * InElementCount,
+			D3D12_RESOURCE_STATE_GENERIC_READ));
+
+		ThrowIfFailed(Buffer->Map(0, nullptr, reinterpret_cast<void**>(&MappedData)));
 	}
 
 	ID3D12Resource* Resource()const

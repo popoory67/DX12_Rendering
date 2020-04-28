@@ -4,6 +4,7 @@
 #include "D3D12Fence.h"
 #include "D3D12Resource.h"
 #include "D3D12PipelineState.h"
+#include "D3D12RootSignature.h"
 
 D3D12CommandList::D3D12CommandList(D3D12Device* InD3D12Device)
 {
@@ -108,6 +109,70 @@ void D3D12CommandList::DrawIndexedInstanced(UINT InIndexCountPerInstance, UINT I
 {
 	assert(CommandList);
 	CommandList->DrawIndexedInstanced(InIndexCountPerInstance, InInstanceCount, InStartIndexLocation, InBaseVertexLocation, InStartInstanceLocation);
+}
+
+void D3D12CommandList::AddDescriptorHeap(class D3D12Descriptor* InDescriptor)
+{
+	assert(CommandList);
+	assert(InDescriptor);
+
+	Heaps.emplace_back(InDescriptor);
+}
+
+void D3D12CommandList::ExecuteHeaps()
+{
+	assert(CommandList);
+
+	if (!Heaps.empty())
+		CommandList->SetDescriptorHeaps(Heaps.size(), &(*Heaps.begin()));
+}
+
+void D3D12CommandList::FlushHeaps()
+{
+	Heaps.clear();
+}
+
+void D3D12CommandList::SetRootSignature(D3D12RootSignature* InRootSignature)
+{
+	assert(CommandList);
+	assert(InRootSignature);
+
+	CommandList->SetGraphicsRootSignature(InRootSignature->GetInterface());
+}
+
+void D3D12CommandList::BindTable(RenderType InRenderType, CD3DX12_GPU_DESCRIPTOR_HANDLE InDescriptorHandle)
+{
+	assert(CommandList);
+/*	InDescriptorHandle.Offset(mSkyTexHeapIndex, mCbvSrvUavDescriptorSize);*/
+	CommandList->SetGraphicsRootDescriptorTable((UINT)InRenderType, InDescriptorHandle);
+}
+
+void D3D12CommandList::BindConstBuffer(RenderType InRenderType, std::vector<D3D12_GPU_VIRTUAL_ADDRESS>& InAddresses)
+{
+	assert(CommandList);
+
+	for (D3D12_GPU_VIRTUAL_ADDRESS address : InAddresses)
+		CommandList->SetGraphicsRootConstantBufferView((UINT)InRenderType, address);
+}
+
+void D3D12CommandList::BindConstBuffer(RenderType InRenderType, D3D12_GPU_VIRTUAL_ADDRESS& InAddress)
+{
+	assert(CommandList);
+	CommandList->SetGraphicsRootConstantBufferView((UINT)InRenderType, InAddress);
+}
+
+void D3D12CommandList::BindShaderResource(RenderType InRenderType, std::vector<D3D12_GPU_VIRTUAL_ADDRESS>& InAddresses)
+{
+	assert(CommandList);
+
+	for (D3D12_GPU_VIRTUAL_ADDRESS address : InAddresses)
+		CommandList->SetGraphicsRootShaderResourceView((UINT)InRenderType, address);
+}
+
+void D3D12CommandList::BindShaderResource(RenderType InRenderType, D3D12_GPU_VIRTUAL_ADDRESS& InAddress)
+{
+	assert(CommandList);
+	CommandList->SetGraphicsRootShaderResourceView((UINT)InRenderType, InAddress);
 }
 
 D3D12CommandListExecutor::D3D12CommandListExecutor(D3D12Device* InD3D12Device)

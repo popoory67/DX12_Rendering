@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\D3D12\D3D12BinaryLargeObject.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Commands.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Descriptor.cpp" />
@@ -29,18 +30,21 @@
     <ClCompile Include="Source\D3D12\D3D12Resource.cpp" />
     <ClCompile Include="Source\D3D12\D3D12RootSignature.cpp" />
     <ClCompile Include="Source\D3D12\D3D12SwapChain.cpp" />
-    <ClCompile Include="Source\D3D12\D3DApp.cpp" />
+    <ClCompile Include="Source\D3D12\D3D12Rendering.cpp" />
     <ClCompile Include="Source\D3D12\D3DUtil.cpp" />
     <ClCompile Include="Source\D3D12\DDSTextureLoader.cpp" />
     <ClCompile Include="Source\D3D12\FrameResource.cpp" />
     <ClCompile Include="Source\InputManager.cpp" />
-    <ClCompile Include="Source\Object\Object.cpp" />
-    <ClCompile Include="Source\Object\UpdateManager.cpp" />
+    <ClCompile Include="Source\Object\Component.cpp" />
+    <ClCompile Include="Source\Object\Entity.cpp" />
+    <ClCompile Include="Source\Object\EntityQuery.cpp" />
     <ClCompile Include="Source\Renderer\CommandList.cpp" />
     <ClCompile Include="Source\Renderer\GeometryGenerator.cpp" />
     <ClCompile Include="Source\Renderer\Light.cpp" />
     <ClCompile Include="Source\Renderer\Material.cpp" />
     <ClCompile Include="Source\Renderer\Mesh.cpp" />
+    <ClCompile Include="Source\Renderer\Scene.cpp" />
+    <ClCompile Include="Source\Renderer\SceneRendering.cpp" />
     <ClCompile Include="Source\Renderer\Texture.cpp" />
     <ClCompile Include="Source\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -52,6 +56,7 @@
     <ClCompile Include="TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\D3D12\D3D12BinaryLargeObject.h" />
     <ClInclude Include="Source\D3D12\D3D12Commands.h" />
     <ClInclude Include="Source\D3D12\D3D12Descriptor.h" />
@@ -62,20 +67,23 @@
     <ClInclude Include="Source\D3D12\D3D12Resource.h" />
     <ClInclude Include="Source\D3D12\D3D12RootSignature.h" />
     <ClInclude Include="Source\D3D12\D3D12SwapChain.h" />
-    <ClInclude Include="Source\D3D12\D3DApp.h" />
+    <ClInclude Include="Source\D3D12\D3D12Rendering.h" />
     <ClInclude Include="Source\D3D12\D3DUtil.h" />
     <ClInclude Include="Source\D3D12\d3dx12.h" />
     <ClInclude Include="Source\D3D12\DDSTextureLoader.h" />
     <ClInclude Include="Source\D3D12\FrameResource.h" />
     <ClInclude Include="Source\D3D12\UploadBuffer.h" />
     <ClInclude Include="Source\InputManager.h" />
-    <ClInclude Include="Source\Object\Object.h" />
-    <ClInclude Include="Source\Object\UpdateManager.h" />
+    <ClInclude Include="Source\Object\Component.h" />
+    <ClInclude Include="Source\Object\Entity.h" />
+    <ClInclude Include="Source\Object\EntityQuery.h" />
     <ClInclude Include="Source\Renderer\CommnadList.h" />
     <ClInclude Include="Source\Renderer\GeometryGenerator.h" />
     <ClInclude Include="Source\Renderer\Light.h" />
     <ClInclude Include="Source\Renderer\Material.h" />
     <ClInclude Include="Source\Renderer\Mesh.h" />
+    <ClInclude Include="Source\Renderer\Scene.h" />
+    <ClInclude Include="Source\Renderer\SceneRendering.h" />
     <ClInclude Include="Source\Renderer\Texture.h" />
     <ClInclude Include="Source\stdafx.h" />
     <ClInclude Include="Source\Util\GameTimer.h" />

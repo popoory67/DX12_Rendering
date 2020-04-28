@@ -19,7 +19,7 @@ public:
 class D3D12Device : public D3DDeviceBase
 {
 public:
-	D3D12Device(HWND InWindowHandle);
+	D3D12Device();
 	virtual ~D3D12Device();
 
 	ComPtr<ID3D12Device> Get() { ReturnCheckAssert(Device); }

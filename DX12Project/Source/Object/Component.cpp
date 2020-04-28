@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Object.h"
+#include "Component.h"
 
 Component::Component()
 {
@@ -9,9 +9,4 @@ Component::Component()
 Component::~Component()
 {
 
-}
-
-Object::Object()
-{
-	TransformData = new Transform();
 }

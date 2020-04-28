@@ -1,6 +1,9 @@
 #pragma once
 
+#include <DirectXMath.h>
+
 using namespace Microsoft::WRL;
+using namespace DirectX;
 
 #define MaxLights 16
 

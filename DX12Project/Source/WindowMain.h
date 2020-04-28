@@ -3,21 +3,27 @@
 #include <Windows.h>
 #include <WindowsX.h>
 #include <windows.h>
+#include "Application.h"
 
-class WindowMain
+class WindowMain : public Application
 {
+	using Parent = Application;
+
 public:
 
 	WindowMain(HINSTANCE hInstance);
 	~WindowMain();
 
-	bool InitMainWindow();
+	virtual bool Init();
+	virtual int Run();
 
 	HWND GetWindowHandle();
-	int Run();
 
 	bool IsAppPaused() { return IsPaused; }
 	void SetAppPaused(bool InAppPaused) { IsPaused = InAppPaused; }
+
+private:
+	bool InitMainWindow();
 
 private:
 

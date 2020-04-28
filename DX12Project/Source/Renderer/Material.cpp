@@ -2,12 +2,11 @@
 #include "Material.h"
 #include "MathHelper.h"
 
-Material::Material()
+MaterialComponent::MaterialComponent()
 {
-	Data = new MaterialData();
 }
 
-Material::~Material()
+MaterialComponent::~MaterialComponent()
 {
 
 }

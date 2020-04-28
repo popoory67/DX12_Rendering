@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "D3DApp.h"
+#include "D3D12Rendering.h"
 #include <combaseapi.h>
 #include "GeometryGenerator.h"
 #include "DDSTextureLoader.h"
@@ -8,38 +8,43 @@
 #include "D3D12SwapChain.h"
 #include "D3D12Commands.h"
 #include "D3D12PipelineState.h"
+#include "SceneRendering.h"
+#include "Scene.h"
 
-D3DApp* D3DApp::Instance = nullptr;
+D3D12Renderer* D3D12Renderer::Instance = nullptr;
 
-D3DApp::D3DApp()
+D3D12Renderer::D3D12Renderer()
 {
-	// Only one D3DApp can be constructed.
+	// Only one D3D12Renderer can be constructed.
 	assert(Instance == nullptr);
 	Instance = this;
 }
 
-D3DApp::~D3DApp()
+D3D12Renderer::~D3D12Renderer()
 {
 }
 
-D3DApp& D3DApp::GetInstance()
+D3D12Renderer& D3D12Renderer::GetInstance()
 {
 	if (!Instance)
-		Instance = new D3DApp();
+		Instance = new D3D12Renderer();
 
 	return *Instance;
 }
 
-bool D3DApp::Initialize(HWND InWindowHandle)
+bool D3D12Renderer::Initialize()
 {
-	D3D12Device* pDevice = new D3D12Device(InWindowHandle);
+	D3D12Device* pDevice = new D3D12Device();
 	assert(pDevice);
 
 	CommandList = new D3D12CommandList(pDevice);
 	assert(CommandList);
 
-	RenderInterface = new D3D12RenderInterface(pDevice, CommandList);
+	RenderInterface.reset(new D3D12RenderInterface(pDevice, CommandList));
 	assert(RenderInterface);
+
+	Renderer.reset(new SceneRenderer());
+	assert(Renderer);
 
  	RenderInterface->OnResize(CommandList);
 
@@ -66,7 +71,7 @@ bool D3DApp::Initialize(HWND InWindowHandle)
 	return true;
 }
 
-void D3DApp::Update(const GameTimer& gt)
+void D3D12Renderer::Update(GameTimer& gt)
 {
 // 	OnKeyboardInput(gt);
 // 	UpdateCamera(gt);
@@ -89,10 +94,12 @@ void D3DApp::Update(const GameTimer& gt)
 // 	UpdateObjectCBs(gt);
 // 	UpdateMaterialCBs(gt);
 // 	UpdateMainPassCB(gt);
+
+//	UpdateObjectManager->UpdateTransform(gt);
 }
 
 // 1 드로우 = 1 프레임
-void D3DApp::Draw(const GameTimer& gt)
+void D3D12Renderer::Render(GameTimer& gt)
 {
 	// Ready to draw
 	CommandList->Reset();
@@ -100,16 +107,14 @@ void D3DApp::Draw(const GameTimer& gt)
 	RenderInterface->UpdateViewport(CommandList);
 	RenderInterface->ReadyToRenderTarget(CommandList);
 
-	// --test
+// 	// --test
 //  	ID3D12DescriptorHeap* descriptorHeaps[] = { SrvHeap.Get() };
 //  	CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-//  
 //  	CommandList->SetGraphicsRootSignature(RootSignature.Get());
-//  
+	Renderer->RenderScreenView(CommandList);
+
 //  	ID3D12Resource* PassConstBuffer = CurFrameResource->PassConstBuffer->Resource();
 //  	CommandList->SetGraphicsRootConstantBufferView(2, PassConstBuffer->GetGPUVirtualAddress()); // 임시 주석처리
-// 
-// 	DrawRenderItems(CommandList.Get(), OpaqueRitems);
 
 	// End draw
 	RenderInterface->FinishToRenderTarget(CommandList);
@@ -120,7 +125,38 @@ void D3DApp::Draw(const GameTimer& gt)
 	RenderInterface->FlushCommandQueue();
 }
 
-// void D3DApp::UpdateCamera(const GameTimer& gt)
+void D3D12Renderer::AddScene(Scene* InScene)
+{
+	assert(InScene);
+
+	auto it = SceneList.find(InScene->GetSceneId());
+	if (it == SceneList.cend())
+	{
+		InScene->SetSceneId(IndexCount);
+		SceneList.emplace(std::make_pair(IndexCount, InScene));
+
+		++IndexCount;
+	}
+}
+
+void D3D12Renderer::SetCurrentScene(int InIndex)
+{
+	assert(Renderer);
+
+	CurrentSceneIndex = InIndex;
+
+	auto it = SceneList.find(CurrentSceneIndex);
+	if (it != SceneList.cend())
+	{
+		Renderer->SetCurrentScene(it->second.get());
+	}
+	else
+	{
+		assert("There is no scene");
+	}
+}
+
+// void D3D12Renderer::UpdateCamera(const GameTimer& gt)
 // {
 // 	// Convert Spherical to Cartesian coordinates.
 // 	mEyePos.x = mRadius * sinf(mPhi)*cosf(mTheta);
