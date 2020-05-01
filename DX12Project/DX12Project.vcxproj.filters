@@ -156,6 +156,9 @@
     <ClCompile Include="Source\Application.cpp">
       <Filter>Engine\Launch\Private</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Renderer\Transform.cpp">
+      <Filter>Engine\Renderer\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\stdafx.h">
@@ -259,6 +262,9 @@
     </ClInclude>
     <ClInclude Include="Source\Application.h">
       <Filter>Engine\Launch\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Renderer\Transform.h">
+      <Filter>Engine\Renderer\Public</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

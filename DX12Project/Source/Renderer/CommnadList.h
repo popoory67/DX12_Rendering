@@ -1,5 +1,4 @@
 #pragma once
-
 #include "FrameResource.h"
 
 // resource params

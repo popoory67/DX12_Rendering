@@ -4,37 +4,24 @@
 #include "D3D12Resource.h"
 #include "MathHelper.h"
 #include "Component.h"
+#include "GeometryGenerator.h"
 
 using namespace DirectX;
 
-struct CTransform : public Component
-{
-	// World matrix of the shape that describes the object's local space
-	// relative to the world space, which defines the position, orientation,
-	// and scale of the object in the world.
-	XMFLOAT4X4 World = MathHelper::Identity4x4();
-	XMFLOAT4X4 TexTransform = MathHelper::Identity4x4();
-};
-
-struct Vertex : public Component
+struct Vertex
 {
 	DirectX::XMFLOAT3 Pos;
 	DirectX::XMFLOAT3 Normal;
 	DirectX::XMFLOAT2 TexC;
 };
 
-// Defines a subrange of geometry in a MeshGeometry.  This is for when multiple
-// geometries are stored in one vertex and index buffer.  It provides the offsets
-// and data needed to draw a subset of geometry stores in the vertex and index 
-// buffers so that we can implement the technique described by Figure 6.3.
-struct SubmeshGeometry : public Component
+struct SubmeshGeometry
 {
 	UINT IndexCount = 0;
 	UINT StartIndexLocation = 0;
 	INT BaseVertexLocation = 0;
 
 	// Bounding box of the geometry defined by this submesh. 
-	// This is used in later chapters of the book.
 	DirectX::BoundingBox Bounds;
 };
 
@@ -63,13 +50,8 @@ struct GeometryUploader
 	DXGI_FORMAT IndexFormat = DXGI_FORMAT_R16_UINT;
 	UINT IndexBufferByteSize = 0;
 
-	// A MeshGeometry may store multiple geometries in one vertex/index buffer.
-	// Use this container to define the Submesh geometries so we can draw
-	// the Submeshes individually.
-	std::unordered_map<std::string, SubmeshGeometry> DrawArgs;
-
 	// 정점 버퍼 서술자
-	D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const
+	D3D12_VERTEX_BUFFER_VIEW& VertexBufferView() const
 	{
 		D3D12_VERTEX_BUFFER_VIEW vbv;
 		vbv.BufferLocation = VertexBufferGPU->GetGPUVirtualAddress().value();
@@ -79,7 +61,7 @@ struct GeometryUploader
 		return vbv;
 	}
 
-	D3D12_INDEX_BUFFER_VIEW IndexBufferView() const
+	D3D12_INDEX_BUFFER_VIEW& IndexBufferView() const
 	{
 		D3D12_INDEX_BUFFER_VIEW ibv;
 		ibv.BufferLocation = IndexBufferGPU->GetGPUVirtualAddress().value();
@@ -97,39 +79,29 @@ struct GeometryUploader
 	}
 };
 
-class PrimitiveComponent : public Component
+class PrimitiveComponent : public RenderComponent
 {
 public:
 	PrimitiveComponent();
 	virtual ~PrimitiveComponent();
 
-	void Build(class D3D12Device* InDevice, class D3D12CommandList* InCommandList);
-
-	D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const;
-	D3D12_INDEX_BUFFER_VIEW IndexBufferView() const;
+	D3D12_VERTEX_BUFFER_VIEW& VertexBufferView() const;
+	D3D12_INDEX_BUFFER_VIEW& IndexBufferView() const;
 
 	UINT GetIndexCount() const { return IndexCount; }
 	UINT GetStartIndexLocation() const { return StartIndexLocation; }
 	int GetBaseVertexLocation() const { return BaseVertexLocation; }
 	UINT GetIndex() const { return Index; }
 
+	void CreateMesh(std::string InPath);
+
+private:
+	void Build(struct GeometryGenerator::MeshData& InMeshData);
+
 public:
-	// Primitive topology.
 	D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 private:
-	// World matrix of the shape that describes the object's local space
-	// relative to the world space, which defines the position, orientation,
-	// and scale of the object in the world.
-	//XMFLOAT4X4 World = MathHelper::Identity4x4();
-	//XMFLOAT4X4 TexTransform = MathHelper::Identity4x4();
-
-	// Dirty flag indicating the object data has changed and we need to update the constant buffer.
-	// Because we have an object cbuffer for each FrameResource, we have to apply the
-	// update to each FrameResource.  Thus, when we modify obect data we should set 
-	// NumFramesDirty = gNumFrameResources so that each frame resource gets the update.
-//	int NumFramesDirty = gNumFrameResources;
-
 	// DrawIndexedInstanced parameters.
 	UINT IndexCount = 0;
 	UINT StartIndexLocation = 0;
@@ -137,6 +109,7 @@ private:
 
 	GeometryUploader* GeometryData = nullptr;
 
-	// Index into GPU constant buffer corresponding to the ObjectCB for this render item.
+	std::unordered_map<unsigned, SubmeshGeometry> DrawArgs;
+
 	size_t Index = 0;
 };

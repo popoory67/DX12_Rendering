@@ -16,6 +16,12 @@ public:
 
 	void AddEntity(class Entity* InEntity);
 
+	template<typename ComponentType>
+	void GetComponents(std::vector<ComponentType*> OutComponents)
+	{
+		EntityInterface->GetComponents<ComponentType>(OutComponents);
+	}
+
 	static D3D12Renderer& GetInstance();
 
 private:

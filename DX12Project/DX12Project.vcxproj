@@ -46,6 +46,7 @@
     <ClCompile Include="Source\Renderer\Scene.cpp" />
     <ClCompile Include="Source\Renderer\SceneRendering.cpp" />
     <ClCompile Include="Source\Renderer\Texture.cpp" />
+    <ClCompile Include="Source\Renderer\Transform.cpp" />
     <ClCompile Include="Source\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
@@ -85,6 +86,7 @@
     <ClInclude Include="Source\Renderer\Scene.h" />
     <ClInclude Include="Source\Renderer\SceneRendering.h" />
     <ClInclude Include="Source\Renderer\Texture.h" />
+    <ClInclude Include="Source\Renderer\Transform.h" />
     <ClInclude Include="Source\stdafx.h" />
     <ClInclude Include="Source\Util\GameTimer.h" />
     <ClInclude Include="Source\Util\MathHelper.h" />

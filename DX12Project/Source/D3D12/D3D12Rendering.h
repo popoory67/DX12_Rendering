@@ -29,7 +29,12 @@ public:
 	D3D12Renderer& operator=(const D3D12Renderer& rhs) = delete;
 	virtual ~D3D12Renderer();
 
-	static D3D12Renderer& GetInstance();
+	static class D3D12Renderer& GetInstance();
+
+	class D3D12Device* GetDevice()
+	{
+		return Device.get();
+	}
 
 	virtual bool Initialize();
 	virtual void Update(GameTimer& InTimer)/* = 0*/; // update datas
@@ -39,24 +44,28 @@ public:
 	void SetCurrentScene(int InIndex);
 
 private:
-
 	D3D12Renderer();
 
-private:
+	void SwapBackBufferToFrontBuffer();
+	class D3D12Resource* GetCurrentBackBuffer() const;
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
+	D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilBufferView() const;
+	DXGI_FORMAT GetBackBufferFormat() const;
+	DXGI_FORMAT GetDepthStencilFormat() const;
 
+	void OnResize();
+
+private:
 	static D3D12Renderer* Instance;
 
+	std::unique_ptr<class D3D12Device> Device; // multi gpu 지원 안함
 	std::unique_ptr<class D3D12RenderInterface> RenderInterface;
 	std::unique_ptr<class SceneRenderer> Renderer;
+	std::unique_ptr<class D3D12SwapChain> SwapChain;
+	class D3D12DepthStencilResource* DepthStencilBuffer = nullptr;
 
 	ComPtr<ID3D12Fence> Fence;
 	UINT64 CurrentFenceCount = 0;
-
-	class D3D12CommandList* CommandList; // 임시
-
-	std::map<unsigned int, std::shared_ptr<class Scene>> SceneList;
-	unsigned IndexCount = 0;
-	int CurrentSceneIndex = -1;
 
 // 	ComPtr<ID3D12PipelineState> OpaquePipelineStateObject = nullptr;
 // 

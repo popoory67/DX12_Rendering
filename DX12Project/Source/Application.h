@@ -10,7 +10,7 @@ public:
 	virtual bool Init();
 	virtual int Run();
 
-	GameTimer& GetTimer() const;
+	class GameTimer& GetTimer() const;
 
 private:
 

@@ -24,9 +24,9 @@
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
-enum class RenderType : UINT
+enum class RenderType : int
 {
-	Primitive,
+	Primitive = 0,
 	Material,
 
 	Max
@@ -36,10 +36,20 @@ class D3D12CommandList : public CommandListBase
 {
 public:
 	D3D12CommandList() = delete;
-	D3D12CommandList(class D3D12Device* InD3D12Device);
+	D3D12CommandList(class D3D12Device* InDevice);
 
-	ComPtr<ID3D12GraphicsCommandList>& Get() { return CommandList; }
-	ID3D12GraphicsCommandList* GetGraphics() { return CommandList.Get(); }
+	virtual ~D3D12CommandList() {}
+
+	ComPtr<ID3D12GraphicsCommandList>& Get() 
+	{
+		return CommandList; 
+	}
+	
+	ID3D12GraphicsCommandList* GetGraphicsInterface() const
+	{
+		return CommandList.Get(); 
+	}
+
 	ID3D12CommandList* GetCommandLists();
 
 	// Indicate a state transition on the resource usage.
@@ -75,11 +85,6 @@ public:
 
 	void Reset();
 
-	// 원래는 base에 있어야하는데 D3D12용 인터페이스라서 일단 여기에 둠1
-protected:
-// 	ComPtr<ID3D12DescriptorHeap> DescriptorHeap = nullptr;
-// 	ComPtr<ID3D12RootSignature> RootSignature = nullptr;
-
 private:
 	ComPtr<ID3D12GraphicsCommandList> CommandList = nullptr;
 	ComPtr<ID3D12CommandAllocator> CommandListAllocator = nullptr;
@@ -87,11 +92,28 @@ private:
 	std::vector<ID3D12DescriptorHeap*> Heaps;
 };
 
+class D3D12CommandListChild
+{
+public:
+	D3D12CommandListChild(D3D12CommandList* InParent = nullptr) : Parent(InParent) {}
+
+	D3D12CommandList* GetCommandList() const
+	{
+		assert(Parent);
+		return Parent;
+	}
+
+protected:
+	D3D12CommandList* Parent = nullptr;
+};
+
+
 class D3D12CommandListExecutor : public CommandListExecutor
 {
 public:
 	D3D12CommandListExecutor() = delete;
-	D3D12CommandListExecutor(class D3D12Device* InD3D12Device);
+	D3D12CommandListExecutor(class D3D12Device* InDevice);
+	virtual ~D3D12CommandListExecutor();
 
 	void Execute(CommandListBase& InCommandList) override {}
 	void Execute(class D3D12CommandList* InCommandList);

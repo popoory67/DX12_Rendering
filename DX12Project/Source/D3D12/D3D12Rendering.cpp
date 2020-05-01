@@ -34,19 +34,31 @@ D3D12Renderer& D3D12Renderer::GetInstance()
 
 bool D3D12Renderer::Initialize()
 {
-	D3D12Device* pDevice = new D3D12Device();
-	assert(pDevice);
+	Device.reset(new D3D12Device());
+	assert(Device);
 
-	CommandList = new D3D12CommandList(pDevice);
-	assert(CommandList);
-
-	RenderInterface.reset(new D3D12RenderInterface(pDevice, CommandList));
+	RenderInterface.reset(new D3D12RenderInterface(Device.get()));
 	assert(RenderInterface);
 
 	Renderer.reset(new SceneRenderer());
 	assert(Renderer);
 
- 	RenderInterface->OnResize(CommandList);
+	D3D12DeviceChild* DeviceChild = new D3D12DeviceChild(Device.get());
+	assert(DeviceChild);
+
+	SwapChain.reset(new D3D12SwapChain(DeviceChild));
+	assert(SwapChain);
+
+	SwapChain->Create(RenderInterface->GetCommandExecutor());
+	SwapChain->OnResize();
+
+	DepthStencilBuffer = new D3D12DepthStencilResource();
+
+	// on resize
+	if (DepthStencilBuffer)
+		DepthStencilBuffer->Reset();
+
+	OnResize();
 
 	// Update the viewport transform to cover the client area.
 	D3DViewportResource ScreenViewport;
@@ -57,7 +69,7 @@ bool D3D12Renderer::Initialize()
 	ScreenViewport.MinDepth = 0.0f;
 	ScreenViewport.MaxDepth = 1.0f;
 
-	RenderInterface->SetViewport(ScreenViewport);
+	RenderInterface->SetViewport(ScreenViewport, SwapChain.get());
 
 	// 리소스가 있을때 사용되는거라 일단 주석처리
 // 	BuildRootSignature();
@@ -102,58 +114,27 @@ void D3D12Renderer::Update(GameTimer& gt)
 void D3D12Renderer::Render(GameTimer& gt)
 {
 	// Ready to draw
-	CommandList->Reset();
+	RenderInterface->ResetCommandList();
 
-	RenderInterface->UpdateViewport(CommandList);
-	RenderInterface->ReadyToRenderTarget(CommandList);
+	RenderInterface->UpdateViewport(SwapChain.get());
+	RenderInterface->ReadyToRenderTarget(GetCurrentBackBuffer(), GetCurrentBackBufferView(), GetDepthStencilBufferView());
 
 // 	// --test
 //  	ID3D12DescriptorHeap* descriptorHeaps[] = { SrvHeap.Get() };
 //  	CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 //  	CommandList->SetGraphicsRootSignature(RootSignature.Get());
-	Renderer->RenderScreenView(CommandList);
+	Renderer->RenderScreenView(RenderInterface->GetCommnadList());
 
 //  	ID3D12Resource* PassConstBuffer = CurFrameResource->PassConstBuffer->Resource();
 //  	CommandList->SetGraphicsRootConstantBufferView(2, PassConstBuffer->GetGPUVirtualAddress()); // 임시 주석처리
 
 	// End draw
-	RenderInterface->FinishToRenderTarget(CommandList);
+	RenderInterface->FinishToRenderTarget(GetCurrentBackBuffer());
 
 	// Finish to recode resource
-	RenderInterface->ExecuteCommandList(CommandList);
-	RenderInterface->SwapBackBufferToFrontBuffer();
+	RenderInterface->ExecuteCommandList();
+	SwapChain->SwapBackBufferToFrontBuffer();
 	RenderInterface->FlushCommandQueue();
-}
-
-void D3D12Renderer::AddScene(Scene* InScene)
-{
-	assert(InScene);
-
-	auto it = SceneList.find(InScene->GetSceneId());
-	if (it == SceneList.cend())
-	{
-		InScene->SetSceneId(IndexCount);
-		SceneList.emplace(std::make_pair(IndexCount, InScene));
-
-		++IndexCount;
-	}
-}
-
-void D3D12Renderer::SetCurrentScene(int InIndex)
-{
-	assert(Renderer);
-
-	CurrentSceneIndex = InIndex;
-
-	auto it = SceneList.find(CurrentSceneIndex);
-	if (it != SceneList.cend())
-	{
-		Renderer->SetCurrentScene(it->second.get());
-	}
-	else
-	{
-		assert("There is no scene");
-	}
 }
 
 // void D3D12Renderer::UpdateCamera(const GameTimer& gt)
@@ -171,3 +152,65 @@ void D3D12Renderer::SetCurrentScene(int InIndex)
 // 	XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
 // 	XMStoreFloat4x4(&mView, view);
 // }
+
+void D3D12Renderer::OnResize()
+{
+	RenderInterface->ResetCommandList();
+
+	SwapChain->OnResize();
+
+	if (DepthStencilBuffer)
+		DepthStencilBuffer->Reset();
+
+	DepthStencilBuffer = new D3D12DepthStencilResource();
+
+	RenderInterface->ExecuteCommandList();
+	RenderInterface->FlushCommandQueue();
+}
+
+void D3D12Renderer::AddScene(Scene* InScene)
+{
+	assert(InScene || Renderer);
+	Renderer->AddScene(InScene);
+}
+
+void D3D12Renderer::SetCurrentScene(int InIndex)
+{
+	assert(Renderer);
+	Renderer->SetCurrentScene(InIndex);
+}
+
+D3D12Resource* D3D12Renderer::GetCurrentBackBuffer() const
+{
+	assert(SwapChain);
+	return SwapChain->GetCurrentBackBuffer();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE D3D12Renderer::GetCurrentBackBufferView() const
+{
+	assert(SwapChain);
+	return SwapChain->GetCurrentBackBufferView();
+}
+void D3D12Renderer::SwapBackBufferToFrontBuffer()
+{
+	assert(SwapChain);
+	SwapChain->SwapBackBufferToFrontBuffer();
+}
+
+DXGI_FORMAT D3D12Renderer::GetBackBufferFormat() const
+{
+	assert(SwapChain);
+	return SwapChain->GetBackBufferFormat();
+}
+
+DXGI_FORMAT D3D12Renderer::GetDepthStencilFormat() const
+{
+	assert(DepthStencilBuffer);
+	return DepthStencilBuffer->GetDepthStencilFormat();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE D3D12Renderer::GetDepthStencilBufferView() const
+{
+	assert(DepthStencilBuffer);
+	return DepthStencilBuffer->GetDepthStencilView();
+}

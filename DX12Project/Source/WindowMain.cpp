@@ -68,7 +68,9 @@ HWND WindowMain::GetWindowHandle()
 bool WindowMain::Init()
 {
 	if (InitMainWindow())
-		Parent::Init();
+		return Parent::Init();
+	
+	return false;
 }
 
 int WindowMain::Run()

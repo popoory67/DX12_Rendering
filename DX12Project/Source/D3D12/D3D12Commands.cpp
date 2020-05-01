@@ -6,11 +6,11 @@
 #include "D3D12PipelineState.h"
 #include "D3D12RootSignature.h"
 
-D3D12CommandList::D3D12CommandList(D3D12Device* InD3D12Device)
+D3D12CommandList::D3D12CommandList(D3D12Device* InDevice)
 {
-	assert(InD3D12Device);
+	assert(InDevice);
 
-	InD3D12Device->CreateCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT, CommandListAllocator, CommandList);
+	InDevice->CreateCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT, CommandListAllocator, CommandList);
 
 	// Start off in a closed state.  This is because the first time we refer 
 	// to the command list we will Reset it, and it needs to be closed before
@@ -124,7 +124,7 @@ void D3D12CommandList::ExecuteHeaps()
 	assert(CommandList);
 
 	if (!Heaps.empty())
-		CommandList->SetDescriptorHeaps(Heaps.size(), &(*Heaps.begin()));
+		CommandList->SetDescriptorHeaps((UINT)Heaps.size(), &(*Heaps.begin()));
 }
 
 void D3D12CommandList::FlushHeaps()
@@ -175,17 +175,21 @@ void D3D12CommandList::BindShaderResource(RenderType InRenderType, D3D12_GPU_VIR
 	CommandList->SetGraphicsRootShaderResourceView((UINT)InRenderType, InAddress);
 }
 
-D3D12CommandListExecutor::D3D12CommandListExecutor(D3D12Device* InD3D12Device)
+D3D12CommandListExecutor::D3D12CommandListExecutor(D3D12Device* InDevice)
 {
-	assert(InD3D12Device);
+	assert(InDevice);
 
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 
-	InD3D12Device->CreateCommandQueue(queueDesc, CommandQueue);
+	InDevice->CreateCommandQueue(queueDesc, CommandQueue);
 
-	Fence = new D3D12Fence(InD3D12Device);
+	Fence = new D3D12Fence(InDevice);
+}
+
+D3D12CommandListExecutor::~D3D12CommandListExecutor()
+{
 }
 
 void D3D12CommandListExecutor::Execute(D3D12CommandList* InCommandList)

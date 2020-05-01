@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 class Entity
 {
@@ -12,7 +13,7 @@ public:
 	bool IsEqualTypeId(size_t InTypeId);
 
 	template<typename ComponentType>
-	void AddComponent(class ComponentType* InCompnent)
+	void AddComponent(ComponentType* InCompnent)
 	{
 		if (InCompnent)
 		{
@@ -22,7 +23,7 @@ public:
 	}
 
 	template<typename ComponentType>
-	void AddComponent(std::shared_ptr<class ComponentType> InCompnent)
+	void AddComponent(std::shared_ptr<ComponentType> InCompnent)
 	{
 		if (InCompnent.use_count() > 0)
 		{

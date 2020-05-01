@@ -7,7 +7,7 @@ template<typename T>
 class UploadBuffer
 {
 public:
-	UploadBuffer(D3D12Device* InD3D12Device, UINT InElementCount = 0, bool InIsConstantBuffer = false) :
+	UploadBuffer(D3D12Device* InDevice, UINT InElementCount = 0, bool InIsConstantBuffer = false) :
 		IsConstantBuffer(InIsConstantBuffer)
 	{
 		ElementByteSize = sizeof(T);
@@ -24,7 +24,7 @@ public:
 
 		if (InElementCount > 0)
 		{
-			ThrowIfFailed(InD3D12Device->CreateCommittedResource(
+			ThrowIfFailed(InDevice->CreateCommittedResource(
 				Buffer,
 				D3D12_HEAP_TYPE_UPLOAD,
 				D3D12_HEAP_FLAG_NONE,
@@ -48,9 +48,9 @@ public:
 		MappedData = nullptr;
 	}
 
-	void CreateBuffer(UINT InElementCount)
+	void CreateBuffer(D3D12Device* InDevice, UINT InElementCount)
 	{
-		ThrowIfFailed(InD3D12Device->CreateCommittedResource(
+		ThrowIfFailed(InDevice->CreateCommittedResource(
 			Buffer,
 			D3D12_HEAP_TYPE_UPLOAD,
 			D3D12_HEAP_FLAG_NONE,

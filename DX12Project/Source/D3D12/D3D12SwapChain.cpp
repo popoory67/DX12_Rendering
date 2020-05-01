@@ -2,7 +2,6 @@
 #include "D3D12SwapChain.h"
 #include "D3DUtil.h"
 #include "d3dx12.h"
-#include "D3D12Device.h"
 #include "D3D12Resource.h"
 #include "D3D12Descriptor.h"
 #include "D3D12Commands.h"
@@ -13,10 +12,9 @@ D3D12_VIEWPORT D3D12SwapChain::ScreenViewport;
 bool D3D12SwapChain::IsMsaa4xState = false;
 UINT D3D12SwapChain::Msaa4xQuality = 0;
 
-D3D12SwapChain::D3D12SwapChain(D3D12Device* InDevice)
+D3D12SwapChain::D3D12SwapChain(D3D12DeviceChild* InDevice)
+	: D3D12DeviceChild(*InDevice)
 {
-	assert(InDevice);
-
 	ScreenViewport.Width = 800;
 	ScreenViewport.Height = 600;
 
@@ -26,10 +24,10 @@ D3D12SwapChain::D3D12SwapChain(D3D12Device* InDevice)
 	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	rtvHeapDesc.NodeMask = 0;
 
-	RenderTargetViewDesc = new D3D12Descriptor(InDevice, rtvHeapDesc, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	RenderTargetViewDesc = new D3D12Descriptor(this, rtvHeapDesc);
 }
 
-void D3D12SwapChain::CreateBuffer(D3D12Device* InDevice)
+void D3D12SwapChain::CreateBuffer()
 {
 	if (RenderTargetViewDesc)
 	{
@@ -44,16 +42,15 @@ void D3D12SwapChain::CreateBuffer(D3D12Device* InDevice)
 			{
 				if (!SwapChainBuffer[i])
 				{
-					SwapChainBuffer[i] = new D3D12RenderTargetResource(InDevice, this, rtvHeapHandle, RenderTargetViewDesc->GetSize(), i);
+					SwapChainBuffer[i] = new D3D12RenderTargetResource(this, rtvHeapHandle, RenderTargetViewDesc->GetSize(), i);
 				}
 			}
 		}
 	}
 }
 
-void D3D12SwapChain::OnResize(D3D12Device* InDevice)
+void D3D12SwapChain::OnResize()
 {
-	assert(InDevice);
 	assert(SwapChain);
 	assert(RenderTargetViewDesc);
 
@@ -74,7 +71,7 @@ void D3D12SwapChain::OnResize(D3D12Device* InDevice)
 
 	CurBackBufferIndex = 0;
 
-	CreateBuffer(InDevice);
+	CreateBuffer();
 }
 
 D3D12Resource* D3D12SwapChain::GetCurrentBackBuffer() const
@@ -94,9 +91,9 @@ D3D12_CPU_DESCRIPTOR_HANDLE D3D12SwapChain::GetCurrentBackBufferView() const
 		RenderTargetViewDesc->GetSize());
 }
 
-void D3D12SwapChain::Create(D3D12Device* InDevice, D3D12CommandListExecutor* InExecutor)
+void D3D12SwapChain::Create(D3D12CommandListExecutor* InExecutor)
 {
-	assert(InDevice && InDevice->GetWindowHandle());
+	assert(GetParent()->GetWindowHandle());
 	assert(InExecutor);
 
 	// Release the previous swapchain we will be recreating.
@@ -115,13 +112,13 @@ void D3D12SwapChain::Create(D3D12Device* InDevice, D3D12CommandListExecutor* InE
 		swapChainDesc.SampleDesc.Quality = IsMsaa4xState ? (Msaa4xQuality - 1) : 0;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferCount = SwapChainBufferCount;
-		swapChainDesc.OutputWindow = InDevice->GetWindowHandle();
+		swapChainDesc.OutputWindow = GetParent()->GetWindowHandle();
 		swapChainDesc.Windowed = true;
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 		// Note: Swap chain uses queue to perform flush.
-		InDevice->CreateSwapChain(InExecutor, this, swapChainDesc);
+		GetParent()->CreateSwapChain(InExecutor, this, swapChainDesc);
 	}
 	{
 		// Check 4X MSAA quality support for our back buffer format.
@@ -133,7 +130,7 @@ void D3D12SwapChain::Create(D3D12Device* InDevice, D3D12CommandListExecutor* InE
 		MultiSampleQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
 		MultiSampleQualityLevels.NumQualityLevels = 0;
 
-		InDevice->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, MultiSampleQualityLevels);
+		GetParent()->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, MultiSampleQualityLevels);
 
 		Msaa4xQuality = MultiSampleQualityLevels.NumQualityLevels;
 	}

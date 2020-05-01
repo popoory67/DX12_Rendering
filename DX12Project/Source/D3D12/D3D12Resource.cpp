@@ -12,19 +12,18 @@
 #include "Material.h"
 #include "Texture.h"
 
-D3D12Resource::D3D12Resource()
+D3D12Resource::D3D12Resource(D3D12DeviceChild* InDevice, D3D12CommandListChild* InCommandList, std::optional<D3D12_RESOURCE_DESC> InDesc /*= {}*/, std::optional<D3D12_CLEAR_VALUE> InValue /*= {}*/)
+	: D3D12DeviceChild(*InDevice),
+	D3D12CommandListChild(*InCommandList)
 {
-
+	CreateResource(InDesc.value(), InValue.value());
 }
 
-D3D12Resource::D3D12Resource(D3D12Device* InDevice, D3D12_RESOURCE_DESC InDesc, D3D12_CLEAR_VALUE InValue)
+D3D12Resource::D3D12Resource(D3D12DeviceChild* InDevice, D3D12CommandListChild* InCommandList, UINT64 InByteSize, std::optional<D3D12_CLEAR_VALUE> InValue /*= {}*/)
+	: D3D12DeviceChild(*InDevice),
+	D3D12CommandListChild(*InCommandList)
 {
-	CreateResource(InDevice, InDesc, InValue);
-}
-
-D3D12Resource::D3D12Resource(D3D12Device* InDevice, UINT64 InByteSize, D3D12_CLEAR_VALUE InValue)
-{
-	CreateResource(InDevice, InByteSize, InValue);
+	CreateResource(InByteSize, InValue.value());
 }
 
 void D3D12Resource::Reset()
@@ -32,13 +31,11 @@ void D3D12Resource::Reset()
 	Resource.Reset();
 }
 
-void D3D12Resource::CreateResource(D3D12Device* InDevice, D3D12_RESOURCE_DESC& InDesc, D3D12_CLEAR_VALUE& InValue)
+void D3D12Resource::CreateResource(D3D12_RESOURCE_DESC& InDesc, D3D12_CLEAR_VALUE& InValue)
 {
-	assert(InDevice);
-
 	Resource.Reset();
 
-	InDevice->CreateCommittedResource(
+	GetParent()->CreateCommittedResource(
 		this,
 		D3D12_HEAP_TYPE_DEFAULT,
 		D3D12_HEAP_FLAG_NONE,
@@ -47,16 +44,14 @@ void D3D12Resource::CreateResource(D3D12Device* InDevice, D3D12_RESOURCE_DESC& I
 		InValue);
 }
 
-void D3D12Resource::CreateResource(D3D12Device* InDevice, UINT64 InByteSize, D3D12_CLEAR_VALUE& InValue)
+void D3D12Resource::CreateResource(UINT64 InByteSize, D3D12_CLEAR_VALUE& InValue)
 {
-	assert(InDevice);
-
 	Resource.Reset();
 
 	CD3DX12_RESOURCE_DESC desc;
 	memcpy((void*)&desc, (void*)&CD3DX12_RESOURCE_DESC::Buffer(InByteSize), sizeof(CD3DX12_RESOURCE_DESC));
 
-	InDevice->CreateCommittedResource(
+	GetParent()->CreateCommittedResource(
 		this,
 		D3D12_HEAP_TYPE_DEFAULT,
 		D3D12_HEAP_FLAG_NONE,
@@ -67,19 +62,15 @@ void D3D12Resource::CreateResource(D3D12Device* InDevice, UINT64 InByteSize, D3D
 
 // -------------------------------------------------------------------------------------------------------------------- //
 
-void D3D12DefaultResource::CreateDefaultBuffer(class D3D12Device* InDevice, class D3D12CommandList* InCommandList, const void* InInitData, UINT64 InByteSize)
+void D3D12DefaultResource::CreateDefaultBuffer(const void* InInitData, UINT64 InByteSize)
 {
-	assert(InDevice);
-	assert(InCommandList);
-
 	D3D12Resource* pDefaultResource = new D3D12Resource();
 
 	// Create the actual default buffer resource.
-	InDevice->CreateCommittedResource(pDefaultResource, D3D12_HEAP_TYPE_DEFAULT, D3D12_HEAP_FLAG_NONE, InByteSize, D3D12_RESOURCE_STATE_COMMON);
+	GetParent()->CreateCommittedResource(pDefaultResource, D3D12_HEAP_TYPE_DEFAULT, D3D12_HEAP_FLAG_NONE, InByteSize, D3D12_RESOURCE_STATE_COMMON);
 
-	// In order to copy CPU memory data into our default buffer, we need to create
-	// an intermediate upload heap. 
-	InDevice->CreateCommittedResource(UploadResource, D3D12_HEAP_TYPE_UPLOAD, D3D12_HEAP_FLAG_NONE, InByteSize, D3D12_RESOURCE_STATE_GENERIC_READ);
+	// In order to copy CPU memory data into our default buffer, we need to create an intermediate upload heap. 
+	GetParent()->CreateCommittedResource(UploadResource, D3D12_HEAP_TYPE_UPLOAD, D3D12_HEAP_FLAG_NONE, InByteSize, D3D12_RESOURCE_STATE_GENERIC_READ);
 
 	// Describe the data we want to copy into the default buffer.
 	D3D12_SUBRESOURCE_DATA subResourceData = {};
@@ -90,11 +81,11 @@ void D3D12DefaultResource::CreateDefaultBuffer(class D3D12Device* InDevice, clas
 	// Schedule to copy the data to the default buffer resource.  At a high level, the helper function UpdateSubresources
 	// will copy the CPU memory into the intermediate upload heap.  Then, using ID3D12CommandList::CopySubresourceRegion,
 	// the intermediate upload heap data will be copied to mBuffer.
-	InCommandList->ResourceBarrier(pDefaultResource, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+	GetCommandList()->ResourceBarrier(pDefaultResource, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
 
-	InCommandList->UpdateResources<1>(pDefaultResource, UploadResource, 0, 0, 1, subResourceData);
+	GetCommandList()->UpdateResources<1>(pDefaultResource, UploadResource, 0, 0, 1, subResourceData);
 
-	InCommandList->ResourceBarrier(pDefaultResource, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
+	GetCommandList()->ResourceBarrier(pDefaultResource, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
 
 	// Note: UploadBuffer has to be kept alive after the above function calls because
 	// the command list has not been executed yet that performs the actual copy.
@@ -103,39 +94,34 @@ void D3D12DefaultResource::CreateDefaultBuffer(class D3D12Device* InDevice, clas
 
 // -------------------------------------------------------------------------------------------------------------------- //
 
-D3D12RenderTargetResource::D3D12RenderTargetResource(class D3D12Device* InDevice, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize)
+D3D12RenderTargetResource::D3D12RenderTargetResource(CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize)
 {
-	assert(InDevice);
-
-	InDevice->CreateRenderTargetView(Resource, nullptr, InDescriptorHandle);
+	GetParent()->CreateRenderTargetView(Resource, nullptr, InDescriptorHandle);
 	InDescriptorHandle.Offset(1, InDescriptorSize);
 }
 
-D3D12RenderTargetResource::D3D12RenderTargetResource(D3D12Device* InDevice, D3D12SwapChain* InSwapChain, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize, unsigned int InIndex)
+D3D12RenderTargetResource::D3D12RenderTargetResource(D3D12SwapChain* InSwapChain, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize, unsigned int InIndex)
 {
-	assert(InDevice || InSwapChain);
+	assert(InSwapChain);
 
 	if (InSwapChain->Get())
 		ThrowIfFailed(InSwapChain->Get()->GetBuffer(InIndex, IID_PPV_ARGS(&Resource)));
 
-	InDevice->CreateRenderTargetView(Resource, nullptr, InDescriptorHandle);
+	GetParent()->CreateRenderTargetView(Resource, nullptr, InDescriptorHandle);
 	InDescriptorHandle.Offset(1, InDescriptorSize);
 }
 
 // -------------------------------------------------------------------------------------------------------------------- //
 
-D3D12DepthStencilResource::D3D12DepthStencilResource(D3D12Device* InDevice, D3D12CommandList* InCommandList)
+D3D12DepthStencilResource::D3D12DepthStencilResource()
 {
-	assert(InDevice);
-	assert(InCommandList);
-
 	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
 	dsvHeapDesc.NumDescriptors = 1;
 	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	dsvHeapDesc.NodeMask = 0;
 
-	DepthStencilDesc = new D3D12Descriptor(InDevice, dsvHeapDesc, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	DepthStencilDesc = new D3D12Descriptor(this, dsvHeapDesc);
 	if (DepthStencilDesc)
 	{
 		// Create the depth/stencil buffer and view.
@@ -165,9 +151,9 @@ D3D12DepthStencilResource::D3D12DepthStencilResource(D3D12Device* InDevice, D3D1
 		optClear.DepthStencil.Stencil = 0;
 
 		// Transition the resource from its initial state to be used as a depth buffer.
-		CreateResource(InDevice, depthStencilDesc, optClear);
+		CreateResource(depthStencilDesc, optClear);
 
-		InCommandList->ResourceBarrier(this, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+		GetCommandList()->ResourceBarrier(this, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
 		// Create descriptor to mip level 0 of entire resource using the format of the resource.
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
@@ -176,7 +162,7 @@ D3D12DepthStencilResource::D3D12DepthStencilResource(D3D12Device* InDevice, D3D1
 		dsvDesc.Format = DepthStencilFormat;
 		dsvDesc.Texture2D.MipSlice = 0;
 
-		InDevice->CreateDepthStencilView(Resource, DepthStencilDesc, dsvDesc);
+		GetParent()->CreateDepthStencilView(Resource, DepthStencilDesc, dsvDesc);
 	}
 }
 
@@ -189,21 +175,19 @@ D3D12_CPU_DESCRIPTOR_HANDLE D3D12DepthStencilResource::GetDepthStencilView() con
 
 // -------------------------------------------------------------------------------------------------------------------- //
 
-D3D12ShaderResource::D3D12ShaderResource(D3D12Device* InDevice, D3D12CommandList* InCommandList/* = nullptr*/, std::string InName/* = nullptr*/, std::wstring InFilePath/* = nullptr*/)
+D3D12ShaderResource::D3D12ShaderResource(std::string InName/* = nullptr*/, std::wstring InFilePath/* = nullptr*/)
 {
-	assert(InDevice);
-
 	// Create the SRV heap.
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
 	srvHeapDesc.NumDescriptors = 1;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
-	ShaderResourceDesc = new D3D12Descriptor(InDevice, srvHeapDesc, D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	ShaderResourceDesc = new D3D12Descriptor(this, srvHeapDesc);
 
 	// 리소스 테스트
 	// 텍스쳐를 어떻게 정리할지 고민해야함
-	LoadTextures(InDevice, InCommandList, InName, InFilePath);
+	LoadTextures(InName, InFilePath);
 	assert(Resource);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -214,7 +198,7 @@ D3D12ShaderResource::D3D12ShaderResource(D3D12Device* InDevice, D3D12CommandList
 	srvDesc.Texture2D.MipLevels = Resource->GetDesc().MipLevels;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-	InDevice->CreateShaderView(Resource, ShaderResourceDesc, srvDesc);
+	GetParent()->CreateShaderView(Resource, ShaderResourceDesc, srvDesc);
 }
 
 // 
@@ -232,20 +216,15 @@ D3D12ShaderResource::D3D12ShaderResource(D3D12Device* InDevice, D3D12CommandList
 // }
 // 
 
-void D3D12ShaderResource::LoadTextures(class D3D12Device* InDevice, class D3D12CommandList* InCommandList, std::string InName/* = nullptr*/, std::wstring InFilePath/* = nullptr*/)
+void D3D12ShaderResource::LoadTextures(std::string InName/* = nullptr*/, std::wstring InFilePath/* = nullptr*/)
 {
-	assert(InDevice);
-
-	if (InCommandList)
+	Texture = std::make_unique<TextureData>();
+	if (Texture)
 	{
-		Texture = std::make_unique<TextureData>();
-		if (Texture)
-		{
-			Texture->Name = InName; // "woodCrateTex";
-			Texture->Filename = InFilePath;// L"../../Textures/WoodCrate01.dds";
+		Texture->Name = InName; // "woodCrateTex";
+		Texture->Filename = InFilePath;// L"../../Textures/WoodCrate01.dds";
 
-			ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(InDevice->GetInterface(), InCommandList->GetGraphics(), Texture->Filename.c_str(), Resource, Texture->UploadHeap));
-		}
+		ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(GetParent()->GetDeviceInterface(), GetCommandList()->GetGraphicsInterface(), Texture->Filename.c_str(), Resource, UploadTextureResource->Get()));
 	}
 }
 

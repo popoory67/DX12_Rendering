@@ -19,9 +19,9 @@ SceneRenderer::~SceneRenderer()
 
 }
 
-void SceneRenderer::Initialize(D3D12Device* InD3D12Device)
+void SceneRenderer::Initialize()
 {
-	ObjectConstBuffer = std::make_unique<D3D12UploadResource<Primitive>>(InD3D12Device, PrimitiveItems.size(), true);
+
 }
 
 void SceneRenderer::RenderScreenView(D3D12CommandList* InCommandList)
@@ -44,12 +44,11 @@ void SceneRenderer::RenderPrimitives(D3D12CommandList* InCommandList)
 {
 	assert(InCommandList);
 
-	UINT objCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(Transform));
+	std::vector<PrimitiveComponent*> OutComponents;
+	CurrentScene->GetComponents<PrimitiveComponent>(OutComponents);
 
-	// scenelist
-	for (auto it : PrimitiveItems)
+	for (const PrimitiveComponent* pPrimitive : OutComponents)
 	{
-		const Primitive* pPrimitive = it.second;
 		if (pPrimitive)
 		{
 			InCommandList->SetVertexBuffers(0, 1, pPrimitive->VertexBufferView());
@@ -58,43 +57,71 @@ void SceneRenderer::RenderPrimitives(D3D12CommandList* InCommandList)
 
 			InCommandList->DrawIndexedInstanced(pPrimitive->GetIndexCount(), 1, pPrimitive->GetStartIndexLocation(), pPrimitive->GetBaseVertexLocation(), 0);
 		}
-
-		D3D12_GPU_VIRTUAL_ADDRESS address = ObjectConstBuffer->Resource()->GetGPUVirtualAddress() + pPrimitive->GetIndex() * objCBByteSize;
-
-		InCommandList->BindConstBuffer(RenderType::Primitive, address);
 	}
+
+	UpdateConstBuffers<PrimitiveComponent>(InCommandList, RenderType::Primitive, OutComponents.size(), PrimitiveComponent::GetBatchSize());
 }
 
 void SceneRenderer::RenderMaterials(D3D12CommandList* InCommandList)
 {
 	assert(InCommandList);
 
-// 	UINT matCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
-// 
-// 	auto matCB = MaterialConstBuffer->Resource();
-// 	D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress();
-// 
-// 	for (auto it : MaterialItems)
-// 	{
-// 		const Material* pMaterial = it.second;
-// 		if (pMaterial)
-// 		{
-// 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex(SrvHeap->GetGPUDescriptorHandleForHeapStart());
-// 			tex.Offset(pMaterial->GetDiffuseSrvHeapIndex(), CbvSrvUavDescriptorSize); // CbvSrvUavDescriptorSize = 32
-// 
-// 			InCommandList->SetGraphicsRootDescriptorTable(0, tex);
-// 
-// 			D3D12_GPU_VIRTUAL_ADDRESS address = matCBAddress + pMaterial->GetIndex() * matCBByteSize;
-// 
-// 			InCommandList->SetGraphicsRootConstantBufferView(3, address);
-// 		}
-// 	}
+ 	//UINT matCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
+ 
+ 	//auto matCB = MaterialConstBuffer->Resource();
+ 	//D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress();
+ 
+ 	//for (auto it : MaterialItems)
+ 	//{
+ 	//	const Material* pMaterial = it.second;
+ 	//	if (pMaterial)
+ 	//	{
+ 	//		CD3DX12_GPU_DESCRIPTOR_HANDLE tex(SrvHeap->GetGPUDescriptorHandleForHeapStart());
+ 	//		tex.Offset(pMaterial->GetDiffuseSrvHeapIndex(), CbvSrvUavDescriptorSize); // CbvSrvUavDescriptorSize = 32
+ 
+ 	//		InCommandList->SetGraphicsRootDescriptorTable(0, tex);
+ 
+ 	//		D3D12_GPU_VIRTUAL_ADDRESS address = matCBAddress + pMaterial->GetIndex() * matCBByteSize;
+ 
+ 	//		InCommandList->SetGraphicsRootConstantBufferView(3, address);
+ 	//	}
+ 	//}
 }
 
-void SceneRenderer::SetCurrentScene(Scene * InScene)
+std::shared_ptr<class Scene> SceneRenderer::GetCurrentScene()
+{
+	return CurrentScene;
+}
+
+void SceneRenderer::AddScene(Scene* InScene)
 {
 	assert(InScene);
-	CurrentScene = InScene;
+
+	auto it = SceneList.find(InScene->GetSceneId());
+	if (it == SceneList.cend())
+	{
+		InScene->SetSceneId(IndexCount);
+		SceneList.emplace(std::make_pair(IndexCount, InScene));
+
+		++IndexCount;
+	}
+}
+
+void SceneRenderer::SetCurrentScene(int InIndex)
+{
+	auto it = SceneList.find(CurrentSceneIndex);
+	if (it != SceneList.cend())
+	{
+		if (InIndex >= 0)
+		{
+			CurrentSceneIndex = InIndex;
+			CurrentScene = it->second;
+		}
+	}
+	else
+	{
+		assert("There isn't such scene");
+	}
 }
 
 void SceneRenderer::SceneRendering()

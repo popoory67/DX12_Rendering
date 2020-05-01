@@ -2,11 +2,6 @@
 #include "Entity.h"
 #include "Component.h"
 
-Entity::Entity()
-{
-
-}
-
 void Entity::AddType(const type_info& InType)
 {
 	auto it = std::find(Types.cbegin(), Types.cend(), InType);

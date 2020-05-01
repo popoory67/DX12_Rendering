@@ -16,12 +16,17 @@ Application::~Application()
 
 bool Application::Init()
 {
-	D3D12Renderer::GetInstance().Initialize();
+	if (D3D12Renderer::GetInstance().Initialize())
+	{
+		// test scene
+		TestScene* test = new TestScene();
+		D3D12Renderer::GetInstance().AddScene(test);
+		D3D12Renderer::GetInstance().SetCurrentScene(test->GetSceneId());
 
-	// test scene
-	TestScene* test = new TestScene();
-	D3D12Renderer::GetInstance().AddScene(test);
-	D3D12Renderer::GetInstance().SetCurrentScene(test->GetSceneId());
+		return true;
+	}
+
+	return false;
 }
 
 int Application::Run()
@@ -29,6 +34,8 @@ int Application::Run()
 	//CalculateFrameStats();
 	D3D12Renderer::GetInstance().Update(GetTimer());
 	D3D12Renderer::GetInstance().Render(GetTimer());
+
+	return 1;
 }
 
 GameTimer& Application::GetTimer() const

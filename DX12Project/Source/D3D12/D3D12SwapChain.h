@@ -2,14 +2,14 @@
 #include <dxgi.h>
 #include <d3d12.h>
 #include "D3DUtil.h"
+#include "D3D12Device.h"
 
 using namespace Microsoft::WRL;
 
-class D3D12SwapChain
+class D3D12SwapChain : public D3D12DeviceChild
 {
 public:
-	D3D12SwapChain() = delete;
-	D3D12SwapChain(class D3D12Device* InDevice);
+	D3D12SwapChain(class D3D12DeviceChild* InDevice);
 	virtual ~D3D12SwapChain() {}
 
 	ComPtr<IDXGISwapChain>& Get() { return SwapChain; }
@@ -22,18 +22,18 @@ public:
 	static bool IsMsaa4xEnabled() { return IsMsaa4xState; }
 	DXGI_FORMAT GetBackBufferFormat() { return BackBufferFormat; }
 
-	void OnResize(class D3D12Device* InDevice);
+	void OnResize();
 	class D3D12Resource* GetCurrentBackBuffer() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
 	unsigned int GetSwapChainBufferCount() { return SwapChainBufferCount; }
 
-	void Create(class D3D12Device* InDevice, class D3D12CommandListExecutor* InExecutor);
+	void Create(class D3D12CommandListExecutor* InExecutor);
 	void SwapBackBufferToFrontBuffer();
 
 	float AspectRatio() const;
 
 private:
-	void CreateBuffer(class D3D12Device* InDevice);
+	void CreateBuffer();
 
 private:
 	// 화면을 표시하는 전면/후면 버퍼를 전환해주는 인터페이스(이중 버퍼링)
