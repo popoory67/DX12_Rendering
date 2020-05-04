@@ -13,13 +13,14 @@ public:
 	template<typename ComponentType>
 	void GetComponents(std::vector<ComponentType*> OutComponents)
 	{
-		for (auto pEntity : Entities)
-		{
-			if (pEntity)
-			{
-				pEntity->GetComponents<ComponentType>(OutComponents);
-			}
-		}
+		//for (auto entityList : Entities)
+		//{
+
+		//	if (pEntity)
+		//	{
+		//		pEntity->GetComponents<ComponentType>(OutComponents);
+		//	}
+		//}
 	}
 
 private:

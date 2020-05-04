@@ -15,6 +15,8 @@
 #include <cassert>
 #include <wrl.h>
 #include <optional>
+#include <any>
+#include <typeindex>
 
 #if defined(DEBUG) || defined(_DEBUG)
 #define _CRTDBG_MAP_ALLOC

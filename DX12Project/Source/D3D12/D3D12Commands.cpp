@@ -2,7 +2,6 @@
 #include "D3D12Commands.h"
 #include "D3D12Device.h"
 #include "D3D12Fence.h"
-#include "D3D12Resource.h"
 #include "D3D12PipelineState.h"
 #include "D3D12RootSignature.h"
 
@@ -50,15 +49,6 @@ void D3D12CommandList::ResourceBarrier(D3D12Resource* InResource, D3D12_RESOURCE
 	assert(InResource);
 
 	CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(InResource->GetInterface(), InFrom, InTo));
-}
-
-template <UINT MaxResources>
-void D3D12CommandList::UpdateResources(class D3D12Resource* InDestResource, class D3D12Resource* InFromResource, UINT InFirstSubresource, UINT InNumSubresources, UINT64 InRequiredSize, std::optional<D3D12_SUBRESOURCE_DATA> InSubresourceData/* = {}*/)
-{
-	assert(InDestResource);
-	assert(InFromResource);
-
-	UpdateSubresources<MaxResources>(CommandList.Get(), InDestResource->GetInterface(), InFromResource->GetInterface(), InRequiredSize, InFirstSubresource, InNumSubresources, &InSubresourceData.value());
 }
 
 void D3D12CommandList::ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptorHandle, XMVECTORF32 InBackColor, UINT InNumRects, const D3D12_RECT* InRect/* = nullptr*/)
@@ -111,12 +101,12 @@ void D3D12CommandList::DrawIndexedInstanced(UINT InIndexCountPerInstance, UINT I
 	CommandList->DrawIndexedInstanced(InIndexCountPerInstance, InInstanceCount, InStartIndexLocation, InBaseVertexLocation, InStartInstanceLocation);
 }
 
-void D3D12CommandList::AddDescriptorHeap(class D3D12Descriptor* InDescriptor)
+void D3D12CommandList::AddDescriptorHeap(D3D12Descriptor* InDescriptor)
 {
 	assert(CommandList);
 	assert(InDescriptor);
 
-	Heaps.emplace_back(InDescriptor);
+	Heaps.emplace_back(InDescriptor->Get());
 }
 
 void D3D12CommandList::ExecuteHeaps()

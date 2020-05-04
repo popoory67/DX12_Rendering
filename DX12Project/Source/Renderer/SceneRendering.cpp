@@ -11,10 +11,8 @@
 
 SceneRenderer::SceneRenderer(D3D12RenderInterface* InInterface)
 {
-	Interface = std::make_unique<RenderInterface>();
+	Interface = std::make_unique<RenderInterface>(InInterface);
 	assert(Interface);
-
-	Interface->SetInterface(InInterface);
 }
 
 SceneRenderer::~SceneRenderer()

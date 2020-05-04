@@ -27,8 +27,9 @@ public:
 	{
 		if (InCompnent.use_count() > 0)
 		{
+			std::type_index type(typeid(InCompnent));
 			Components.emplace_back(InCompnent.get());
-			AddType(typeid(ComponentType));
+			AddType(type);
 		}
 	}
 
@@ -48,14 +49,14 @@ public:
 
 private:
 
-	void AddType(const type_info& InType);
+	void AddType(std::type_index InType);
 	
 private:
 
 	// Index into GPU constant buffer corresponding to the ObjectCB for this render item.
 //	UINT ObjCBIndex = -1;
 
-	std::vector<type_info> Types;
+	std::vector<std::type_index> Types;
 	std::vector<class Component*> Components;
 
 	size_t TypeId;

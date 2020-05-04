@@ -21,11 +21,7 @@ public:
 	template<typename DataType>
 	void AddShaderBinding(std::string InName, DataType InData)
 	{
-		std::unique_ptr<Binding<DataType>> bound = std::make_unique<Binding<DataType>>();
-		bound->dataType = typeid(DataType);
-		bound->value = InData;
-
-		Bindings.emplace(std::make_pair(InName, bound));
+		Bindings.emplace(std::make_pair(InName, InData));
 	}
 
 	template<typename DataType>
@@ -34,25 +30,13 @@ public:
 		auto it = Bindings.find(InName);
 		if (it != Bindings.cend())
 		{
-			static_cast<Binding<DataType>>(it->second)->value = InData;
+			it->second = InData;
 		}
 	}
 
 	UINT GetBindingSize();
 
 private:
-	struct BindingInterface
-	{
-		type_info dataType;
 
-		virtual ~BindingInterface() = default;
-	};
-
-	template<typename DataType>
-	struct Binding : public BindingInterface
-	{
-		DataType value;
-	};
-
-	std::map<std::string, std::unique_ptr<BindingInterface>> Bindings;
+	std::map<std::string, std::any> Bindings;
 };
