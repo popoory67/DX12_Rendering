@@ -29,7 +29,7 @@
     <ClCompile Include="Source\D3D12\D3D12RenderInterface.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Resource.cpp" />
     <ClCompile Include="Source\D3D12\D3D12RootSignature.cpp" />
-    <ClCompile Include="Source\D3D12\D3D12SwapChain.cpp" />
+    <ClCompile Include="Source\D3D12\D3D12Viewport.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Rendering.cpp" />
     <ClCompile Include="Source\D3D12\D3DUtil.cpp" />
     <ClCompile Include="Source\D3D12\DDSTextureLoader.cpp" />
@@ -43,6 +43,7 @@
     <ClCompile Include="Source\Renderer\Light.cpp" />
     <ClCompile Include="Source\Renderer\Material.cpp" />
     <ClCompile Include="Source\Renderer\Mesh.cpp" />
+    <ClCompile Include="Source\Renderer\RenderInterface.cpp" />
     <ClCompile Include="Source\Renderer\Scene.cpp" />
     <ClCompile Include="Source\Renderer\SceneRendering.cpp" />
     <ClCompile Include="Source\Renderer\Texture.cpp" />
@@ -67,7 +68,7 @@
     <ClInclude Include="Source\D3D12\D3D12RenderInterface.h" />
     <ClInclude Include="Source\D3D12\D3D12Resource.h" />
     <ClInclude Include="Source\D3D12\D3D12RootSignature.h" />
-    <ClInclude Include="Source\D3D12\D3D12SwapChain.h" />
+    <ClInclude Include="Source\D3D12\D3D12Viewport.h" />
     <ClInclude Include="Source\D3D12\D3D12Rendering.h" />
     <ClInclude Include="Source\D3D12\D3DUtil.h" />
     <ClInclude Include="Source\D3D12\d3dx12.h" />
@@ -83,6 +84,7 @@
     <ClInclude Include="Source\Renderer\Light.h" />
     <ClInclude Include="Source\Renderer\Material.h" />
     <ClInclude Include="Source\Renderer\Mesh.h" />
+    <ClInclude Include="Source\Renderer\RenderInterface.h" />
     <ClInclude Include="Source\Renderer\Scene.h" />
     <ClInclude Include="Source\Renderer\SceneRendering.h" />
     <ClInclude Include="Source\Renderer\Texture.h" />

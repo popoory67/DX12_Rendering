@@ -20,12 +20,12 @@ RenderComponent::~RenderComponent()
 {
 }
 
-UINT RenderComponent::GetBatchSize()
+UINT RenderComponent::GetBindingSize()
 {
 	size_t size = 0;
-	for (auto it : Batches)
+	for (auto it = Bindings.cbegin(); it != Bindings.cend(); ++it)
 	{
-		size += it.second.dataType;
+		size += sizeof(it->second->dataType);
 	}
 
 	return D3DUtil::CalcConstantBufferByteSize((UINT)size);

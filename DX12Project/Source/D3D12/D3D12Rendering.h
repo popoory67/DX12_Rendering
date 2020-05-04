@@ -31,10 +31,10 @@ public:
 
 	static class D3D12Renderer& GetInstance();
 
-	class D3D12Device* GetDevice()
-	{
-		return Device.get();
-	}
+	//class D3D12Device* GetDevice()
+	//{
+	//	return DeviceChild->GetParent();
+	//}
 
 	virtual bool Initialize();
 	virtual void Update(GameTimer& InTimer)/* = 0*/; // update datas
@@ -46,23 +46,22 @@ public:
 private:
 	D3D12Renderer();
 
-	void SwapBackBufferToFrontBuffer();
-	class D3D12Resource* GetCurrentBackBuffer() const;
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
-	D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilBufferView() const;
-	DXGI_FORMAT GetBackBufferFormat() const;
-	DXGI_FORMAT GetDepthStencilFormat() const;
+	//void SwapBackBufferToFrontBuffer();
+	//class D3D12Resource* GetCurrentBackBuffer() const;
+	//D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
+	//D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilBufferView() const;
+	//DXGI_FORMAT GetBackBufferFormat() const;
+	//DXGI_FORMAT GetDepthStencilFormat() const;
 
 	void OnResize();
 
 private:
 	static D3D12Renderer* Instance;
 
-	std::unique_ptr<class D3D12Device> Device; // multi gpu 지원 안함
+	std::unique_ptr<class D3D12DeviceChild> DeviceChild; // multi gpu 지원 안함
 	std::unique_ptr<class D3D12RenderInterface> RenderInterface;
+	std::unique_ptr<class D3D12Viewport> Viewport;
 	std::unique_ptr<class SceneRenderer> Renderer;
-	std::unique_ptr<class D3D12SwapChain> SwapChain;
-	class D3D12DepthStencilResource* DepthStencilBuffer = nullptr;
 
 	ComPtr<ID3D12Fence> Fence;
 	UINT64 CurrentFenceCount = 0;

@@ -7,7 +7,7 @@ D3D12Fence::D3D12Fence(D3D12Device* InDevice)
 {
 	assert(InDevice);
 
-	ThrowIfFailed(InDevice->Get()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&Fence)));
+	ThrowIfFailed(InDevice->GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&Fence)));
 }
 
 D3D12Fence::~D3D12Fence()

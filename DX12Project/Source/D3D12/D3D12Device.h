@@ -27,7 +27,7 @@ public:
 		ReturnCheckAssert(Device); 
 	}
 
-	ID3D12Device* GetDeviceInterface()
+	ID3D12Device* GetDeviceInterface() const
 	{ 
 		assert(Device); ReturnCheckAssert(Device.Get());
 	}
@@ -42,21 +42,29 @@ public:
 		ReturnCheckAssert(MainWindowHandle); 
 	}
 
+	class D3D12CommandList* GetCommandList()
+	{
+		ReturnCheckAssert(CommandList.get());
+	}
+
+	void ExecuteCommands();
+	void FlushCommandQueue();
+
 	// Command interfaces
 	void CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE InCommandListType, ComPtr<ID3D12CommandAllocator>& InCommandAllocator);
 	void CreateCommandList(D3D12_COMMAND_LIST_TYPE InCommandListType, ComPtr<ID3D12CommandAllocator>& InCommandAllocator, ComPtr<ID3D12GraphicsCommandList>& InCommandList);
 	void CreateCommandQueue(D3D12_COMMAND_QUEUE_DESC& InQueueDesc, ComPtr<ID3D12CommandQueue>& InCommandQueue);
 
 	// Swap chain interfaces
-	void CreateSwapChain(class D3D12CommandListExecutor* InExecutor, class D3D12SwapChain* InSwapChain, DXGI_SWAP_CHAIN_DESC& InSwapChainDesc);
+	void CreateSwapChain(class D3D12Viewport* InViewport, DXGI_SWAP_CHAIN_DESC& InSwapChainDesc);
 	void CheckFeatureSupport(D3D12_FEATURE InFeature, D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS& InMultisampleQualityLevels);
 
 	// Resource interfaces
 	void CreateCommittedResource(class D3D12Resource* InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, D3D12_RESOURCE_DESC& InDesc, D3D12_RESOURCE_STATES InResourceStates, std::optional<D3D12_CLEAR_VALUE> InValue = {});
 	void CreateCommittedResource(class D3D12Resource* InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, UINT64 InByteSize, D3D12_RESOURCE_STATES InResourceStates, std::optional<D3D12_CLEAR_VALUE> InValue = {});
-	void CreateRenderTargetView(ComPtr<ID3D12Resource>& InResource, const D3D12_RENDER_TARGET_VIEW_DESC* InDesc, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle);
-	void CreateDepthStencilView(ComPtr<ID3D12Resource>& InResource, class D3D12Descriptor* InDescriptor, D3D12_DEPTH_STENCIL_VIEW_DESC& InDepthStencilDesc);
-	void CreateShaderView(ComPtr<ID3D12Resource>& InResource, class D3D12Descriptor* InDescriptor, D3D12_SHADER_RESOURCE_VIEW_DESC& InShaderDesc);
+	void CreateRenderTargetView(class D3D12Resource* InResource, const D3D12_RENDER_TARGET_VIEW_DESC* InDesc, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle);
+	void CreateDepthStencilView(class D3D12Resource* InResource, class D3D12Descriptor* InDescriptor, D3D12_DEPTH_STENCIL_VIEW_DESC& InDepthStencilDesc);
+	void CreateShaderView(class D3D12Resource* InResource, class D3D12Descriptor* InDescriptor, D3D12_SHADER_RESOURCE_VIEW_DESC& InShaderDesc);
 
 	// Descriptor interfaces
 	void CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc, ComPtr<ID3D12DescriptorHeap> InHeap);
@@ -77,6 +85,9 @@ protected:
 	// DirectX Graphics Infrastructure : 공통 그래픽 API
 	ComPtr<IDXGIFactory4> DxgiFactory = nullptr;
 
+	std::unique_ptr<class D3D12CommandListExecutor> CommandListExecutor;
+	std::unique_ptr<class D3D12CommandList> CommandList;
+
 	HWND MainWindowHandle = nullptr;
 };
 
@@ -87,8 +98,7 @@ public:
 
 	D3D12Device* GetParent() const
 	{
-		assert(Parent);
-		return Parent;
+		ReturnCheckAssert(Parent);
 	}
 
 private:

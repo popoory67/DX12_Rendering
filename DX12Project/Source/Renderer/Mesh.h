@@ -111,5 +111,5 @@ private:
 
 	std::unordered_map<unsigned, SubmeshGeometry> DrawArgs;
 
-	size_t Index = 0;
+	UINT Index = 0;
 };

@@ -7,7 +7,7 @@ public:
 	Entity() = default;
 
 	size_t GetType() { return TypeId; }
-	void SetIndex(unsigned InIndex) { Index = InIndex; }
+	void SetIndex(size_t InIndex) { Index = InIndex; }
 	size_t GetId();
 
 	bool IsEqualTypeId(size_t InTypeId);
@@ -59,6 +59,6 @@ private:
 	std::vector<class Component*> Components;
 
 	size_t TypeId;
-	unsigned Index = 0;
+	size_t Index = 0;
 	size_t Id = 0;
 };

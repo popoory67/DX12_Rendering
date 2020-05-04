@@ -15,7 +15,7 @@ D3D12Descriptor::D3D12Descriptor(D3D12DeviceChild* InDeivce, D3D12_DESCRIPTOR_HE
 {
 	D3D12_DESCRIPTOR_HEAP_DESC desc = {};
 	desc.Flags = InFlags;
-	desc.NumDescriptors = InCount;
+	desc.NumDescriptors = (UINT)InCount;
 	desc.Type = InType;
 
 	GetParent()->CreateDescriptorHeap(desc, Heap);

@@ -5,7 +5,7 @@
 #include "DDSTextureLoader.h"
 #include "D3D12Device.h"
 #include "D3D12RenderInterface.h"
-#include "D3D12SwapChain.h"
+#include "D3D12Viewport.h"
 #include "D3D12Commands.h"
 #include "D3D12PipelineState.h"
 #include "SceneRendering.h"
@@ -34,29 +34,20 @@ D3D12Renderer& D3D12Renderer::GetInstance()
 
 bool D3D12Renderer::Initialize()
 {
-	Device.reset(new D3D12Device());
-	assert(Device);
+	D3D12Device* pDevice = new D3D12Device();
+	assert(pDevice);
 
-	RenderInterface.reset(new D3D12RenderInterface(Device.get()));
-	assert(RenderInterface);
-
-	Renderer.reset(new SceneRenderer());
-	assert(Renderer);
-
-	D3D12DeviceChild* DeviceChild = new D3D12DeviceChild(Device.get());
+	DeviceChild.reset(new D3D12DeviceChild(pDevice));
 	assert(DeviceChild);
 
-	SwapChain.reset(new D3D12SwapChain(DeviceChild));
-	assert(SwapChain);
+	RenderInterface.reset(new D3D12RenderInterface(DeviceChild.get()));
+	assert(RenderInterface);
 
-	SwapChain->Create(RenderInterface->GetCommandExecutor());
-	SwapChain->OnResize();
+	Viewport.reset(new D3D12Viewport(DeviceChild.get()));
+	assert(Viewport);
 
-	DepthStencilBuffer = new D3D12DepthStencilResource();
-
-	// on resize
-	if (DepthStencilBuffer)
-		DepthStencilBuffer->Reset();
+	Viewport->Create();
+	Viewport->OnResize();
 
 	OnResize();
 
@@ -69,7 +60,10 @@ bool D3D12Renderer::Initialize()
 	ScreenViewport.MinDepth = 0.0f;
 	ScreenViewport.MaxDepth = 1.0f;
 
-	RenderInterface->SetViewport(ScreenViewport, SwapChain.get());
+	Viewport->SetViewport(ScreenViewport);
+
+	Renderer.reset(new SceneRenderer(RenderInterface.get()));
+	assert(Renderer);
 
 	// 리소스가 있을때 사용되는거라 일단 주석처리
 // 	BuildRootSignature();
@@ -116,8 +110,8 @@ void D3D12Renderer::Render(GameTimer& gt)
 	// Ready to draw
 	RenderInterface->ResetCommandList();
 
-	RenderInterface->UpdateViewport(SwapChain.get());
-	RenderInterface->ReadyToRenderTarget(GetCurrentBackBuffer(), GetCurrentBackBufferView(), GetDepthStencilBufferView());
+	Viewport->UpdateViewport();
+	Viewport->ReadyToRenderTarget();
 
 // 	// --test
 //  	ID3D12DescriptorHeap* descriptorHeaps[] = { SrvHeap.Get() };
@@ -129,11 +123,11 @@ void D3D12Renderer::Render(GameTimer& gt)
 //  	CommandList->SetGraphicsRootConstantBufferView(2, PassConstBuffer->GetGPUVirtualAddress()); // 임시 주석처리
 
 	// End draw
-	RenderInterface->FinishToRenderTarget(GetCurrentBackBuffer());
+	Viewport->FinishToRenderTarget();
 
 	// Finish to recode resource
 	RenderInterface->ExecuteCommandList();
-	SwapChain->SwapBackBufferToFrontBuffer();
+	Viewport->SwapBackBufferToFrontBuffer();
 	RenderInterface->FlushCommandQueue();
 }
 
@@ -157,12 +151,7 @@ void D3D12Renderer::OnResize()
 {
 	RenderInterface->ResetCommandList();
 
-	SwapChain->OnResize();
-
-	if (DepthStencilBuffer)
-		DepthStencilBuffer->Reset();
-
-	DepthStencilBuffer = new D3D12DepthStencilResource();
+	Viewport->OnResize();
 
 	RenderInterface->ExecuteCommandList();
 	RenderInterface->FlushCommandQueue();
@@ -178,39 +167,4 @@ void D3D12Renderer::SetCurrentScene(int InIndex)
 {
 	assert(Renderer);
 	Renderer->SetCurrentScene(InIndex);
-}
-
-D3D12Resource* D3D12Renderer::GetCurrentBackBuffer() const
-{
-	assert(SwapChain);
-	return SwapChain->GetCurrentBackBuffer();
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE D3D12Renderer::GetCurrentBackBufferView() const
-{
-	assert(SwapChain);
-	return SwapChain->GetCurrentBackBufferView();
-}
-void D3D12Renderer::SwapBackBufferToFrontBuffer()
-{
-	assert(SwapChain);
-	SwapChain->SwapBackBufferToFrontBuffer();
-}
-
-DXGI_FORMAT D3D12Renderer::GetBackBufferFormat() const
-{
-	assert(SwapChain);
-	return SwapChain->GetBackBufferFormat();
-}
-
-DXGI_FORMAT D3D12Renderer::GetDepthStencilFormat() const
-{
-	assert(DepthStencilBuffer);
-	return DepthStencilBuffer->GetDepthStencilFormat();
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE D3D12Renderer::GetDepthStencilBufferView() const
-{
-	assert(DepthStencilBuffer);
-	return DepthStencilBuffer->GetDepthStencilView();
 }

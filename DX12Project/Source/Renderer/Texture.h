@@ -2,7 +2,7 @@
 
 using namespace Microsoft::WRL;
 
-struct TextureData
+struct Texture
 {
 	// Unique material name for lookup.
 	std::string Name;

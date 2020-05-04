@@ -96,9 +96,6 @@
     <ClCompile Include="Source\D3D12\D3D12Resource.cpp">
       <Filter>Engine\D3D12\Private</Filter>
     </ClCompile>
-    <ClCompile Include="Source\D3D12\D3D12SwapChain.cpp">
-      <Filter>Engine\D3D12\Private</Filter>
-    </ClCompile>
     <ClCompile Include="Source\D3D12\D3D12Descriptor.cpp">
       <Filter>Engine\D3D12\Private</Filter>
     </ClCompile>
@@ -159,6 +156,12 @@
     <ClCompile Include="Source\Renderer\Transform.cpp">
       <Filter>Engine\Renderer\Private</Filter>
     </ClCompile>
+    <ClCompile Include="Source\D3D12\D3D12Viewport.cpp">
+      <Filter>Engine\D3D12\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\RenderInterface.cpp">
+      <Filter>Engine\Renderer\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\stdafx.h">
@@ -201,9 +204,6 @@
       <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\D3D12\D3D12Resource.h">
-      <Filter>Engine\D3D12\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\D3D12\D3D12SwapChain.h">
       <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\D3D12\D3D12Descriptor.h">
@@ -264,6 +264,12 @@
       <Filter>Engine\Launch\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\Renderer\Transform.h">
+      <Filter>Engine\Renderer\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\D3D12\D3D12Viewport.h">
+      <Filter>Engine\D3D12\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Renderer\RenderInterface.h">
       <Filter>Engine\Renderer\Public</Filter>
     </ClInclude>
   </ItemGroup>

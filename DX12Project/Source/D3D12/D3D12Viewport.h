@@ -6,11 +6,11 @@
 
 using namespace Microsoft::WRL;
 
-class D3D12SwapChain : public D3D12DeviceChild
+class D3D12Viewport : public D3D12DeviceChild
 {
 public:
-	D3D12SwapChain(class D3D12DeviceChild* InDevice);
-	virtual ~D3D12SwapChain() {}
+	D3D12Viewport(class D3D12DeviceChild* InDevice);
+	virtual ~D3D12Viewport() {}
 
 	ComPtr<IDXGISwapChain>& Get() { return SwapChain; }
 
@@ -22,15 +22,20 @@ public:
 	static bool IsMsaa4xEnabled() { return IsMsaa4xState; }
 	DXGI_FORMAT GetBackBufferFormat() { return BackBufferFormat; }
 
-	void OnResize();
 	class D3D12Resource* GetCurrentBackBuffer() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
-	unsigned int GetSwapChainBufferCount() { return SwapChainBufferCount; }
+	unsigned int GetSwapChainBufferCount() const;
+	D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilBufferView() const;
+	DXGI_FORMAT GetDepthStencilFormat() const;
 
-	void Create(class D3D12CommandListExecutor* InExecutor);
 	void SwapBackBufferToFrontBuffer();
-
 	float AspectRatio() const;
+	void Create();
+	void UpdateViewport();
+	void SetViewport(class D3DViewportResource& InViewResource);
+	void ReadyToRenderTarget();
+	void FinishToRenderTarget();
+	void OnResize();
 
 private:
 	void CreateBuffer();
@@ -48,6 +53,7 @@ private:
 	// Buffers
 	static const unsigned int SwapChainBufferCount = 2;
 	class D3D12RenderTargetResource* SwapChainBuffer[SwapChainBufferCount];
+	class D3D12DepthStencilResource* DepthStencilBuffer = nullptr;
 
 	int CurBackBufferIndex = 0;
 

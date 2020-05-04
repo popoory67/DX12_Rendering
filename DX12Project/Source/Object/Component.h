@@ -19,33 +19,40 @@ public:
 	virtual ~RenderComponent();
 
 	template<typename DataType>
-	void AddShaderBatch(std::string InName, DataType InData)
+	void AddShaderBinding(std::string InName, DataType InData)
 	{
-		Batch batch;
-		batch.dataType = typeid(DataType);
-		batch.data = static_cast<void*>(InData);
+		std::unique_ptr<Binding<DataType>> bound = std::make_unique<Binding<DataType>>();
+		bound->dataType = typeid(DataType);
+		bound->value = InData;
 
-		Batches.emplace(std::make_pair(InName, batch));
+		Bindings.emplace(std::make_pair(InName, bound));
 	}
 
 	template<typename DataType>
-	void UpdateShaderBatch(std::string InName, DataType InData)
+	void UpdateShaderBinding(std::string InName, DataType InData)
 	{
-		auto it = Batches.find(InName);
-		if (it != Batches.cend())
+		auto it = Bindings.find(InName);
+		if (it != Bindings.cend())
 		{
-			it->second.data = static_cast<void*>(InData);
+			static_cast<Binding<DataType>>(it->second)->value = InData;
 		}
 	}
 
-	static UINT GetBatchSize();
+	UINT GetBindingSize();
 
 private:
-	struct Batch
+	struct BindingInterface
 	{
-		size_t dataType;
-		void* data;
+		type_info dataType;
+
+		virtual ~BindingInterface() = default;
 	};
 
-	static std::map<std::string, Batch> Batches;
+	template<typename DataType>
+	struct Binding : public BindingInterface
+	{
+		DataType value;
+	};
+
+	std::map<std::string, std::unique_ptr<BindingInterface>> Bindings;
 };

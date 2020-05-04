@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Scene.h"
-#include "EntityQuery.h"
 
 Scene::Scene()
 {

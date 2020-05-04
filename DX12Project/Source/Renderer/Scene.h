@@ -1,5 +1,6 @@
 #pragma once
 #include "D3D12Rendering.h"
+#include "EntityQuery.h"
 
 class Scene
 {
@@ -33,5 +34,5 @@ protected:
 	std::shared_ptr<class EntityQuery> EntityInterface;
 
 private:
-	std::map<unsigned, bool> EntityVisibility;
+	std::map<size_t, bool> EntityVisibility;
 };

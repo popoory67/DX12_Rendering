@@ -1,10 +1,7 @@
 #include "stdafx.h"
 #include "Mesh.h"
+#include "RenderInterface.h"
 #include "D3D12BinaryLargeObject.h"
-#include "D3D12Resource.h"
-#include "D3D12Commands.h"
-#include "D3D12Device.h"
-#include "D3D12Rendering.h"
 
 PrimitiveComponent::PrimitiveComponent()
 {
@@ -51,8 +48,8 @@ void PrimitiveComponent::Build(GeometryGenerator::MeshData& InMeshData)
 	GeometryData->IndexBufferCPU->CreateBlob(ibByteSize);
 	CopyMemory(GeometryData->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
-	GeometryData->VertexBufferGPU->CreateDefaultBuffer(vertices.data(), vbByteSize);
-	GeometryData->IndexBufferGPU->CreateDefaultBuffer(indices.data(), ibByteSize);
+	RenderInterface::CreateDefaultBuffer(GeometryData->VertexBufferGPU, vertices.data(), vbByteSize);
+	RenderInterface::CreateDefaultBuffer(GeometryData->IndexBufferGPU, indices.data(), ibByteSize);
 
 	GeometryData->VertexByteStride = sizeof(GeometryGenerator::Vertex);
 	GeometryData->VertexBufferByteSize = vbByteSize;

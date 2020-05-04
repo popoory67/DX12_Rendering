@@ -1,9 +1,11 @@
 #pragma once
+#include "D3D12Commands.h"
 
 class SceneRenderer
 {
 public:
-	SceneRenderer();
+	SceneRenderer() = delete;
+	SceneRenderer(class D3D12RenderInterface* InInterface);
 	~SceneRenderer();
 
 	void Initialize();
@@ -16,19 +18,6 @@ public:
 	void SetCurrentScene(int InIndex);
 
 private:
-	template<typename Type>
-	void UpdateConstBuffers(D3D12CommandList* InCommandList, enum class RenderType InRenderType, UINT InCount, UINT InSize)
-	{
-		std::unique_ptr<D3D12UploadResource<Type>> constBuffer = std::make_unique<D3D12UploadResource<Type>>(D3D12Renderer::GetDevice(), InCount, true);
-
-		for (UINT index = 0; index < InCount; ++index)
-		{
-			D3D12_GPU_VIRTUAL_ADDRESS address = constBuffer->Resource()->GetGPUVirtualAddress() + index * InSize;
-
-			InCommandList->BindConstBuffer(InRenderType, address);
-		}
-	}
-
 	void SceneRendering();
 
 private:
@@ -39,6 +28,7 @@ private:
 	int CurrentSceneIndex = -1;
 
 	std::shared_ptr<class Scene> CurrentScene;
+	std::unique_ptr<class RenderInterface> Interface;
 
 	//ID3D12Resource* Pass = nullptr; // The mean of pass is like a buffer (upload buffer)
 };

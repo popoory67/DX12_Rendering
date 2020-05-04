@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "D3D12PipelineState.h"
 #include "D3D12Device.h"
-#include "D3D12SwapChain.h"
+#include "D3D12Viewport.h"
 #include "D3D12Commands.h"
 #include "D3D12BinaryLargeObject.h"
 #include "D3D12RootSignature.h"
@@ -51,8 +51,8 @@ D3D12PipelineState::D3D12PipelineState(class D3D12Device* InDevice, DXGI_FORMAT 
 	PipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	PipelineStateDesc.NumRenderTargets = 1;
 	PipelineStateDesc.RTVFormats[0] = InBackBufferFormat;
-	PipelineStateDesc.SampleDesc.Count = D3D12SwapChain::IsMsaa4xEnabled() ? 4 : 1;
-	PipelineStateDesc.SampleDesc.Quality = D3D12SwapChain::IsMsaa4xEnabled() ? (D3D12SwapChain::GetMsaaQuality() - 1) : 0;
+	PipelineStateDesc.SampleDesc.Count = D3D12Viewport::IsMsaa4xEnabled() ? 4 : 1;
+	PipelineStateDesc.SampleDesc.Quality = D3D12Viewport::IsMsaa4xEnabled() ? (D3D12Viewport::GetMsaaQuality() - 1) : 0;
 	PipelineStateDesc.DSVFormat = InDepthStencilFormat;
 
 	InDevice->CreateGraphicsPipelineState(PipelineState, PipelineStateDesc);

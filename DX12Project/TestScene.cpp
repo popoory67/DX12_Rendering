@@ -75,16 +75,16 @@ void TestScene::BuildRenderItems()
 	//woodCrate->MatCBIndex = 0;
 	//woodCrate->DiffuseSrvHeapIndex = 0;
 
-	MaterialData->AddShaderBatch<XMFLOAT4>("DiffuseAlbedo", XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
-	MaterialData->AddShaderBatch<XMFLOAT3>("FresnelR0", XMFLOAT3(0.05f, 0.05f, 0.05f));
-	MaterialData->AddShaderBatch<float>("Roughness", 0.2f);
-	MaterialData->AddShaderBatch<XMFLOAT4X4>("MatTransform", MathHelper::Identity4x4());
+	MaterialData->AddShaderBinding<XMFLOAT4>("DiffuseAlbedo", XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+	MaterialData->AddShaderBinding<XMFLOAT3>("FresnelR0", XMFLOAT3(0.05f, 0.05f, 0.05f));
+	MaterialData->AddShaderBinding<float>("Roughness", 0.2f);
+	MaterialData->AddShaderBinding<XMFLOAT4X4>("MatTransform", MathHelper::Identity4x4());
 
 	// Primitive
 	PrimitiveData.reset(new PrimitiveComponent());
 
-	PrimitiveData->AddShaderBatch<XMFLOAT4X4>("World", MathHelper::Identity4x4());
-	PrimitiveData->AddShaderBatch<XMFLOAT4X4>("TexTransform", MathHelper::Identity4x4());
+	PrimitiveData->AddShaderBinding<XMFLOAT4X4>("World", MathHelper::Identity4x4());
+	PrimitiveData->AddShaderBinding<XMFLOAT4X4>("TexTransform", MathHelper::Identity4x4());
 
 	PrimitiveData->CreateMesh("");
 }

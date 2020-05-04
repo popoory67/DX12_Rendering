@@ -1,17 +1,20 @@
 #include "stdafx.h"
 #include "SceneRendering.h"
 #include "D3D12Device.h"
-#include "D3D12Commands.h"
+#include "D3D12RenderInterface.h"
 #include "D3D12RootSignature.h"
 #include "Entity.h"
 #include "Mesh.h"
 #include "Material.h"
 #include "Scene.h"
+#include "RenderInterface.h"
 
-
-SceneRenderer::SceneRenderer()
+SceneRenderer::SceneRenderer(D3D12RenderInterface* InInterface)
 {
+	Interface = std::make_unique<RenderInterface>();
+	assert(Interface);
 
+	Interface->SetInterface(InInterface);
 }
 
 SceneRenderer::~SceneRenderer()
@@ -44,10 +47,14 @@ void SceneRenderer::RenderPrimitives(D3D12CommandList* InCommandList)
 {
 	assert(InCommandList);
 
+	D3D12UploadResource<PrimitiveComponent>* pConstBuffer = new D3D12UploadResource<PrimitiveComponent>(true);
+	RenderInterface::GetInterface()->CreateUploadResource<PrimitiveComponent>(pConstBuffer, 0);
+
 	std::vector<PrimitiveComponent*> OutComponents;
 	CurrentScene->GetComponents<PrimitiveComponent>(OutComponents);
 
-	for (const PrimitiveComponent* pPrimitive : OutComponents)
+	unsigned int index = 0;
+	for (PrimitiveComponent* pPrimitive : OutComponents)
 	{
 		if (pPrimitive)
 		{
@@ -56,10 +63,13 @@ void SceneRenderer::RenderPrimitives(D3D12CommandList* InCommandList)
 			InCommandList->SetPrimitiveTopology(pPrimitive->PrimitiveType);
 
 			InCommandList->DrawIndexedInstanced(pPrimitive->GetIndexCount(), 1, pPrimitive->GetStartIndexLocation(), pPrimitive->GetBaseVertexLocation(), 0);
+
+			D3D12_GPU_VIRTUAL_ADDRESS address = pConstBuffer->GetResource()->GetGPUVirtualAddress() + index * pPrimitive->GetBindingSize();
+			RenderInterface::GetInterface()->GetCommnadList()->BindConstBuffer(RenderType::Primitive, address);
+
+			++index;
 		}
 	}
-
-	UpdateConstBuffers<PrimitiveComponent>(InCommandList, RenderType::Primitive, OutComponents.size(), PrimitiveComponent::GetBatchSize());
 }
 
 void SceneRenderer::RenderMaterials(D3D12CommandList* InCommandList)

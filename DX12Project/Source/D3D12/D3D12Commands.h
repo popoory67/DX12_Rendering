@@ -42,12 +42,12 @@ public:
 
 	ComPtr<ID3D12GraphicsCommandList>& Get() 
 	{
-		return CommandList; 
+		ReturnCheckAssert(CommandList);
 	}
 	
 	ID3D12GraphicsCommandList* GetGraphicsInterface() const
 	{
-		return CommandList.Get(); 
+		ReturnCheckAssert(CommandList.Get());
 	}
 
 	ID3D12CommandList* GetCommandLists();
@@ -86,27 +86,11 @@ public:
 	void Reset();
 
 private:
-	ComPtr<ID3D12GraphicsCommandList> CommandList = nullptr;
+	ComPtr<ID3D12GraphicsCommandList> CommandList = nullptr; // List manager로 관리하고 각 command list를 쓰레드로 나눠 멀티로 진행할 수 있게 해야함
 	ComPtr<ID3D12CommandAllocator> CommandListAllocator = nullptr;
 
 	std::vector<ID3D12DescriptorHeap*> Heaps;
 };
-
-class D3D12CommandListChild
-{
-public:
-	D3D12CommandListChild(D3D12CommandList* InParent = nullptr) : Parent(InParent) {}
-
-	D3D12CommandList* GetCommandList() const
-	{
-		assert(Parent);
-		return Parent;
-	}
-
-protected:
-	D3D12CommandList* Parent = nullptr;
-};
-
 
 class D3D12CommandListExecutor : public CommandListExecutor
 {

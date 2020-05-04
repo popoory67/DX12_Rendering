@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "D3D12SwapChain.h"
+#include "D3D12Viewport.h"
 #include "D3DUtil.h"
 #include "d3dx12.h"
 #include "D3D12Resource.h"
@@ -7,12 +7,12 @@
 #include "D3D12Commands.h"
 #include "D3D12RenderInterface.h"
 
-D3D12_VIEWPORT D3D12SwapChain::ScreenViewport;
+D3D12_VIEWPORT D3D12Viewport::ScreenViewport;
 
-bool D3D12SwapChain::IsMsaa4xState = false;
-UINT D3D12SwapChain::Msaa4xQuality = 0;
+bool D3D12Viewport::IsMsaa4xState = false;
+UINT D3D12Viewport::Msaa4xQuality = 0;
 
-D3D12SwapChain::D3D12SwapChain(D3D12DeviceChild* InDevice)
+D3D12Viewport::D3D12Viewport(D3D12DeviceChild* InDevice)
 	: D3D12DeviceChild(*InDevice)
 {
 	ScreenViewport.Width = 800;
@@ -25,9 +25,49 @@ D3D12SwapChain::D3D12SwapChain(D3D12DeviceChild* InDevice)
 	rtvHeapDesc.NodeMask = 0;
 
 	RenderTargetViewDesc = new D3D12Descriptor(this, rtvHeapDesc);
+
+	DepthStencilBuffer = new D3D12DepthStencilResource();
+
+	// on resize
+	if (DepthStencilBuffer)
+		DepthStencilBuffer->Reset();
 }
 
-void D3D12SwapChain::CreateBuffer()
+D3D12Resource* D3D12Viewport::GetCurrentBackBuffer() const
+{
+	if (SwapChainBuffer[CurBackBufferIndex])
+	{
+		return SwapChainBuffer[CurBackBufferIndex];
+	}
+	return nullptr;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE D3D12Viewport::GetCurrentBackBufferView() const
+{
+	return CD3DX12_CPU_DESCRIPTOR_HANDLE(
+		RenderTargetViewDesc->GetHeap()->GetCPUDescriptorHandleForHeapStart(),
+		CurBackBufferIndex,
+		(UINT)RenderTargetViewDesc->GetSize());
+}
+
+unsigned int D3D12Viewport::GetSwapChainBufferCount() const
+{
+	return SwapChainBufferCount; 
+}
+
+DXGI_FORMAT D3D12Viewport::GetDepthStencilFormat() const
+{
+	assert(DepthStencilBuffer);
+	return DepthStencilBuffer->GetDepthStencilFormat();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE D3D12Viewport::GetDepthStencilBufferView() const
+{
+	assert(DepthStencilBuffer);
+	return DepthStencilBuffer->GetDepthStencilView();
+}
+
+void D3D12Viewport::CreateBuffer()
 {
 	if (RenderTargetViewDesc)
 	{
@@ -42,14 +82,17 @@ void D3D12SwapChain::CreateBuffer()
 			{
 				if (!SwapChainBuffer[i])
 				{
-					SwapChainBuffer[i] = new D3D12RenderTargetResource(this, rtvHeapHandle, RenderTargetViewDesc->GetSize(), i);
+					SwapChainBuffer[i] = new D3D12RenderTargetResource();
+
+					GetParent()->CreateRenderTargetView(SwapChainBuffer[i], nullptr, rtvHeapHandle);
+					rtvHeapHandle.Offset(1, (UINT)RenderTargetViewDesc->GetSize());
 				}
 			}
 		}
 	}
 }
 
-void D3D12SwapChain::OnResize()
+void D3D12Viewport::OnResize()
 {
 	assert(SwapChain);
 	assert(RenderTargetViewDesc);
@@ -72,29 +115,16 @@ void D3D12SwapChain::OnResize()
 	CurBackBufferIndex = 0;
 
 	CreateBuffer();
+
+	if (DepthStencilBuffer)
+		DepthStencilBuffer->Reset();
+
+	DepthStencilBuffer = new D3D12DepthStencilResource();
 }
 
-D3D12Resource* D3D12SwapChain::GetCurrentBackBuffer() const
-{
-	if (SwapChainBuffer[CurBackBufferIndex])
-	{
-		return SwapChainBuffer[CurBackBufferIndex];
-	}
-	return nullptr;
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE D3D12SwapChain::GetCurrentBackBufferView() const
-{
-	return CD3DX12_CPU_DESCRIPTOR_HANDLE(
-		RenderTargetViewDesc->GetHeap()->GetCPUDescriptorHandleForHeapStart(),
-		CurBackBufferIndex,
-		RenderTargetViewDesc->GetSize());
-}
-
-void D3D12SwapChain::Create(D3D12CommandListExecutor* InExecutor)
+void D3D12Viewport::Create()
 {
 	assert(GetParent()->GetWindowHandle());
-	assert(InExecutor);
 
 	// Release the previous swapchain we will be recreating.
 	SwapChain.Reset();
@@ -118,7 +148,7 @@ void D3D12SwapChain::Create(D3D12CommandListExecutor* InExecutor)
 		swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 		// Note: Swap chain uses queue to perform flush.
-		GetParent()->CreateSwapChain(InExecutor, this, swapChainDesc);
+		GetParent()->CreateSwapChain(this, swapChainDesc);
 	}
 	{
 		// Check 4X MSAA quality support for our back buffer format.
@@ -138,7 +168,7 @@ void D3D12SwapChain::Create(D3D12CommandListExecutor* InExecutor)
 	assert(Msaa4xQuality > 0 && "Unexpected MSAA quality level."); // ??
 }
 
-void D3D12SwapChain::SwapBackBufferToFrontBuffer()
+void D3D12Viewport::SwapBackBufferToFrontBuffer()
 {
 	// Swap the back and front buffers
 	ThrowIfFailed(SwapChain->Present(0, 0)); // ÀüÈ¯
@@ -148,7 +178,52 @@ void D3D12SwapChain::SwapBackBufferToFrontBuffer()
 //	CurFrameResource->Fence = ++CurrentFenceCount;
 }
 
-float D3D12SwapChain::AspectRatio()const
+float D3D12Viewport::AspectRatio()const
 {
 	return static_cast<float>(ScreenViewport.Width) / ScreenViewport.Height;
+}
+
+void D3D12Viewport::UpdateViewport()
+{
+	GetParent()->GetCommandList()->Get()->RSSetViewports(1, &GetViewport());
+	GetParent()->GetCommandList()->Get()->RSSetScissorRects(1, &GetRect());
+}
+
+void D3D12Viewport::SetViewport(D3DViewportResource& InViewResource)
+{
+	D3D12_VIEWPORT& viewport = GetViewport();
+
+	viewport.TopLeftX = InViewResource.TopLeftX;
+	viewport.TopLeftY = InViewResource.TopLeftY;
+	viewport.Width = InViewResource.Width;
+	viewport.Height = InViewResource.Height;
+	viewport.MinDepth = InViewResource.MinDepth;
+	viewport.MaxDepth = InViewResource.MaxDepth;
+
+	D3D12_RECT& ScissorRect = GetRect();
+
+	ScissorRect = { 0, 0, (LONG)viewport.Width, (LONG)viewport.Height };
+}
+
+void D3D12Viewport::ReadyToRenderTarget()
+{
+	D3D12Device* pDevice = GetParent();
+	if (pDevice)
+	{
+		// Indicate a state transition on the resource usage.
+		pDevice->GetCommandList()->ResourceBarrier(GetCurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+		// Clear the back buffer and depth buffer.
+		pDevice->GetCommandList()->ClearRenderTargetView(GetCurrentBackBufferView(), Colors::LightSteelBlue, 0);
+		pDevice->GetCommandList()->ClearDepthStencilView(GetDepthStencilBufferView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0);
+
+		// Specify the buffers we are going to render to.
+		pDevice->GetCommandList()->SetRenderTargets(1, GetCurrentBackBufferView(), true, GetDepthStencilBufferView());
+	}
+}
+
+void D3D12Viewport::FinishToRenderTarget()
+{
+	// Indicate a state transition on the resource usage.
+	GetParent()->GetCommandList()->ResourceBarrier(GetCurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 }
