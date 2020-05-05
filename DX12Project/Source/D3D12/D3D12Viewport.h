@@ -30,7 +30,6 @@ public:
 
 	void SwapBackBufferToFrontBuffer();
 	float AspectRatio() const;
-	void Create();
 	void UpdateViewport();
 	void SetViewport(class D3DViewportResource& InViewResource);
 	void ReadyToRenderTarget();
@@ -38,10 +37,11 @@ public:
 	void OnResize();
 
 private:
-	void CreateBuffer();
+	void CreateSwapChain();
+	void CreateSwapChainBuffer();
+	void CreateDepthStencilBuffer();
 
 private:
-	// 화면을 표시하는 전면/후면 버퍼를 전환해주는 인터페이스(이중 버퍼링)
 	ComPtr<IDXGISwapChain> SwapChain = nullptr;
 
 	static bool IsMsaa4xState;		// 4X MSAA enabled
@@ -50,15 +50,18 @@ private:
 	static D3D12_VIEWPORT ScreenViewport;
 	D3D12_RECT ScissorRect;
 
-	// Buffers
-	static const unsigned int SwapChainBufferCount = 2;
-	class D3D12RenderTargetResource* SwapChainBuffer[SwapChainBufferCount];
-	class D3D12DepthStencilResource* DepthStencilBuffer = nullptr;
-
-	int CurBackBufferIndex = 0;
-
+	// Swap chain
 	DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
-	// descriptor
-	class D3D12Descriptor* RenderTargetViewDesc = nullptr;
+	static const unsigned int SwapChainBufferCount = 2;
+	int CurBackBufferIndex = 0;
+
+	class D3D12Resource* SwapChainBuffer[SwapChainBufferCount];
+	class D3D12Descriptor* SwapChainBufferDesc = nullptr;
+
+	// Depth/Stencil
+	DXGI_FORMAT DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+
+	class D3D12Resource* DepthStencilBuffer = nullptr;
+	class D3D12Descriptor* DepthStencilBufferDesc = nullptr;
 };

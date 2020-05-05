@@ -11,16 +11,18 @@ public:
 	void AddEntity(class Entity* InEntity);
 
 	template<typename ComponentType>
-	void GetComponents(std::vector<ComponentType*> OutComponents)
+	void GetComponents(std::vector<ComponentType*>& OutComponents)
 	{
-		//for (auto entityList : Entities)
-		//{
-
-		//	if (pEntity)
-		//	{
-		//		pEntity->GetComponents<ComponentType>(OutComponents);
-		//	}
-		//}
+		for (auto it : Entities)
+		{
+			for (Entity* pEntity : it.second)
+			{
+				if (pEntity)
+				{
+					pEntity->GetComponents<ComponentType>(*reinterpret_cast<std::vector<Component*>*>(&OutComponents));
+				}
+			}
+		}
 	}
 
 private:

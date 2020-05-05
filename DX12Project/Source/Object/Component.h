@@ -1,6 +1,7 @@
 #pragma once
+#include "Class.h"
 
-class Component
+class Component : public Class
 {
 public:
 	Component();

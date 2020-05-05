@@ -43,6 +43,7 @@ D3D12Renderer& Scene::GetInstance()
 
 void Scene::UpdateVisibility()
 {
+	// visible 여부 확인하지 않고 그리게 수정
 	for (auto it : EntityVisibility)
 	{
 		if (IsVisible(it.first))

@@ -6,6 +6,8 @@ D3D12Descriptor::D3D12Descriptor(D3D12DeviceChild* InDeivce, D3D12_DESCRIPTOR_HE
 {
 	GetParent()->CreateDescriptorHeap(InHeapDesc, Heap);
 
+	CPUHandle = Heap->GetCPUDescriptorHandleForHeapStart();
+	GPUHandle = Heap->GetGPUDescriptorHandleForHeapStart();
 	Size = GetParent()->GetDescriptorHandleIncrementSize(InHeapDesc.Type);
 	Count = InHeapDesc.NumDescriptors;
 }
@@ -20,6 +22,8 @@ D3D12Descriptor::D3D12Descriptor(D3D12DeviceChild* InDeivce, D3D12_DESCRIPTOR_HE
 
 	GetParent()->CreateDescriptorHeap(desc, Heap);
 
+	CPUHandle = Heap->GetCPUDescriptorHandleForHeapStart();
+	GPUHandle = Heap->GetGPUDescriptorHandleForHeapStart();
 	Size = GetParent()->GetDescriptorHandleIncrementSize(desc.Type);
 	Count = InCount;
 }

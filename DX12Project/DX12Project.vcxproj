@@ -35,6 +35,7 @@
     <ClCompile Include="Source\D3D12\DDSTextureLoader.cpp" />
     <ClCompile Include="Source\D3D12\FrameResource.cpp" />
     <ClCompile Include="Source\InputManager.cpp" />
+    <ClCompile Include="Source\Object\Class.cpp" />
     <ClCompile Include="Source\Object\Component.cpp" />
     <ClCompile Include="Source\Object\Entity.cpp" />
     <ClCompile Include="Source\Object\EntityQuery.cpp" />
@@ -76,6 +77,7 @@
     <ClInclude Include="Source\D3D12\FrameResource.h" />
     <ClInclude Include="Source\D3D12\UploadBuffer.h" />
     <ClInclude Include="Source\InputManager.h" />
+    <ClInclude Include="Source\Object\Class.h" />
     <ClInclude Include="Source\Object\Component.h" />
     <ClInclude Include="Source\Object\Entity.h" />
     <ClInclude Include="Source\Object\EntityQuery.h" />

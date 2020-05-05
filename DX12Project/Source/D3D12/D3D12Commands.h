@@ -32,6 +32,8 @@ enum class RenderType : int
 	Max
 };
 
+class D3D12Resource;
+
 class D3D12CommandList : public CommandListBase
 {
 public:
@@ -56,18 +58,9 @@ public:
 	void SetResourceTransition(class D3D12Resource* InResource, D3D12_RESOURCE_STATES InPrevState, D3D12_RESOURCE_STATES InNextState);
 	void ResourceBarrier(class D3D12Resource* InResource, D3D12_RESOURCE_STATES InFrom, D3D12_RESOURCE_STATES InTo);
 
-	template <UINT MaxResources>
-	void UpdateResources(class D3D12Resource* InDestResource, class D3D12Resource* InFromResource, UINT InFirstSubresource, UINT InNumSubresources, UINT64 InRequiredSize, std::optional<D3D12_SUBRESOURCE_DATA> InSubresourceData/* = {}*/)
-	{
-		assert(InDestResource);
-		assert(InFromResource);
-
-		UpdateSubresources<MaxResources>(CommandList.Get(), InDestResource->GetInterface(), InFromResource->GetInterface(), InRequiredSize, InFirstSubresource, InNumSubresources, &InSubresourceData.value());
-	}
-
-	void ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptorHandle, XMVECTORF32 InBackColor, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
-	void ClearDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
-	void SetRenderTargets(UINT InNumRenderTargetDescriptors, D3D12_CPU_DESCRIPTOR_HANDLE InRenderTargetDescriptorHandle, bool InSingleHandleToDescriptorRange, D3D12_CPU_DESCRIPTOR_HANDLE InDepthStencilDescriptorHandle);
+	void ClearRenderTargetView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, XMVECTORF32 InBackColor, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
+	void ClearDepthStencilView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
+	void SetRenderTargets(UINT InNumRenderTargetDescriptors, std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InRenderTargetDescriptorHandle, bool InSingleHandleToDescriptorRange, std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDepthStencilDescriptorHandle);
 	void SetPipelineState(class D3D12PipelineState* InPipelineState);
 
 	// Primitive

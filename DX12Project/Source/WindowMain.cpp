@@ -10,7 +10,7 @@ LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 WindowMain::WindowMain(HINSTANCE hInstance)
-	: ApplicationInstanceHandle(hInstance)
+	: Application(hInstance)
 {
 
 }
@@ -58,11 +58,6 @@ bool WindowMain::InitMainWindow()
 	UpdateWindow(MainWindowHandle);
 
 	return true;
-}
-
-HWND WindowMain::GetWindowHandle()
-{
-	return MainWindowHandle;
 }
 
 bool WindowMain::Init()

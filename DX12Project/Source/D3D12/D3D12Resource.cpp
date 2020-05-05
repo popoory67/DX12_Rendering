@@ -17,35 +17,6 @@ void D3D12Resource::Reset()
 	Resource.Reset();
 }
 
-//void D3D12Resource::CreateResource(D3D12_RESOURCE_DESC& InDesc, D3D12_CLEAR_VALUE& InValue)
-//{
-//	Resource.Reset();
-//
-//	GetParent()->CreateCommittedResource(
-//		this,
-//		D3D12_HEAP_TYPE_DEFAULT,
-//		D3D12_HEAP_FLAG_NONE,
-//		InDesc,
-//		D3D12_RESOURCE_STATE_COMMON,
-//		InValue);
-//}
-//
-//void D3D12Resource::CreateResource(UINT64 InByteSize, D3D12_CLEAR_VALUE& InValue)
-//{
-//	Resource.Reset();
-//
-//	CD3DX12_RESOURCE_DESC desc;
-//	memcpy((void*)&desc, (void*)&CD3DX12_RESOURCE_DESC::Buffer(InByteSize), sizeof(CD3DX12_RESOURCE_DESC));
-//
-//	GetParent()->CreateCommittedResource(
-//		this,
-//		D3D12_HEAP_TYPE_DEFAULT,
-//		D3D12_HEAP_FLAG_NONE,
-//		desc,
-//		D3D12_RESOURCE_STATE_COMMON,
-//		InValue);
-//}
-
 // -------------------------------------------------------------------------------------------------------------------- //
 //
 //void D3D12DefaultResource::CreateDefaultBuffer(const void* InInitData, UINT64 InByteSize)
@@ -77,87 +48,6 @@ void D3D12Resource::Reset()
 //	// the command list has not been executed yet that performs the actual copy.
 //	// The caller can Release the UploadBuffer after it knows the copy has been executed.
 //}
-
-// -------------------------------------------------------------------------------------------------------------------- //
-//
-//D3D12RenderTargetResource::D3D12RenderTargetResource(CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize)
-//{
-//	GetParent()->CreateRenderTargetView(Resource, nullptr, InDescriptorHandle);
-//	InDescriptorHandle.Offset(1, InDescriptorSize);
-//}
-//
-//D3D12RenderTargetResource::D3D12RenderTargetResource(D3D12SwapChain* InSwapChain, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize, unsigned int InIndex)
-//{
-//	assert(InSwapChain);
-//
-//	if (InSwapChain->Get())
-//		ThrowIfFailed(InSwapChain->Get()->GetBuffer(InIndex, IID_PPV_ARGS(&Resource)));
-//
-//	GetParent()->CreateRenderTargetView(Resource, nullptr, InDescriptorHandle);
-//	InDescriptorHandle.Offset(1, InDescriptorSize);
-//}
-
-// -------------------------------------------------------------------------------------------------------------------- //
-
-D3D12DepthStencilResource::D3D12DepthStencilResource()
-{
-	//D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
-	//dsvHeapDesc.NumDescriptors = 1;
-	//dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	//dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	//dsvHeapDesc.NodeMask = 0;
-
-	//DepthStencilDesc = new D3D12Descriptor(this, dsvHeapDesc);
-	//if (DepthStencilDesc)
-	//{
-	//	// Create the depth/stencil buffer and view.
-	//	D3D12_RESOURCE_DESC depthStencilDesc;
-	//	depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	//	depthStencilDesc.Alignment = 0;
-	//	depthStencilDesc.Width = (UINT64)D3D12SwapChain::GetWidth();
-	//	depthStencilDesc.Height = (UINT)D3D12SwapChain::GetHeight();
-	//	depthStencilDesc.DepthOrArraySize = 1;
-	//	depthStencilDesc.MipLevels = 1;
-
-	//	// Correction 11/12/2016: SSAO chapter requires an SRV to the depth buffer to read from 
-	//	// the depth buffer.  Therefore, because we need to create two views to the same resource:
-	//	//   1. SRV format: DXGI_FORMAT_R24_UNORM_X8_TYPELESS
-	//	//   2. DSV Format: DXGI_FORMAT_D24_UNORM_S8_UINT
-	//	// we need to create the depth buffer resource with a typeless format.  
-	//	depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-
-	//	depthStencilDesc.SampleDesc.Count = D3D12SwapChain::IsMsaa4xEnabled() ? 4 : 1;
-	//	depthStencilDesc.SampleDesc.Quality = D3D12SwapChain::IsMsaa4xEnabled() ? (D3D12SwapChain::GetMsaaQuality() - 1) : 0;
-	//	depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	//	depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-	//	D3D12_CLEAR_VALUE optClear;
-	//	optClear.Format = DepthStencilFormat;
-	//	optClear.DepthStencil.Depth = 1.0f;
-	//	optClear.DepthStencil.Stencil = 0;
-
-	//	// Transition the resource from its initial state to be used as a depth buffer.
-	//	CreateResource(depthStencilDesc, optClear);
-
-	//	GetCommandList()->ResourceBarrier(this, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-
-	//	// Create descriptor to mip level 0 of entire resource using the format of the resource.
-	//	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-	//	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
-	//	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-	//	dsvDesc.Format = DepthStencilFormat;
-	//	dsvDesc.Texture2D.MipSlice = 0;
-
-	//	GetParent()->CreateDepthStencilView(Resource, DepthStencilDesc, dsvDesc);
-	//}
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE D3D12DepthStencilResource::GetDepthStencilView() const
-{
-	assert(DepthStencilDesc);
-
-	return DepthStencilDesc->GetDescriptorHandle();
-}
 
 // -------------------------------------------------------------------------------------------------------------------- //
 

@@ -176,7 +176,7 @@ void D3D12RenderInterface::CreateDefaultBuffer(D3D12DefaultResource* InResource,
 		// will copy the CPU memory into the intermediate upload heap.  Then, using ID3D12CommandList::CopySubresourceRegion,
 		// the intermediate upload heap data will be copied to mBuffer.
 		pDevice->GetCommandList()->ResourceBarrier(pDefaultResource, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
-		pDevice->GetCommandList()->UpdateResources<1>(pDefaultResource, InResource, 0, 0, 1, subResourceData);
+		UpdateSubresources<1>(pDevice->GetCommandList()->GetGraphicsInterface(), pDefaultResource->GetInterface(), InResource->GetInterface(), 0, 0, 1, &subResourceData);
 		pDevice->GetCommandList()->ResourceBarrier(pDefaultResource, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ);
 
 		// Note: UploadBuffer has to be kept alive after the above function calls because
@@ -185,67 +185,12 @@ void D3D12RenderInterface::CreateDefaultBuffer(D3D12DefaultResource* InResource,
 	}
 }
 
-void D3D12RenderInterface::CreateRenderTarget(D3D12RenderTargetResource* InResource, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize)
+void D3D12RenderInterface::CreateRenderTarget(D3D12Resource* InResource, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize)
 {
 	assert(InResource);
 
 	GetParent()->CreateRenderTargetView(InResource, nullptr, InDescriptorHandle);
 	InDescriptorHandle.Offset(1, InDescriptorSize);
-}
-
-void D3D12RenderInterface::CreateDepthStencil(D3D12DepthStencilResource* InResource, D3D12Descriptor* InDescriptor)
-{
-	assert(InDescriptor);
-
-	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
-	dsvHeapDesc.NumDescriptors = 1;
-	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	dsvHeapDesc.NodeMask = 0;
-
-	InDescriptor = new D3D12Descriptor(this, dsvHeapDesc);
-	if (InDescriptor)
-	{
-		// Create the depth/stencil buffer and view.
-		D3D12_RESOURCE_DESC depthStencilDesc;
-		depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		depthStencilDesc.Alignment = 0;
-		depthStencilDesc.Width = (UINT64)D3D12Viewport::GetWidth();
-		depthStencilDesc.Height = (UINT)D3D12Viewport::GetHeight();
-		depthStencilDesc.DepthOrArraySize = 1;
-		depthStencilDesc.MipLevels = 1;
-
-		// Correction 11/12/2016: SSAO chapter requires an SRV to the depth buffer to read from 
-		// the depth buffer.  Therefore, because we need to create two views to the same resource:
-		//   1. SRV format: DXGI_FORMAT_R24_UNORM_X8_TYPELESS
-		//   2. DSV Format: DXGI_FORMAT_D24_UNORM_S8_UINT
-		// we need to create the depth buffer resource with a typeless format.  
-		depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-
-		depthStencilDesc.SampleDesc.Count = D3D12Viewport::IsMsaa4xEnabled()?4:1;
-		depthStencilDesc.SampleDesc.Quality = D3D12Viewport::IsMsaa4xEnabled()?(D3D12Viewport::GetMsaaQuality() - 1):0;
-		depthStencilDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-		D3D12_CLEAR_VALUE optClear;
-		optClear.Format = InResource->GetDepthStencilFormat();
-		optClear.DepthStencil.Depth = 1.0f;
-		optClear.DepthStencil.Stencil = 0;
-
-		// Transition the resource from its initial state to be used as a depth buffer.
-		CreateResource(InResource, depthStencilDesc, optClear);
-
-		GetCommnadList()->ResourceBarrier(InResource, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-
-		// Create descriptor to mip level 0 of entire resource using the format of the resource.
-		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-		dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
-		dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-		dsvDesc.Format = InResource->GetDepthStencilFormat();
-		dsvDesc.Texture2D.MipSlice = 0;
-
-		GetParent()->CreateDepthStencilView(InResource, InDescriptor, dsvDesc);
-	}
 }
 
 void D3D12RenderInterface::CreateShaderResource(D3D12ShaderResource* InResource, D3D12Descriptor* InDescriptor, std::string InName/* = nullptr*/, std::wstring InFilePath/* = nullptr*/)

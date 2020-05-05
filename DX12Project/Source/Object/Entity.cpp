@@ -2,25 +2,33 @@
 #include "Entity.h"
 #include "Component.h"
 
-void Entity::AddType(std::type_index InType)
+void Entity::AddType(ClassType* InType)
 {
-	auto it = std::find(Types.cbegin(), Types.cend(), InType);
+	assert(InType);
 
-	if (it == Types.cend())
+	auto it = std::find_if(EntityTypes.cbegin(), EntityTypes.cend(), [InType](ClassType* pType)
 	{
-		TypeId <<= 2;
-		TypeId |= InType.hash_code() >> 62;
+		if (pType->GetType() == InType->GetType())
+			return true;
+		return false;
+	});
 
-		Types.emplace_back(InType);
+	if (it == EntityTypes.cend())
+	{
+		// test hash
+		EntityTypeHash <<= 2;
+		EntityTypeHash |= InType->GetType() >> 62;
+
+		EntityTypes.emplace_back(InType);
 	}
 }
 
 size_t Entity::GetId()
 {
-	return TypeId & Index;
+	return EntityTypeHash & Index;
 }
 
 bool Entity::IsEqualTypeId(size_t InTypeId)
 {
-	return TypeId != 0 && TypeId == InTypeId;
+	return EntityTypeHash != 0 && EntityTypeHash == InTypeId;
 }

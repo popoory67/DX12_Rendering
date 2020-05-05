@@ -46,10 +46,9 @@ bool D3D12Renderer::Initialize()
 	Viewport.reset(new D3D12Viewport(DeviceChild.get()));
 	assert(Viewport);
 
-	Viewport->Create();
-	Viewport->OnResize();
-
-	OnResize();
+	RenderInterface->ResetCommandList();
+	RenderInterface->ExecuteCommandList();
+	RenderInterface->FlushCommandQueue();
 
 	// Update the viewport transform to cover the client area.
 	D3DViewportResource ScreenViewport;

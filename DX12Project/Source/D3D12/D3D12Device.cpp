@@ -84,12 +84,11 @@ void D3D12Device::CreateCommandQueue(D3D12_COMMAND_QUEUE_DESC& InQueueDesc, ComP
 	ThrowIfFailed(Device->CreateCommandQueue(&InQueueDesc, IID_PPV_ARGS(&InCommandQueue)));
 }
 
-void D3D12Device::CreateSwapChain(D3D12Viewport* InViewport, DXGI_SWAP_CHAIN_DESC& InSwapChainDesc)
+void D3D12Device::CreateSwapChain(ComPtr<IDXGISwapChain>& InSwapChain, DXGI_SWAP_CHAIN_DESC& InSwapChainDesc)
 {
 	assert(CommandListExecutor);
-	assert(InViewport);
 
-	ThrowIfFailed(GetDxgi()->CreateSwapChain(CommandListExecutor->GetExecutorInterface(), &InSwapChainDesc, InViewport->Get().GetAddressOf()));
+	ThrowIfFailed(GetDxgi()->CreateSwapChain(CommandListExecutor->GetExecutorInterface(), &InSwapChainDesc, InSwapChain.GetAddressOf()));
 }
 
 void D3D12Device::CheckFeatureSupport(D3D12_FEATURE InFeature, D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS& InMultisampleQualityLevels)
@@ -128,17 +127,17 @@ void D3D12Device::CreateDepthStencilView(D3D12Resource* InResource, class D3D12D
 {
 	assert(InDescriptor);
 
-	Device->CreateDepthStencilView(InResource->GetInterface(), &InDepthStencilDesc, InDescriptor->GetDescriptorHandle());
+	Device->CreateDepthStencilView(InResource->GetInterface(), &InDepthStencilDesc, InDescriptor->GetCpuHandle(0));
 }
 
 void D3D12Device::CreateShaderView(D3D12Resource* InResource, class D3D12Descriptor* InDescriptor, D3D12_SHADER_RESOURCE_VIEW_DESC& InShaderDesc)
 {
 	assert(InDescriptor);
 
-	Device->CreateShaderResourceView(InResource->GetInterface(), &InShaderDesc, InDescriptor->GetDescriptorHandle());
+	Device->CreateShaderResourceView(InResource->GetInterface(), &InShaderDesc, InDescriptor->GetCpuHandle(0));
 }
 
-void D3D12Device::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc, ComPtr<ID3D12DescriptorHeap> InHeap)
+void D3D12Device::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc, ComPtr<ID3D12DescriptorHeap>& InHeap)
 {
 	ThrowIfFailed(Device->CreateDescriptorHeap(&InHeapDesc, IID_PPV_ARGS(InHeap.GetAddressOf())));
 }

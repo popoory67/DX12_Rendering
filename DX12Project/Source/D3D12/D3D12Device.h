@@ -56,7 +56,7 @@ public:
 	void CreateCommandQueue(D3D12_COMMAND_QUEUE_DESC& InQueueDesc, ComPtr<ID3D12CommandQueue>& InCommandQueue);
 
 	// Swap chain interfaces
-	void CreateSwapChain(class D3D12Viewport* InViewport, DXGI_SWAP_CHAIN_DESC& InSwapChainDesc);
+	void CreateSwapChain(ComPtr<IDXGISwapChain>& InSwapChain, DXGI_SWAP_CHAIN_DESC& InSwapChainDesc);
 	void CheckFeatureSupport(D3D12_FEATURE InFeature, D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS& InMultisampleQualityLevels);
 
 	// Resource interfaces
@@ -67,7 +67,7 @@ public:
 	void CreateShaderView(class D3D12Resource* InResource, class D3D12Descriptor* InDescriptor, D3D12_SHADER_RESOURCE_VIEW_DESC& InShaderDesc);
 
 	// Descriptor interfaces
-	void CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc, ComPtr<ID3D12DescriptorHeap> InHeap);
+	void CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc, ComPtr<ID3D12DescriptorHeap>& InHeap);
 	UINT GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE InDescriptorHeapType);
 
 	// Pipeline state interfaces

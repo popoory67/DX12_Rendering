@@ -18,7 +18,7 @@ public:
 	void AddEntity(class Entity* InEntity);
 
 	template<typename ComponentType>
-	void GetComponents(std::vector<ComponentType*> OutComponents)
+	void GetComponents(std::vector<ComponentType*>& OutComponents)
 	{
 		EntityInterface->GetComponents<ComponentType>(OutComponents);
 	}

@@ -28,10 +28,10 @@ void SceneRenderer::Initialize()
 void SceneRenderer::RenderScreenView(D3D12CommandList* InCommandList)
 {
 	assert(InCommandList);
-	assert(RootSignature);
+	//assert(RootSignature);
 
 	InCommandList->ExecuteHeaps();
-	InCommandList->SetRootSignature(RootSignature);
+	//InCommandList->SetRootSignature(RootSignature);
 
 	RenderPrimitives(InCommandList);
 	// 이 사이에 material, shadow 등이 있어야하고
@@ -49,10 +49,10 @@ void SceneRenderer::RenderPrimitives(D3D12CommandList* InCommandList)
 	RenderInterface::GetInterface()->CreateUploadResource<PrimitiveComponent>(pConstBuffer, 0);
 
 	std::vector<PrimitiveComponent*> OutComponents;
-	CurrentScene->GetComponents<PrimitiveComponent>(OutComponents);
+	GetCurrentScene()->GetComponents<PrimitiveComponent>(OutComponents);
 
 	unsigned int index = 0;
-	for (PrimitiveComponent* pPrimitive : OutComponents)
+	for (auto pPrimitive : OutComponents)
 	{
 		if (pPrimitive)
 		{
@@ -117,7 +117,7 @@ void SceneRenderer::AddScene(Scene* InScene)
 
 void SceneRenderer::SetCurrentScene(int InIndex)
 {
-	auto it = SceneList.find(CurrentSceneIndex);
+	auto it = SceneList.find(InIndex);
 	if (it != SceneList.cend())
 	{
 		if (InIndex >= 0)

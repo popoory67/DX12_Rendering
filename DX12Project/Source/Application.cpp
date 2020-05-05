@@ -6,12 +6,21 @@
 // test
 #include "../TestScene.h"
 
-Application::Application()
+HWND Application::MainWindowHandle = nullptr;
+
+Application::Application(HINSTANCE hInstance)
+	: ApplicationInstanceHandle(hInstance)
 {
+
 }
 
 Application::~Application()
 {
+}
+
+HWND Application::GetWindowHandle()
+{
+	return MainWindowHandle;
 }
 
 bool Application::Init()

@@ -51,22 +51,22 @@ void D3D12CommandList::ResourceBarrier(D3D12Resource* InResource, D3D12_RESOURCE
 	CommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(InResource->GetInterface(), InFrom, InTo));
 }
 
-void D3D12CommandList::ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptorHandle, XMVECTORF32 InBackColor, UINT InNumRects, const D3D12_RECT* InRect/* = nullptr*/)
+void D3D12CommandList::ClearRenderTargetView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, XMVECTORF32 InBackColor, UINT InNumRects, const D3D12_RECT* InRect/* = nullptr*/)
 {
 	assert(CommandList);
-	CommandList->ClearRenderTargetView(InDescriptorHandle, InBackColor, InNumRects, InRect);
+	CommandList->ClearRenderTargetView(InDescriptorHandle.value(), InBackColor, InNumRects, InRect);
 }
 
-void D3D12CommandList::ClearDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect/* = nullptr*/)
+void D3D12CommandList::ClearDepthStencilView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect/* = nullptr*/)
 {
 	assert(CommandList);
-	CommandList->ClearDepthStencilView(InDescriptorHandle, ClearFlags, InDepthValue, InStencil, InNumRects, InRect);
+	CommandList->ClearDepthStencilView(InDescriptorHandle.value(), ClearFlags, InDepthValue, InStencil, InNumRects, InRect);
 }
 
-void D3D12CommandList::SetRenderTargets(UINT InNumRenderTargetDescriptors, D3D12_CPU_DESCRIPTOR_HANDLE InRenderTargetDescriptorHandle, bool InSingleHandleToDescriptorRange, D3D12_CPU_DESCRIPTOR_HANDLE InDepthStencilDescriptorHandle)
+void D3D12CommandList::SetRenderTargets(UINT InNumRenderTargetDescriptors, std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InRenderTargetDescriptorHandle, bool InSingleHandleToDescriptorRange, std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDepthStencilDescriptorHandle)
 {
 	assert(CommandList);
-	CommandList->OMSetRenderTargets(InNumRenderTargetDescriptors, &InRenderTargetDescriptorHandle, InSingleHandleToDescriptorRange, &InDepthStencilDescriptorHandle);
+	CommandList->OMSetRenderTargets(InNumRenderTargetDescriptors, &InRenderTargetDescriptorHandle.value(), InSingleHandleToDescriptorRange, &InDepthStencilDescriptorHandle.value());
 }
 
 void D3D12CommandList::SetPipelineState(D3D12PipelineState* InPipelineState)

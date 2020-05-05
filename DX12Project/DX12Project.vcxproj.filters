@@ -162,6 +162,9 @@
     <ClCompile Include="Source\Renderer\RenderInterface.cpp">
       <Filter>Engine\Renderer\Private</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Object\Class.cpp">
+      <Filter>Engine\Object\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\stdafx.h">
@@ -271,6 +274,9 @@
     </ClInclude>
     <ClInclude Include="Source\Renderer\RenderInterface.h">
       <Filter>Engine\Renderer\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object\Class.h">
+      <Filter>Engine\Object\Public</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

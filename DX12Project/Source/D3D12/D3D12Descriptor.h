@@ -18,7 +18,6 @@ public:
 
 	ComPtr<ID3D12DescriptorHeap>& GetHeap() { return Heap; }
 	ID3D12DescriptorHeap* Get() { return Heap.Get(); }
-	D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle() { return Heap->GetCPUDescriptorHandleForHeapStart(); }
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle(UINT64 InIndex) const;
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle(UINT64 InIndex) const;
