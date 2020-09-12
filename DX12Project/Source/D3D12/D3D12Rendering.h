@@ -21,31 +21,41 @@
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
+// TODO : 이게 Interface가 되어야함
 class D3D12Renderer
 {
 public:
-
 	D3D12Renderer(const D3D12Renderer& rhs) = delete;
 	D3D12Renderer& operator=(const D3D12Renderer& rhs) = delete;
-	virtual ~D3D12Renderer();
+	virtual ~D3D12Renderer() = default;
 
-	static class D3D12Renderer& GetInstance();
-
+	static D3D12Renderer& Get()
+	{
+		if (!Interface)
+		{
+			Interface = new D3D12Renderer();
+		}
+		return *Interface;
+	}
+	
 	//class D3D12Device* GetDevice()
 	//{
 	//	return DeviceChild->GetParent();
 	//}
 
-	virtual bool Initialize();
-	virtual void Update(GameTimer& InTimer)/* = 0*/; // update datas
-	virtual void Render(GameTimer& InTimer)/* = 0*/; // update render commands
+	bool Initialize();
+	void Update(GameTimer& InTimer)/* = 0*/; // update datas
 
-	void AddScene(class Scene* InScene);
-	void SetCurrentScene(int InIndex);
+	void PreRender();
+	void Render(GameTimer& InTimer)/* = 0*/; // update render commands
+	void PostRender();
+	
+	//void AddScene(class Scene* InScene);
+	//void SetCurrentScene(int InIndex);
 
 private:
-	D3D12Renderer();
-
+	D3D12Renderer() = default;
+	
 	//void SwapBackBufferToFrontBuffer();
 	//class D3D12Resource* GetCurrentBackBuffer() const;
 	//D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
@@ -56,18 +66,14 @@ private:
 	void OnResize();
 
 private:
-	static D3D12Renderer* Instance;
-
 	std::unique_ptr<class D3D12DeviceChild> DeviceChild; // multi gpu 지원 안함
-	std::unique_ptr<class D3D12RenderInterface> RenderInterface;
-	std::unique_ptr<class D3D12Viewport> Viewport;
-	std::unique_ptr<class SceneRenderer> Renderer;
+	std::unique_ptr<class D3D12Viewport> Viewport; // TODO : change unique param to array
 
 	ComPtr<ID3D12Fence> Fence;
 	UINT64 CurrentFenceCount = 0;
 
-// 	ComPtr<ID3D12PipelineState> OpaquePipelineStateObject = nullptr;
-// 
+	static D3D12Renderer* Interface;
+	
 // 	XMFLOAT3 mEyePos = { 0.0f, 0.0f, 0.0f };
 // 	XMFLOAT4X4 mView = MathHelper::Identity4x4();
 // 	XMFLOAT4X4 mProj = MathHelper::Identity4x4();

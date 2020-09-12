@@ -1,5 +1,4 @@
 #pragma once
-#include "MathHelper.h"
 #include "D3D12Commands.h"
 #include "D3D12Device.h"
 
@@ -11,9 +10,9 @@ public:
 	D3D12RenderInterface(class D3D12DeviceChild* InDevice);
 	virtual ~D3D12RenderInterface();
 
-	class D3D12CommandList* GetCommnadList() const
+	class D3D12CommandList& GetCommandList() const
 	{
-		return GetParent()->GetCommandList();
+		return *GetParent()->GetCommandList();
 	}
 	
 	void ExecuteCommandList();
@@ -55,5 +54,5 @@ private:
 
 	class D3D12Fence* Fence = nullptr;
 
-	std::vector<class D3D12PipelineState*> PipelineStates;
+	class D3D12PipelineState* PipelineState;
 };

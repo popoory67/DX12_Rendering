@@ -65,10 +65,32 @@ D3D12PipelineState::~D3D12PipelineState()
 
 void D3D12PipelineState::SetVertexShader(D3D12_SHADER_BYTECODE& InShaderByte)
 {
-	memcpy((void*)&PipelineStateDesc.VS, (void*)&InShaderByte, sizeof(D3D12_SHADER_BYTECODE));
+	memcpy_s(&PipelineStateDesc.VS, sizeof(PipelineStateDesc.VS) , &InShaderByte, sizeof(InShaderByte));
 }
 
 void D3D12PipelineState::SetPixelShader(D3D12_SHADER_BYTECODE& InShaderByte)
 {
-	memcpy((void*)&PipelineStateDesc.PS, (void*)&InShaderByte, sizeof(D3D12_SHADER_BYTECODE));
+	memcpy_s(&PipelineStateDesc.PS, sizeof(PipelineStateDesc.PS), &InShaderByte, sizeof(InShaderByte));
+}
+
+void D3D12PipelineStateCache::SetStreamSource(D3D12VertexBuffer* InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset)
+{
+	__declspec(align(16)) D3D12_VERTEX_BUFFER_VIEW view;
+	view.BufferLocation = InVertexBuffer ? InVertexBuffer->GetGPUVirtualAddress() + InOffset : 0;
+	view.StrideInBytes = InStride;
+	view.SizeInBytes = InVertexBuffer ? InVertexBuffer->GetSize() - InOffset : 0;
+
+	auto& CurrentVertexCache = PipelineStateCache.Graphics.VertexBufferCache.CurrentVertexBufferView[StreamIndex];
+
+	if (view.BufferLocation != CurrentVertexCache.BufferLocation)
+	{
+		if (!InVertexBuffer)
+		{
+			memcpy_s(&CurrentVertexCache, sizeof(CurrentVertexCache), &view, sizeof(view));
+		}
+	}
+}
+
+void D3D12PipelineStateCache::SetIndexBuffer()
+{
 }

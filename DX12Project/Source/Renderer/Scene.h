@@ -23,8 +23,6 @@ public:
 		EntityInterface->GetComponents<ComponentType>(OutComponents);
 	}
 
-	static D3D12Renderer& GetInstance();
-
 private:
 	void UpdateVisibility();
 	bool IsVisible(unsigned InId);

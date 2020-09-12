@@ -17,7 +17,7 @@ D3D12Fence::~D3D12Fence()
 
 void D3D12Fence::OnEventCompletion(UINT64 InFence)
 {
-	HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+	HANDLE eventHandle = CreateEventEx(nullptr, L"", false, EVENT_ALL_ACCESS);
 
 	ThrowIfFailed(Fence->SetEventOnCompletion(InFence, eventHandle));
 	WaitForSingleObject(eventHandle, INFINITE);

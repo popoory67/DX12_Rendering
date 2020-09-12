@@ -55,6 +55,24 @@
     <Filter Include="Engine\Object\Private">
       <UniqueIdentifier>{fc9c2a22-e6d7-4ce8-8ba6-9640aa59f625}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Object\Components">
+      <UniqueIdentifier>{3cb30038-cd67-4f07-81ad-f5090c894ac8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Object\Commands">
+      <UniqueIdentifier>{e373ba67-b876-480e-aca4-54e5560f2416}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Object\Components\Private">
+      <UniqueIdentifier>{9be75877-3df1-4d22-95ea-aa6d6e0039a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Object\Components\Public">
+      <UniqueIdentifier>{e18ee796-9f0d-468e-9728-d158168b5270}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Object\Commands\Private">
+      <UniqueIdentifier>{86280941-a116-492b-b505-9f7ae476aa3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Object\Commands\Public">
+      <UniqueIdentifier>{8ab77b84-9ebd-4a7f-9415-53a5f3f015ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\stdafx.cpp">
@@ -81,16 +99,10 @@
     <ClCompile Include="Source\Util\GameTimer.cpp">
       <Filter>Engine\Util\Private</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Renderer\CommandList.cpp">
-      <Filter>Engine\Renderer\Private</Filter>
-    </ClCompile>
     <ClCompile Include="Source\D3D12\D3D12Commands.cpp">
       <Filter>Engine\D3D12\Private</Filter>
     </ClCompile>
     <ClCompile Include="Source\D3D12\D3D12Device.cpp">
-      <Filter>Engine\D3D12\Private</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\D3D12\D3D12RenderInterface.cpp">
       <Filter>Engine\D3D12\Private</Filter>
     </ClCompile>
     <ClCompile Include="Source\D3D12\D3D12Resource.cpp">
@@ -138,9 +150,6 @@
     <ClCompile Include="Source\Object\EntityQuery.cpp">
       <Filter>Engine\Object\Private</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Object\Component.cpp">
-      <Filter>Engine\Object\Private</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Object\Entity.cpp">
       <Filter>Engine\Object\Private</Filter>
     </ClCompile>
@@ -159,11 +168,26 @@
     <ClCompile Include="Source\D3D12\D3D12Viewport.cpp">
       <Filter>Engine\D3D12\Private</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Renderer\RenderInterface.cpp">
-      <Filter>Engine\Renderer\Private</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Object\Class.cpp">
       <Filter>Engine\Object\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Object\CommandList.cpp">
+      <Filter>Engine\Object\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Object\Component.cpp">
+      <Filter>Engine\Object\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Object\Components\PrimitiveComponent.cpp">
+      <Filter>Engine\Object\Components\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Object\Components\RenderComponent.cpp">
+      <Filter>Engine\Object\Components\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Object\Commands\ObjectCommand.cpp">
+      <Filter>Engine\Object\Commands\Public</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Util\Util.cpp">
+      <Filter>Engine\Util\Private</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -194,16 +218,10 @@
     <ClInclude Include="Source\D3D12\UploadBuffer.h">
       <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Renderer\CommnadList.h">
-      <Filter>Engine\Renderer\Public</Filter>
-    </ClInclude>
     <ClInclude Include="Source\D3D12\D3D12Commands.h">
       <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\D3D12\D3D12Device.h">
-      <Filter>Engine\D3D12\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\D3D12\D3D12RenderInterface.h">
       <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\D3D12\D3D12Resource.h">
@@ -251,9 +269,6 @@
     <ClInclude Include="Source\Object\EntityQuery.h">
       <Filter>Engine\Object\Public</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Object\Component.h">
-      <Filter>Engine\Object\Public</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Object\Entity.h">
       <Filter>Engine\Object\Public</Filter>
     </ClInclude>
@@ -272,11 +287,26 @@
     <ClInclude Include="Source\D3D12\D3D12Viewport.h">
       <Filter>Engine\D3D12\Public</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Renderer\RenderInterface.h">
-      <Filter>Engine\Renderer\Public</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Object\Class.h">
       <Filter>Engine\Object\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object\CommnadList.h">
+      <Filter>Engine\Object\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object\Component.h">
+      <Filter>Engine\Object\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object\Components\PrimitiveComponent.h">
+      <Filter>Engine\Object\Components\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object\Components\RenderComponent.h">
+      <Filter>Engine\Object\Components\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object\Commands\ObjectCommand.h">
+      <Filter>Engine\Object\Commands\Private</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Util\Util.h">
+      <Filter>Engine\Util\Public</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

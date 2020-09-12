@@ -1,5 +1,5 @@
 #pragma once
-#include "FrameResource.h"
+#include <functional>
 
 // resource params
 class D3DViewportResource
@@ -22,8 +22,6 @@ public:
 	}
 
 	virtual ~CommandListBase() {}
-
-	//virtual void CreateAndSetViewports(D3DViewportResource& InResource) {}
 };
 
 class CommandListExecutor
@@ -39,9 +37,9 @@ struct CommandBase
 	CommandBase() {}
 	virtual ~CommandBase() {}
 
-	virtual void Execute(CommandListBase& InCmdList)
+	virtual void Execute(CommandListBase& InCmdList, std::function<void>& InFunc)
 	{
-
+		InFunc();
 	}
 
 	void ExecuteAndDestruct(CommandListBase& InCmdList)

@@ -26,7 +26,6 @@
     <ClCompile Include="Source\D3D12\D3D12Device.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Fence.cpp" />
     <ClCompile Include="Source\D3D12\D3D12PipelineState.cpp" />
-    <ClCompile Include="Source\D3D12\D3D12RenderInterface.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Resource.cpp" />
     <ClCompile Include="Source\D3D12\D3D12RootSignature.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Viewport.cpp" />
@@ -36,15 +35,17 @@
     <ClCompile Include="Source\D3D12\FrameResource.cpp" />
     <ClCompile Include="Source\InputManager.cpp" />
     <ClCompile Include="Source\Object\Class.cpp" />
+    <ClCompile Include="Source\Object\CommandList.cpp" />
+    <ClCompile Include="Source\Object\Commands\ObjectCommand.cpp" />
     <ClCompile Include="Source\Object\Component.cpp" />
+    <ClCompile Include="Source\Object\Components\PrimitiveComponent.cpp" />
+    <ClCompile Include="Source\Object\Components\RenderComponent.cpp" />
     <ClCompile Include="Source\Object\Entity.cpp" />
     <ClCompile Include="Source\Object\EntityQuery.cpp" />
-    <ClCompile Include="Source\Renderer\CommandList.cpp" />
     <ClCompile Include="Source\Renderer\GeometryGenerator.cpp" />
     <ClCompile Include="Source\Renderer\Light.cpp" />
     <ClCompile Include="Source\Renderer\Material.cpp" />
     <ClCompile Include="Source\Renderer\Mesh.cpp" />
-    <ClCompile Include="Source\Renderer\RenderInterface.cpp" />
     <ClCompile Include="Source\Renderer\Scene.cpp" />
     <ClCompile Include="Source\Renderer\SceneRendering.cpp" />
     <ClCompile Include="Source\Renderer\Texture.cpp" />
@@ -54,6 +55,7 @@
     </ClCompile>
     <ClCompile Include="Source\Util\GameTimer.cpp" />
     <ClCompile Include="Source\Util\MathHelper.cpp" />
+    <ClCompile Include="Source\Util\Util.cpp" />
     <ClCompile Include="Source\WindowMain.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="TestScene.cpp" />
@@ -66,7 +68,6 @@
     <ClInclude Include="Source\D3D12\D3D12Device.h" />
     <ClInclude Include="Source\D3D12\D3D12Fence.h" />
     <ClInclude Include="Source\D3D12\D3D12PipelineState.h" />
-    <ClInclude Include="Source\D3D12\D3D12RenderInterface.h" />
     <ClInclude Include="Source\D3D12\D3D12Resource.h" />
     <ClInclude Include="Source\D3D12\D3D12RootSignature.h" />
     <ClInclude Include="Source\D3D12\D3D12Viewport.h" />
@@ -78,15 +79,17 @@
     <ClInclude Include="Source\D3D12\UploadBuffer.h" />
     <ClInclude Include="Source\InputManager.h" />
     <ClInclude Include="Source\Object\Class.h" />
+    <ClInclude Include="Source\Object\Commands\ObjectCommand.h" />
+    <ClInclude Include="Source\Object\CommnadList.h" />
     <ClInclude Include="Source\Object\Component.h" />
+    <ClInclude Include="Source\Object\Components\PrimitiveComponent.h" />
+    <ClInclude Include="Source\Object\Components\RenderComponent.h" />
     <ClInclude Include="Source\Object\Entity.h" />
     <ClInclude Include="Source\Object\EntityQuery.h" />
-    <ClInclude Include="Source\Renderer\CommnadList.h" />
     <ClInclude Include="Source\Renderer\GeometryGenerator.h" />
     <ClInclude Include="Source\Renderer\Light.h" />
     <ClInclude Include="Source\Renderer\Material.h" />
     <ClInclude Include="Source\Renderer\Mesh.h" />
-    <ClInclude Include="Source\Renderer\RenderInterface.h" />
     <ClInclude Include="Source\Renderer\Scene.h" />
     <ClInclude Include="Source\Renderer\SceneRendering.h" />
     <ClInclude Include="Source\Renderer\Texture.h" />
@@ -94,6 +97,7 @@
     <ClInclude Include="Source\stdafx.h" />
     <ClInclude Include="Source\Util\GameTimer.h" />
     <ClInclude Include="Source\Util\MathHelper.h" />
+    <ClInclude Include="Source\Util\Util.h" />
     <ClInclude Include="Source\WindowMain.h" />
     <ClInclude Include="TestScene.h" />
   </ItemGroup>
@@ -101,14 +105,14 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{DCC2B30D-BF68-4959-A356-113248AB0BA9}</ProjectGuid>
     <RootNamespace>DX12Project</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -120,7 +124,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -170,7 +174,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
-      <AdditionalIncludeDirectories>..\DX12Project\Source;..\DX12Project\Source\Util;..\DX12Project\Source\Renderer;..\DX12Project\Source\Object;..\DX12Project\Source\D3D12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\DX12Project\Source;..\DX12Project\Source\Util;..\DX12Project\Source\Renderer;..\DX12Project\Source\Object;..\DX12Project\Source\Object\Commands;..\DX12Project\Source\Object\Components;..\DX12Project\Source\D3D12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>

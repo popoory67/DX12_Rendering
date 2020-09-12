@@ -1,21 +1,12 @@
 #pragma once
 #include "CommnadList.h"
-#include <dxgi1_4.h>
 #include <d3d12.h>
-#include <D3Dcompiler.h>
 #include <DirectXMath.h>
-#include <DirectXPackedVector.h>
-#include <DirectXColors.h>
-#include <DirectXCollision.h>
-#include <stdint.h>
 #include <comdef.h>
 #include "d3dx12.h"
-#include <DirectXColors.h>
 #include "D3DUtil.h"
-#include "GameTimer.h"
-#include "FrameResource.h"
 #include "D3D12Resource.h"
-#include "D3D12Descriptor.h"
+#include "D3D12PipelineState.h"
 
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
@@ -61,13 +52,15 @@ public:
 	void ClearRenderTargetView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, XMVECTORF32 InBackColor, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
 	void ClearDepthStencilView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
 	void SetRenderTargets(UINT InNumRenderTargetDescriptors, std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InRenderTargetDescriptorHandle, bool InSingleHandleToDescriptorRange, std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDepthStencilDescriptorHandle);
-	void SetPipelineState(class D3D12PipelineState* InPipelineState);
+	void SetPipelineState(class D3D12PipelineState* InPipelineState) const;
 
 	// Primitive
-	void SetVertexBuffers(UINT InStartSlot, UINT InNumViews, std::optional<D3D12_VERTEX_BUFFER_VIEW> InViews = {});
-	void SetIndexBuffer(std::optional<D3D12_INDEX_BUFFER_VIEW> InView = {});
-	void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY InPrimitiveTopology);
-	void DrawIndexedInstanced(UINT InIndexCountPerInstance, UINT InInstanceCount, UINT InStartIndexLocation, INT InBaseVertexLocation, UINT InStartInstanceLocation);
+	/// Draw 되는 시점에 불린다
+	/// StreamSource(데이터를 넣는 시점), Set(Draw call 시점)
+	void SetVertexBuffers(struct D3D12VertexBufferCache& InVertexBufferCache) const;
+	void SetIndexBuffer(std::optional<D3D12_INDEX_BUFFER_VIEW> InView = {}) const;
+	void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY InPrimitiveTopology) const;
+	void DrawIndexedInstanced(UINT InIndexCountPerInstance, UINT InInstanceCount, UINT InStartIndexLocation, INT InBaseVertexLocation, UINT InStartInstanceLocation) const;
 
 	// Descriptor heap
 	void AddDescriptorHeap(class D3D12Descriptor* InDescriptor);
@@ -89,6 +82,18 @@ private:
 	ComPtr<ID3D12CommandAllocator> CommandListAllocator = nullptr;
 
 	std::vector<ID3D12DescriptorHeap*> Heaps;
+
+	D3D12PipelineStateCache StateCache;
+	
+	// const buffer
+	// caches : 모든 렌더 상태를 저장(캐싱)하는 구조체
+	
+	// rhi : 각 기능(struct)을 가져오는 인터페이스(sampler state, pixel shader 등)
+	// allocate manager
+	// uniform buffers
+	//
+	// commandlist는 쓰레드마다 진행이 될거고, 여기에 저장된 state cache와 descriptor cache로 장면을 그려나갈거임
+	//
 };
 
 class D3D12CommandListExecutor : public CommandListExecutor

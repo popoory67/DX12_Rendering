@@ -4,14 +4,12 @@
 class SceneRenderer
 {
 public:
-	SceneRenderer() = delete;
-	SceneRenderer(class D3D12RenderInterface* InInterface);
-	~SceneRenderer();
+	SceneRenderer() = default;
+	~SceneRenderer() = default;
 
-	void Initialize();
-	void RenderScreenView(class D3D12CommandList* InCommandList);
-	void RenderPrimitives(class D3D12CommandList* InCommandList);
-	void RenderMaterials(class D3D12CommandList* InCommandList);
+	void RenderScreenView(class D3D12CommandList& InCommandList);
+	void RenderPrimitives(class D3D12CommandList& InCommandList);
+	void RenderMaterials(class D3D12CommandList& InCommandList);
 
 	std::shared_ptr<class Scene> GetCurrentScene();
 	void AddScene(class Scene* InScene);
@@ -28,7 +26,7 @@ private:
 	int CurrentSceneIndex = -1;
 
 	std::shared_ptr<class Scene> CurrentScene;
-	std::unique_ptr<class RenderInterface> Interface;
+	std::vector<std::weak_ptr<class BObjectCommand>> Commands;
 
 	//ID3D12Resource* Pass = nullptr; // The mean of pass is like a buffer (upload buffer)
 };

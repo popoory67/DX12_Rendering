@@ -85,8 +85,9 @@ protected:
 	// DirectX Graphics Infrastructure : 공통 그래픽 API
 	ComPtr<IDXGIFactory4> DxgiFactory = nullptr;
 
+	// TODO : 아래 객체를 분리시키자. Device를 상속받은 객체들이 굳이 들고있을 필요는 없고, 기능만 사용할 수 있게 정리
 	std::unique_ptr<class D3D12CommandListExecutor> CommandListExecutor;
-	std::unique_ptr<class D3D12CommandList> CommandList;
+	std::shared_ptr<class D3D12CommandList> CommandList;
 
 	HWND MainWindowHandle = nullptr;
 };

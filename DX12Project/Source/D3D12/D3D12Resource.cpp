@@ -1,20 +1,46 @@
 #include "stdafx.h"
-#include <intsafe.h>
-#include <optional>
 #include <d3d12.h>
-#include "d3dx12.h"
 #include "D3D12Resource.h"
 #include "D3D12Device.h"
 #include "D3D12Descriptor.h"
-#include "D3D12Commands.h"
 #include "DDSTextureLoader.h"
-#include "Material.h"
-#include "Texture.h"
 
+D3D12Resource::D3D12Resource(D3D12DeviceChild* InDevice, ID3D12Resource* InResource)
+	: D3D12DeviceChild(*InDevice)
+	, Resource(InResource)
+	, GpuVirtualAddress(0)
+{
+	GpuVirtualAddress = Resource->GetGPUVirtualAddress();
+	Desc = Resource->GetDesc();
+}
 
 void D3D12Resource::Reset()
 {
 	Resource.Reset();
+
+	GpuVirtualAddress = 0;
+}
+
+// -------------------------------------------------------------------------------------------------------------------- //
+
+D3D12ResourceLocation::D3D12ResourceLocation(D3D12DeviceChild* InDevice)
+	: D3D12DeviceChild(*InDevice)
+{
+	
+}
+
+void D3D12ResourceLocation::SetResource(D3D12Resource* InResource)
+{
+	GpuVirtualAddress = InResource->GetGPUVirtualAddress();
+	Resource = InResource;
+}
+
+// -------------------------------------------------------------------------------------------------------------------- //
+
+D3D12VertexBuffer::D3D12VertexBuffer(D3D12DeviceChild* InDevice)
+	: D3D12DeviceChild(*InDevice)
+{
+
 }
 
 // -------------------------------------------------------------------------------------------------------------------- //

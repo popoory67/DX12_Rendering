@@ -1,52 +1,39 @@
 #include "stdafx.h"
 #include "SceneRendering.h"
-#include "D3D12Device.h"
 #include "D3D12RenderInterface.h"
 #include "D3D12RootSignature.h"
-#include "Entity.h"
 #include "Mesh.h"
-#include "Material.h"
 #include "Scene.h"
-#include "RenderInterface.h"
+#include "ObjectCommand.h"
 
-SceneRenderer::SceneRenderer(D3D12RenderInterface* InInterface)
+void SceneRenderer::RenderScreenView(D3D12CommandList& InCommandList)
 {
-	Interface = std::make_unique<RenderInterface>(InInterface);
-	assert(Interface);
-}
-
-SceneRenderer::~SceneRenderer()
-{
-
-}
-
-void SceneRenderer::Initialize()
-{
-
-}
-
-void SceneRenderer::RenderScreenView(D3D12CommandList* InCommandList)
-{
-	assert(InCommandList);
 	//assert(RootSignature);
 
-	InCommandList->ExecuteHeaps();
+	InCommandList.ExecuteHeaps();
 	//InCommandList->SetRootSignature(RootSignature);
 
 	RenderPrimitives(InCommandList);
-	// ÀÌ »çÀÌ¿¡ material, shadow µîÀÌ ÀÖ¾î¾ßÇÏ°í
-	// command list¿¡¼­ render °úÁ¤¿¡¼­ root signature Ã³¸®¸¦ ÇÒ ¶§ Ä«¿îÆ®¸¦ ³»ºÎÀûÀ¸·Î °ü¸®ÇØ¾ßÇÔ
+	// ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¿ï¿½ material, shadow ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½Ï°ï¿½
+	// command listï¿½ï¿½ï¿½ï¿½ render ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ root signature Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ Ä«ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ï¿½ï¿½
 	RenderMaterials(InCommandList);
 
-	InCommandList->FlushHeaps();
+	InCommandList.FlushHeaps();
 }
 
-void SceneRenderer::RenderPrimitives(D3D12CommandList* InCommandList)
+void SceneRenderer::RenderPrimitives(D3D12CommandList& InCommandList)
 {
-	assert(InCommandList);
+	// TODO : Component ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â°ï¿½ ï¿½Æ´Ï¶ï¿½, component ï¿½È¿ï¿½ ï¿½Ö´ï¿½ mirror dataï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	// Componentï¿½ï¿½ Renderï¿½ï¿½ ï¿½Ð¸ï¿½ï¿½ï¿½ ï¿½Ç¾ï¿½ï¿½Ö¾ï¿½ï¿½ ï¿½Ñ´ï¿½.
+	// Componentï¿½ï¿½ï¿½ï¿½ Draw, Render ï¿½Ô¼ï¿½ È£ï¿½ï¿½ => ï¿½Ýµï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½å¸¦ ï¿½Ð¸ï¿½ï¿½Ø¼ï¿½ Ã³ï¿½ï¿½
+	for (auto pCommand : Commands)
+	{
+		pCommand->ExecuteAndDestruct(InCommandList);
+	}
 
-	D3D12UploadResource<PrimitiveComponent>* pConstBuffer = new D3D12UploadResource<PrimitiveComponent>(true);
-	RenderInterface::GetInterface()->CreateUploadResource<PrimitiveComponent>(pConstBuffer, 0);
+	
+	//D3D12UploadResource<PrimitiveComponent>* pConstBuffer = new D3D12UploadResource<PrimitiveComponent>(true);
+	//RenderInterface::GetInterface()->CreateUploadResource<PrimitiveComponent>(pConstBuffer, 0);
 
 	std::vector<PrimitiveComponent*> OutComponents;
 	GetCurrentScene()->GetComponents<PrimitiveComponent>(OutComponents);
@@ -56,24 +43,22 @@ void SceneRenderer::RenderPrimitives(D3D12CommandList* InCommandList)
 	{
 		if (pPrimitive)
 		{
-			InCommandList->SetVertexBuffers(0, 1, pPrimitive->VertexBufferView());
-			InCommandList->SetIndexBuffer(pPrimitive->IndexBufferView());
+			InCommandList.SetVertexBuffers();
+			InCommandList->SetIndexBuffer();
 			InCommandList->SetPrimitiveTopology(pPrimitive->PrimitiveType);
 
 			InCommandList->DrawIndexedInstanced(pPrimitive->GetIndexCount(), 1, pPrimitive->GetStartIndexLocation(), pPrimitive->GetBaseVertexLocation(), 0);
 
 			D3D12_GPU_VIRTUAL_ADDRESS address = pConstBuffer->GetResource()->GetGPUVirtualAddress() + index * pPrimitive->GetBindingSize();
-			RenderInterface::GetInterface()->GetCommnadList()->BindConstBuffer(RenderType::Primitive, address);
+			InCommandList->BindConstBuffer(RenderType::Primitive, address);
 
 			++index;
 		}
 	}
 }
 
-void SceneRenderer::RenderMaterials(D3D12CommandList* InCommandList)
+void SceneRenderer::RenderMaterials(D3D12CommandList& InCommandList)
 {
-	assert(InCommandList);
-
  	//UINT matCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
  
  	//auto matCB = MaterialConstBuffer->Resource();

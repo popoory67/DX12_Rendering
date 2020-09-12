@@ -8,50 +8,50 @@ static size_t CreateType(std::any InClass)
 	return type.hash_code();
 }
 
-ClassType::ClassType()
+BClassType::BClassType()
 {
 }
 
-ClassType::ClassType(std::any InClass)
+BClassType::BClassType(std::any InClass)
 {
-	HashCode = CreateType(InClass);
+	GUID = CreateType(InClass);
 }
 
-ClassType::~ClassType()
+BClassType::~BClassType()
 {
 }
 
-size_t ClassType::GetType()
+size_t BClassType::GetType()
 {
-	return HashCode;
+	return GUID;
 }
 
 // ----------------------------------------------------------------------------//
 
-std::unique_ptr<ClassType> Class::Type;
+std::unique_ptr<BClassType> BClass::Type;
 
-Class::Class()
+BClass::BClass()
 {
-	Type = std::make_unique<ClassType>(this);
+	Type = std::make_unique<BClassType>(this);
 }
 
-Class::~Class()
+BClass::~BClass()
 {
 
 }
 
-ClassType* Class::StaticClass()
+BClassType* BClass::StaticClass()
 {
-	Type = std::make_unique<ClassType>();
+	Type = std::make_unique<BClassType>();
 	return Type.get();
 }
 
-ClassType* Class::GetClass()
+BClassType* BClass::GetClass()
 {
 	return Type.get();
 }
 
-bool Class::IsEqualClass(ClassType* InClass)
+bool BClass::IsEqualClass(BClassType* InClass)
 {
 	assert(InClass);
 	assert(Type);

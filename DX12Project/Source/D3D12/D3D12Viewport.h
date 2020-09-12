@@ -9,7 +9,7 @@ using namespace Microsoft::WRL;
 class D3D12Viewport : public D3D12DeviceChild
 {
 public:
-	D3D12Viewport(class D3D12DeviceChild* InDevice);
+	explicit D3D12Viewport(class D3D12DeviceChild* InDevice);
 	virtual ~D3D12Viewport() {}
 
 	ComPtr<IDXGISwapChain>& Get() { return SwapChain; }

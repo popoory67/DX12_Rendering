@@ -2,28 +2,17 @@
 
 #include <windows.h>
 #include <string>
-
 #include <dxgi1_4.h>
 #include <d3d12.h>
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>
-#include <DirectXPackedVector.h>
-#include <DirectXColors.h>
-#include <DirectXCollision.h>
 
-#include "../Util/MathHelper.h"
+#include "Util.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
 class DxException;
-
-inline std::wstring AnsiToWString(const std::string& str)
-{
-	WCHAR buffer[512];
-	MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, buffer, 512);
-	return std::wstring(buffer);
-}
 
 #ifndef ThrowIfFailed
 #define ThrowIfFailed(x)                                              \
@@ -36,10 +25,6 @@ inline std::wstring AnsiToWString(const std::string& str)
 
 #ifndef ReleaseCom
 #define ReleaseCom(x) { if(x){ x->Release(); x = nullptr; } }
-#endif
-
-#ifndef ReturnCheckAssert
-#define ReturnCheckAssert(x) { assert(x); return x; }
 #endif
 
 class DxException

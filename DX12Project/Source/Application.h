@@ -15,6 +15,9 @@ public:
 	class GameTimer& GetTimer() const;
 
 protected:
+	class Scene& GetScene();
+
+protected:
 	static HWND			MainWindowHandle;
 
 	HINSTANCE		ApplicationInstanceHandle = nullptr;
@@ -23,5 +26,4 @@ protected:
 	int				ClientHeight = 600;
 
 	bool IsPaused = false;
-
 };

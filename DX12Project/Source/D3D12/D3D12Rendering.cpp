@@ -7,30 +7,8 @@
 #include "D3D12RenderInterface.h"
 #include "D3D12Viewport.h"
 #include "D3D12Commands.h"
-#include "D3D12PipelineState.h"
 #include "SceneRendering.h"
 #include "Scene.h"
-
-D3D12Renderer* D3D12Renderer::Instance = nullptr;
-
-D3D12Renderer::D3D12Renderer()
-{
-	// Only one D3D12Renderer can be constructed.
-	assert(Instance == nullptr);
-	Instance = this;
-}
-
-D3D12Renderer::~D3D12Renderer()
-{
-}
-
-D3D12Renderer& D3D12Renderer::GetInstance()
-{
-	if (!Instance)
-		Instance = new D3D12Renderer();
-
-	return *Instance;
-}
 
 bool D3D12Renderer::Initialize()
 {
@@ -40,29 +18,26 @@ bool D3D12Renderer::Initialize()
 	DeviceChild.reset(new D3D12DeviceChild(pDevice));
 	assert(DeviceChild);
 
-	RenderInterface.reset(new D3D12RenderInterface(DeviceChild.get()));
-	assert(RenderInterface);
-
 	Viewport.reset(new D3D12Viewport(DeviceChild.get()));
 	assert(Viewport);
 
-	RenderInterface->ResetCommandList();
-	RenderInterface->ExecuteCommandList();
-	RenderInterface->FlushCommandQueue();
+	//RenderInterface->ResetCommandList();
+	//RenderInterface->ExecuteCommandList();
+	//RenderInterface->FlushCommandQueue();
 
 	// Update the viewport transform to cover the client area.
-	D3DViewportResource ScreenViewport;
-	ScreenViewport.TopLeftX = 0;
-	ScreenViewport.TopLeftY = 0;
-	ScreenViewport.Width = 800.0f;
-	ScreenViewport.Height = 600.0f;
-	ScreenViewport.MinDepth = 0.0f;
-	ScreenViewport.MaxDepth = 1.0f;
+	D3DViewportResource screenViewport;
+	screenViewport.TopLeftX = 0;
+	screenViewport.TopLeftY = 0;
+	screenViewport.Width = 800.0f;
+	screenViewport.Height = 600.0f;
+	screenViewport.MinDepth = 0.0f;
+	screenViewport.MaxDepth = 1.0f;
 
-	Viewport->SetViewport(ScreenViewport);
+	Viewport->SetViewport(screenViewport);
 
-	Renderer.reset(new SceneRenderer(RenderInterface.get()));
-	assert(Renderer);
+	//Renderer.reset(new SceneRenderer(RenderInterface.get()));
+	//assert(Renderer);
 
 	// 리소스가 있을때 사용되는거라 일단 주석처리
 // 	BuildRootSignature();
@@ -103,31 +78,59 @@ void D3D12Renderer::Update(GameTimer& gt)
 //	UpdateObjectManager->UpdateTransform(gt);
 }
 
-// 1 드로우 = 1 프레임
-void D3D12Renderer::Render(GameTimer& gt)
+void D3D12Renderer::PreRender()
 {
+	assert(DeviceChild);
+
+	auto pDevice = DeviceChild->GetParent();
+	assert(pDevice);
+
+	auto pCommandList = pDevice->GetCommandList();
+	assert(pCommandList);
+
 	// Ready to draw
-	RenderInterface->ResetCommandList();
+	pCommandList->Reset();
 
 	Viewport->UpdateViewport();
 	Viewport->ReadyToRenderTarget();
+}
 
+// 1 드로우 = 1 프레임
+void D3D12Renderer::Render(GameTimer& gt)
+{
 // 	// --test
 //  	ID3D12DescriptorHeap* descriptorHeaps[] = { SrvHeap.Get() };
 //  	CommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 //  	CommandList->SetGraphicsRootSignature(RootSignature.Get());
-	Renderer->RenderScreenView(RenderInterface->GetCommnadList());
+	Renderer->RenderScreenView(pCommandList);
 
 //  	ID3D12Resource* PassConstBuffer = CurFrameResource->PassConstBuffer->Resource();
 //  	CommandList->SetGraphicsRootConstantBufferView(2, PassConstBuffer->GetGPUVirtualAddress()); // 임시 주석처리
+}
 
+void D3D12Renderer::PostRender()
+{
+	assert(DeviceChild);
+
+	auto pDevice = DeviceChild->GetParent();
+	assert(pDevice);
+
+	auto pCommandList = pDevice->GetCommandList();
+	assert(pCommandList);
+	
 	// End draw
 	Viewport->FinishToRenderTarget();
 
-	// Finish to recode resource
-	RenderInterface->ExecuteCommandList();
+	for (D3D12PipelineState* pPso : PipelineStates)
+	{
+		pCommandList->SetPipelineState(pPso);
+	}
+
+	pDevice->ExecuteCommands();
+
 	Viewport->SwapBackBufferToFrontBuffer();
-	RenderInterface->FlushCommandQueue();
+
+	pDevice->FlushCommandQueue();
 }
 
 // void D3D12Renderer::UpdateCamera(const GameTimer& gt)
@@ -156,14 +159,14 @@ void D3D12Renderer::OnResize()
 	RenderInterface->FlushCommandQueue();
 }
 
-void D3D12Renderer::AddScene(Scene* InScene)
-{
-	assert(InScene || Renderer);
-	Renderer->AddScene(InScene);
-}
-
-void D3D12Renderer::SetCurrentScene(int InIndex)
-{
-	assert(Renderer);
-	Renderer->SetCurrentScene(InIndex);
-}
+//void D3D12Renderer::AddScene(Scene* InScene)
+//{
+//	assert(InScene || Renderer);
+//	Renderer->AddScene(InScene);
+//}
+//
+//void D3D12Renderer::SetCurrentScene(int InIndex)
+//{
+//	assert(Renderer);
+//	Renderer->SetCurrentScene(InIndex);
+//}

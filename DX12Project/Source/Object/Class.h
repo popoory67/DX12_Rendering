@@ -1,31 +1,31 @@
 #pragma once
 
-class ClassType
+class BClassType
 {
 public:
-	ClassType();
-	ClassType(std::any InClass);
-	~ClassType();
+	BClassType();
+	BClassType(std::any InClass);
+	~BClassType();
 
 	size_t GetType();
 
 private:
-	size_t HashCode;
+	size_t GUID;
 };
 
-class Class
+class BClass
 {
 public:
-	Class();
-	virtual ~Class();
+	BClass();
+	virtual ~BClass();
 
-	static ClassType* StaticClass();
+	static BClassType* StaticClass();
 
-	ClassType* GetClass();
-	bool IsEqualClass(ClassType* InClass);
+	BClassType* GetClass();
+	bool IsEqualClass(BClassType* InClass);
 
 private:
 
 protected:
-	static std::unique_ptr<ClassType> Type;
+	static std::unique_ptr<BClassType> Type;
 };

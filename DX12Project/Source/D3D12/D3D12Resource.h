@@ -2,34 +2,81 @@
 #include <d3d12.h>
 #include "D3DUtil.h"
 #include "Texture.h"
-#include "Material.h"
-#include "d3dx12.h"
 #include "D3D12Device.h"
 #include "D3D12Commands.h"
 
 using namespace Microsoft::WRL;
 
-class D3D12Resource
+class D3D12Resource : public D3D12DeviceChild
 {
 public:
-	D3D12Resource() {}
+	explicit D3D12Resource(class D3D12DeviceChild* InDevice, class ID3D12Resource* InResource);
 	virtual ~D3D12Resource() { ReleaseCom(Resource); }
 
 	ComPtr<ID3D12Resource>& Get() { return Resource; }
 	ID3D12Resource** GetAddressOf() { return Resource.GetAddressOf(); }
 	ID3D12Resource* GetInterface() { return Resource.Get(); }
-	std::optional<D3D12_GPU_VIRTUAL_ADDRESS> GetGPUVirtualAddress() { return Resource->GetGPUVirtualAddress(); }
-	D3D12_RESOURCE_DESC GetDesc() { return Resource->GetDesc(); }
+	
+	D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const { return GpuVirtualAddress; }
+	D3D12_RESOURCE_DESC GetDesc() { return Desc; }
 
 	void Reset();
 
+	//void Map();
+	//void Unmap();
+
 protected:
 	ComPtr<struct ID3D12Resource> Resource = nullptr;
+	
+	D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress;
+	
+	D3D12_RESOURCE_DESC Desc;
+	
+	D3D12_RESOURCE_STATES DefaultState;
+	D3D12_RESOURCE_STATES ReadableState;
+	D3D12_RESOURCE_STATES WritableState;
 };
 
 // -------------------------------------------------------------------------------------------------------------------- //
 
-class D3D12DefaultResource : public D3D12Resource
+class D3D12ResourceLocation : public D3D12DeviceChild
+{
+public:
+	explicit D3D12ResourceLocation(class D3D12DeviceChild* InDevice);
+	virtual ~D3D12ResourceLocation() = default;
+
+	void SetResource(D3D12Resource* InResource);
+	D3D12Resource& GetResource() { return *Resource; }
+
+	D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const { return GpuVirtualAddress; }
+
+	uint64_t GetSize() { return Size; }
+	
+private:
+	D3D12Resource* Resource = nullptr;
+	
+	D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress;
+	uint64_t Size = 0;
+};
+
+// -------------------------------------------------------------------------------------------------------------------- //
+
+class D3D12VertexBuffer : public D3D12DeviceChild
+{
+public:
+	explicit D3D12VertexBuffer(class D3D12DeviceChild* InDevice);
+	virtual ~D3D12VertexBuffer() = default;
+
+	D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const { return ResourceLocation->GetGPUVirtualAddress(); }
+	uint64_t GetSize() { return ResourceLocation->GetSize(); }
+	
+private:
+	D3D12ResourceLocation* ResourceLocation = nullptr;
+};
+
+// -------------------------------------------------------------------------------------------------------------------- //
+
+class D3D12DefaultResource
 {
 public:
 	D3D12DefaultResource() {}
@@ -43,7 +90,7 @@ private:
 
 // -------------------------------------------------------------------------------------------------------------------- //
 template<typename T>
-class D3D12UploadResource : public D3D12Resource
+class D3D12UploadResource
 {
 public:
 	D3D12UploadResource() = delete;
@@ -126,7 +173,7 @@ private:
 
 // -------------------------------------------------------------------------------------------------------------------- //
 
-class D3D12ShaderResource : public D3D12Resource
+class D3D12ShaderResource
 {
 public:
 	D3D12ShaderResource() {}

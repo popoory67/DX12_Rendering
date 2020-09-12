@@ -69,7 +69,7 @@ void D3D12CommandList::SetRenderTargets(UINT InNumRenderTargetDescriptors, std::
 	CommandList->OMSetRenderTargets(InNumRenderTargetDescriptors, &InRenderTargetDescriptorHandle.value(), InSingleHandleToDescriptorRange, &InDepthStencilDescriptorHandle.value());
 }
 
-void D3D12CommandList::SetPipelineState(D3D12PipelineState* InPipelineState)
+void D3D12CommandList::SetPipelineState(D3D12PipelineState* InPipelineState) const
 {
 	assert(CommandList);
 	assert(InPipelineState);
@@ -77,25 +77,30 @@ void D3D12CommandList::SetPipelineState(D3D12PipelineState* InPipelineState)
 	CommandList->SetPipelineState(InPipelineState->GetInterface());
 }
 
-void D3D12CommandList::SetVertexBuffers(UINT InStartSlot, UINT InNumViews, std::optional<D3D12_VERTEX_BUFFER_VIEW> InViews/* = {}*/)
+void D3D12CommandList::SetVertexBuffers(D3D12VertexBufferCache& InVertexBufferCache) const
 {
 	assert(CommandList);
-	CommandList->IASetVertexBuffers(InStartSlot, InNumViews, &InViews.value());
+
+	// TODO : 이걸 어디서 호출해주지 => 어떤 것을 그리려고 준비하는 시점에 호출, 즉 컨텐츠 구현같은거할때 = 구현하는 사람이 데이터 넣고(사용자) 그리는건 엔진에서 알아서
+	// D3D12VertexBuffer* InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset
+//	StateCache.SetStreamSource(InVertexBuffer, StreamIndex, InStride, InOffset);
+	
+	CommandList->IASetVertexBuffers(0, InVertexBufferCache.MaxVertexIndex + 1, InVertexBufferCache.CurrentVertexBufferView);
 }
 
-void D3D12CommandList::SetIndexBuffer(std::optional<D3D12_INDEX_BUFFER_VIEW> InView/* = {}*/)
+void D3D12CommandList::SetIndexBuffer(std::optional<D3D12_INDEX_BUFFER_VIEW> InView/* = {}*/) const
 {
 	assert(CommandList);
 	CommandList->IASetIndexBuffer(&InView.value());
 }
 
-void D3D12CommandList::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY InPrimitiveTopology)
+void D3D12CommandList::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY InPrimitiveTopology) const
 {
 	assert(CommandList);
 	CommandList->IASetPrimitiveTopology(InPrimitiveTopology);
 }
 
-void D3D12CommandList::DrawIndexedInstanced(UINT InIndexCountPerInstance, UINT InInstanceCount, UINT InStartIndexLocation, INT InBaseVertexLocation, UINT InStartInstanceLocation)
+void D3D12CommandList::DrawIndexedInstanced(UINT InIndexCountPerInstance, UINT InInstanceCount, UINT InStartIndexLocation, INT InBaseVertexLocation, UINT InStartInstanceLocation) const
 {
 	assert(CommandList);
 	CommandList->DrawIndexedInstanced(InIndexCountPerInstance, InInstanceCount, InStartIndexLocation, InBaseVertexLocation, InStartInstanceLocation);

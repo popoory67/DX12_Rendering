@@ -43,7 +43,7 @@ D3D12RenderInterface::~D3D12RenderInterface()
 
 void D3D12RenderInterface::ResetCommandList()
 {
-	GetCommnadList()->Reset();
+	GetCommnadList().Reset();
 }
 
 void D3D12RenderInterface::ExecuteCommandList()
