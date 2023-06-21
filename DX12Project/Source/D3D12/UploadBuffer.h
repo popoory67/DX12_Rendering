@@ -24,12 +24,12 @@ public:
 
 		if (InElementCount > 0)
 		{
-			ThrowIfFailed(InDevice->CreateCommittedResource(
-				Buffer,
-				D3D12_HEAP_TYPE_UPLOAD,
-				D3D12_HEAP_FLAG_NONE,
-				ElementByteSize * InElementCount,
-				D3D12_RESOURCE_STATE_GENERIC_READ));
+			//ThrowIfFailed(InDevice->CreateCommittedResource(
+			//	Buffer,
+			//	D3D12_HEAP_TYPE_UPLOAD,
+			//	D3D12_HEAP_FLAG_NONE,
+			//	ElementByteSize * InElementCount,
+			//	D3D12_RESOURCE_STATE_GENERIC_READ));
 
 			ThrowIfFailed(Buffer->Map(0, nullptr, reinterpret_cast<void**>(&MappedData)));
 		}
@@ -50,12 +50,12 @@ public:
 
 	void CreateBuffer(D3D12Device* InDevice, UINT InElementCount)
 	{
-		ThrowIfFailed(InDevice->CreateCommittedResource(
-			Buffer,
-			D3D12_HEAP_TYPE_UPLOAD,
-			D3D12_HEAP_FLAG_NONE,
-			ElementByteSize * InElementCount,
-			D3D12_RESOURCE_STATE_GENERIC_READ));
+		//ThrowIfFailed(InDevice->CreateCommittedResource(
+		//	Buffer,
+		//	D3D12_HEAP_TYPE_UPLOAD,
+		//	D3D12_HEAP_FLAG_NONE,
+		//	ElementByteSize * InElementCount,
+		//	D3D12_RESOURCE_STATE_GENERIC_READ));
 
 		ThrowIfFailed(Buffer->Map(0, nullptr, reinterpret_cast<void**>(&MappedData)));
 	}

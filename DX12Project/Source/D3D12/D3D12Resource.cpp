@@ -1,50 +1,88 @@
 #include "stdafx.h"
-#include <d3d12.h>
 #include "D3D12Resource.h"
 #include "D3D12Device.h"
 #include "D3D12Descriptor.h"
 #include "DDSTextureLoader.h"
+#include "Texture.h"
 
-D3D12Resource::D3D12Resource(D3D12DeviceChild* InDevice, ID3D12Resource* InResource)
-	: D3D12DeviceChild(*InDevice)
+
+D3D12Resource::D3D12Resource(D3D12Device* InDevice, ID3D12Resource* InResource)
+	: D3D12Api(InDevice)
 	, Resource(InResource)
-	, GpuVirtualAddress(0)
+	, ResourceState(static_cast<D3D12_RESOURCE_STATES>(-1))
 {
-	GpuVirtualAddress = Resource->GetGPUVirtualAddress();
 	Desc = Resource->GetDesc();
+}
+
+D3D12Resource::~D3D12Resource()
+{ 
+	ReleaseCom(Resource); 
 }
 
 void D3D12Resource::Reset()
 {
 	Resource.Reset();
+}
 
-	GpuVirtualAddress = 0;
+void D3D12Resource::Map()
+{
+}
+
+void D3D12Resource::Unmap()
+{
 }
 
 // -------------------------------------------------------------------------------------------------------------------- //
 
-D3D12ResourceLocation::D3D12ResourceLocation(D3D12DeviceChild* InDevice)
-	: D3D12DeviceChild(*InDevice)
+D3D12ResourceLocation::D3D12ResourceLocation(D3D12Device* InDevice)
+	: D3D12Api(InDevice)
+	//, GpuVirtualAddress(0)
 {
 	
 }
 
 void D3D12ResourceLocation::SetResource(D3D12Resource* InResource)
 {
-	GpuVirtualAddress = InResource->GetGPUVirtualAddress();
+	assert(InResource);
+
 	Resource = InResource;
 }
 
 // -------------------------------------------------------------------------------------------------------------------- //
 
-D3D12VertexBuffer::D3D12VertexBuffer(D3D12DeviceChild* InDevice)
-	: D3D12DeviceChild(*InDevice)
+D3D12VertexBuffer::D3D12VertexBuffer(D3D12Device* InDevice)
+	: D3D12Api(InDevice)
 {
 
 }
 
 // -------------------------------------------------------------------------------------------------------------------- //
 //
+// 	void CreateCommittedResource(class D3D12Resource* InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, D3D12_RESOURCE_DESC& InDesc, D3D12_RESOURCE_STATES InResourceStates, std::optional<D3D12_CLEAR_VALUE> InValue = {});
+//void CreateCommittedResource(class D3D12Resource* InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, UINT64 InByteSize, D3D12_RESOURCE_STATES InResourceStates, std::optional<D3D12_CLEAR_VALUE> InValue = {});
+// void D3D12RHI::CreateCommittedResource(D3D12Resource* InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, D3D12_RESOURCE_DESC& InDesc, D3D12_RESOURCE_STATES InResourceStates, std::optional<D3D12_CLEAR_VALUE> InValue/* = {}*/)
+//{
+//	ThrowIfFailed(GetDevice()->CreateCommittedResource(
+//		&CD3DX12_HEAP_PROPERTIES(InHeapType),
+//		InHeapFlags,
+//		&InDesc,
+//		InResourceStates,
+//		&InValue.value(),
+//		IID_PPV_ARGS(InResource->GetAddressOf())));
+//}
+//
+//void D3D12RHI::CreateCommittedResource(D3D12Resource* InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, UINT64 InByteSize, D3D12_RESOURCE_STATES InResourceStates, std::optional<D3D12_CLEAR_VALUE> InValue/* = {}*/)
+//{
+//	ThrowIfFailed(GetDevice()->CreateCommittedResource(
+//		&CD3DX12_HEAP_PROPERTIES(InHeapType),
+//		InHeapFlags,
+//		&CD3DX12_RESOURCE_DESC::Buffer(InByteSize),
+//		InResourceStates,
+//		&InValue.value(),
+//		IID_PPV_ARGS(InResource->GetAddressOf())));
+//}
+
+// 
 //void D3D12DefaultResource::CreateDefaultBuffer(const void* InInitData, UINT64 InByteSize)
 //{
 //	D3D12Resource* pDefaultResource = new D3D12Resource();
@@ -87,8 +125,8 @@ D3D12VertexBuffer::D3D12VertexBuffer(D3D12DeviceChild* InDevice)
 //
 //	ShaderResourceDesc = new D3D12Descriptor(this, srvHeapDesc);
 //
-//	// ∏Æº“Ω∫ ≈◊Ω∫∆Æ
-//	// ≈ÿΩ∫√ƒ∏¶ æÓ∂ª∞‘ ¡§∏Æ«“¡ˆ ∞ÌπŒ«ÿæﬂ«‘
+//	// Î¶¨ÏÜåÏä§ ÌÖåÏä§Ìä∏
+//	// ÌÖçÏä§Ï≥êÎ•º Ïñ¥ÎñªÍ≤å Ï†ïÎ¶¨Ìï†ÏßÄ Í≥†ÎØºÌï¥ÏïºÌï®
 //	LoadTextures(InName, InFilePath);
 //	assert(Resource);
 //
@@ -130,6 +168,11 @@ D3D12VertexBuffer::D3D12VertexBuffer(D3D12DeviceChild* InDevice)
 //	}
 //}
 
+D3D12ShaderResource::D3D12ShaderResource(D3D12Device* InDevice)
+	: D3D12Api(InDevice)
+{
+}
+
 UINT64 D3D12ShaderResource::GetDescriptorHandleIncrementSize()
 {
 	assert(ShaderResourceDesc);
@@ -137,3 +180,8 @@ UINT64 D3D12ShaderResource::GetDescriptorHandleIncrementSize()
 }
 
 // -------------------------------------------------------------------------------------------------------------------- //
+
+D3D12DefaultResource::D3D12DefaultResource(D3D12Device* InDevice)
+	: D3D12Api(InDevice)
+{
+}

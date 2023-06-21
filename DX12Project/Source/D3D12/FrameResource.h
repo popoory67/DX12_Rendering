@@ -45,7 +45,8 @@ public:
 	{
 		assert(InDevice);
 
-		InDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, CommandListAllocator);
+		// 수정 필요
+		//InDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, CommandListAllocator);
 
 		ConstBuffer = std::make_unique<UploadBuffer<T>>(InDevice, elementCount, true);
 	}

@@ -19,86 +19,94 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\D3D12\D3D12BinaryLargeObject.cpp" />
+    <ClCompile Include="Source\D3D12\D3D12CommandAllocator.cpp" />
+    <ClCompile Include="Source\D3D12\D3D12CommandExecutor.cpp" />
+    <ClCompile Include="Source\D3D12\D3D12CommandList.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Commands.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Descriptor.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Device.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Fence.cpp" />
     <ClCompile Include="Source\D3D12\D3D12PipelineState.cpp" />
+    <ClCompile Include="Source\D3D12\D3D12RenderInterface.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Resource.cpp" />
     <ClCompile Include="Source\D3D12\D3D12RootSignature.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Viewport.cpp" />
-    <ClCompile Include="Source\D3D12\D3D12Rendering.cpp" />
     <ClCompile Include="Source\D3D12\D3DUtil.cpp" />
     <ClCompile Include="Source\D3D12\DDSTextureLoader.cpp" />
     <ClCompile Include="Source\D3D12\FrameResource.cpp" />
-    <ClCompile Include="Source\InputManager.cpp" />
-    <ClCompile Include="Source\Object\Class.cpp" />
-    <ClCompile Include="Source\Object\CommandList.cpp" />
-    <ClCompile Include="Source\Object\Commands\ObjectCommand.cpp" />
-    <ClCompile Include="Source\Object\Component.cpp" />
-    <ClCompile Include="Source\Object\Components\PrimitiveComponent.cpp" />
-    <ClCompile Include="Source\Object\Components\RenderComponent.cpp" />
-    <ClCompile Include="Source\Object\Entity.cpp" />
-    <ClCompile Include="Source\Object\EntityQuery.cpp" />
-    <ClCompile Include="Source\Renderer\GeometryGenerator.cpp" />
-    <ClCompile Include="Source\Renderer\Light.cpp" />
-    <ClCompile Include="Source\Renderer\Material.cpp" />
-    <ClCompile Include="Source\Renderer\Mesh.cpp" />
-    <ClCompile Include="Source\Renderer\Scene.cpp" />
-    <ClCompile Include="Source\Renderer\SceneRendering.cpp" />
-    <ClCompile Include="Source\Renderer\Texture.cpp" />
-    <ClCompile Include="Source\Renderer\Transform.cpp" />
+    <ClCompile Include="Source\Engine\Application.cpp" />
+    <ClCompile Include="Source\Engine\Events\InputManager.cpp" />
+    <ClCompile Include="Source\Engine\Object\Class.cpp" />
+    <ClCompile Include="Source\Engine\Object\Commands\ObjectCommand.cpp" />
+    <ClCompile Include="Source\Engine\Object\Component.cpp" />
+    <ClCompile Include="Source\Engine\Object\Components\PrimitiveComponent.cpp" />
+    <ClCompile Include="Source\Engine\Object\Components\RenderComponent.cpp" />
+    <ClCompile Include="Source\Engine\Object\Entity.cpp" />
+    <ClCompile Include="Source\Engine\Object\EntityQuery.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\CommandList.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\GeometryGenerator.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\Light.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\Material.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\Mesh.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\RenderInterface.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\Scene.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\SceneRendering.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\Texture.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\Transform.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\Viewport.cpp" />
+    <ClCompile Include="Source\Engine\Util\GameTimer.cpp" />
+    <ClCompile Include="Source\Engine\Util\MathHelper.cpp" />
+    <ClCompile Include="Source\Engine\Util\Util.cpp" />
+    <ClCompile Include="Source\Engine\WindowMain.cpp" />
     <ClCompile Include="Source\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Util\GameTimer.cpp" />
-    <ClCompile Include="Source\Util\MathHelper.cpp" />
-    <ClCompile Include="Source\Util\Util.cpp" />
-    <ClCompile Include="Source\WindowMain.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\D3D12\D3D12BinaryLargeObject.h" />
     <ClInclude Include="Source\D3D12\D3D12Commands.h" />
     <ClInclude Include="Source\D3D12\D3D12Descriptor.h" />
     <ClInclude Include="Source\D3D12\D3D12Device.h" />
     <ClInclude Include="Source\D3D12\D3D12Fence.h" />
     <ClInclude Include="Source\D3D12\D3D12PipelineState.h" />
+    <ClInclude Include="Source\D3D12\D3D12RenderInterface.h" />
     <ClInclude Include="Source\D3D12\D3D12Resource.h" />
     <ClInclude Include="Source\D3D12\D3D12RootSignature.h" />
+    <ClInclude Include="Source\D3D12\D3D12Types.h" />
     <ClInclude Include="Source\D3D12\D3D12Viewport.h" />
-    <ClInclude Include="Source\D3D12\D3D12Rendering.h" />
     <ClInclude Include="Source\D3D12\D3DUtil.h" />
     <ClInclude Include="Source\D3D12\d3dx12.h" />
     <ClInclude Include="Source\D3D12\DDSTextureLoader.h" />
     <ClInclude Include="Source\D3D12\FrameResource.h" />
     <ClInclude Include="Source\D3D12\UploadBuffer.h" />
-    <ClInclude Include="Source\InputManager.h" />
-    <ClInclude Include="Source\Object\Class.h" />
-    <ClInclude Include="Source\Object\Commands\ObjectCommand.h" />
-    <ClInclude Include="Source\Object\CommnadList.h" />
-    <ClInclude Include="Source\Object\Component.h" />
-    <ClInclude Include="Source\Object\Components\PrimitiveComponent.h" />
-    <ClInclude Include="Source\Object\Components\RenderComponent.h" />
-    <ClInclude Include="Source\Object\Entity.h" />
-    <ClInclude Include="Source\Object\EntityQuery.h" />
-    <ClInclude Include="Source\Renderer\GeometryGenerator.h" />
-    <ClInclude Include="Source\Renderer\Light.h" />
-    <ClInclude Include="Source\Renderer\Material.h" />
-    <ClInclude Include="Source\Renderer\Mesh.h" />
-    <ClInclude Include="Source\Renderer\Scene.h" />
-    <ClInclude Include="Source\Renderer\SceneRendering.h" />
-    <ClInclude Include="Source\Renderer\Texture.h" />
-    <ClInclude Include="Source\Renderer\Transform.h" />
+    <ClInclude Include="Source\Engine\Application.h" />
+    <ClInclude Include="Source\Engine\Events\InputManager.h" />
+    <ClInclude Include="Source\Engine\Object\Class.h" />
+    <ClInclude Include="Source\Engine\Object\Commands\ObjectCommand.h" />
+    <ClInclude Include="Source\Engine\Object\Component.h" />
+    <ClInclude Include="Source\Engine\Object\Components\PrimitiveComponent.h" />
+    <ClInclude Include="Source\Engine\Object\Components\RenderComponent.h" />
+    <ClInclude Include="Source\Engine\Object\Entity.h" />
+    <ClInclude Include="Source\Engine\Object\EntityQuery.h" />
+    <ClInclude Include="Source\Engine\Renderer\CommandList.h" />
+    <ClInclude Include="Source\Engine\Renderer\GeometryGenerator.h" />
+    <ClInclude Include="Source\Engine\Renderer\Light.h" />
+    <ClInclude Include="Source\Engine\Renderer\Material.h" />
+    <ClInclude Include="Source\Engine\Renderer\Mesh.h" />
+    <ClInclude Include="Source\Engine\Renderer\RenderInterface.h" />
+    <ClInclude Include="Source\Engine\Renderer\Scene.h" />
+    <ClInclude Include="Source\Engine\Renderer\SceneRendering.h" />
+    <ClInclude Include="Source\Engine\Renderer\Texture.h" />
+    <ClInclude Include="Source\Engine\Renderer\Transform.h" />
+    <ClInclude Include="Source\Engine\Renderer\Viewport.h" />
+    <ClInclude Include="Source\Engine\Util\GameTimer.h" />
+    <ClInclude Include="Source\Engine\Util\MathHelper.h" />
+    <ClInclude Include="Source\Engine\Util\Util.h" />
+    <ClInclude Include="Source\Engine\WindowMain.h" />
     <ClInclude Include="Source\stdafx.h" />
-    <ClInclude Include="Source\Util\GameTimer.h" />
-    <ClInclude Include="Source\Util\MathHelper.h" />
-    <ClInclude Include="Source\Util\Util.h" />
-    <ClInclude Include="Source\WindowMain.h" />
     <ClInclude Include="TestScene.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -174,9 +182,15 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
-      <AdditionalIncludeDirectories>..\DX12Project\Source;..\DX12Project\Source\Util;..\DX12Project\Source\Renderer;..\DX12Project\Source\Object;..\DX12Project\Source\Object\Commands;..\DX12Project\Source\Object\Components;..\DX12Project\Source\D3D12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>..\DX12Project\Source;..\DX12Project\Source\Engine;..\DX12Project\Source\Engine\Util;..\DX12Project\Source\Engine\Events;..\DX12Project\Source\Engine\Renderer;..\DX12Project\Source\Engine\Object;..\DX12Project\Source\Engine\Object\Commands;..\DX12Project\Source\Engine\Object\Components;..\DX12Project\Source\D3D12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

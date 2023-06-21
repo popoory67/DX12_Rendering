@@ -3,20 +3,16 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include "d3dx12.h"
-#include "MathHelper.h"
-#include "D3DUtil.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
-class D3DDeviceBase
-{
-public:
-	D3DDeviceBase() {}
-	virtual ~D3DDeviceBase() {}
-};
+// namespace backend {
 
-class D3D12Device : public D3DDeviceBase
+class D3D12CommandList;
+class D3D12CommandListExecutor;
+
+class D3D12Device
 {
 public:
 	D3D12Device();
@@ -27,79 +23,54 @@ public:
 		ReturnCheckAssert(Device); 
 	}
 
-	ID3D12Device* GetDeviceInterface() const
-	{ 
-		assert(Device); ReturnCheckAssert(Device.Get());
-	}
-
-	ComPtr<IDXGIFactory4> GetDxgi() const 
+	ComPtr<IDXGIFactory4> GetDxgi() const
 	{
 		ReturnCheckAssert(DxgiFactory);
 	}
 
-	HWND GetWindowHandle() 
-	{ 
-		ReturnCheckAssert(MainWindowHandle); 
-	}
+	ID3D12CommandQueue* GetCommandQueue() const;
+	D3D12CommandList& GetCommandList() const;
+	D3D12CommandListExecutor& GetCommandListExecutor() const;
 
-	class D3D12CommandList* GetCommandList()
-	{
-		ReturnCheckAssert(CommandList.get());
-	}
-
-	void ExecuteCommands();
-	void FlushCommandQueue();
-
-	// Command interfaces
-	void CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE InCommandListType, ComPtr<ID3D12CommandAllocator>& InCommandAllocator);
-	void CreateCommandList(D3D12_COMMAND_LIST_TYPE InCommandListType, ComPtr<ID3D12CommandAllocator>& InCommandAllocator, ComPtr<ID3D12GraphicsCommandList>& InCommandList);
-	void CreateCommandQueue(D3D12_COMMAND_QUEUE_DESC& InQueueDesc, ComPtr<ID3D12CommandQueue>& InCommandQueue);
-
-	// Swap chain interfaces
-	void CreateSwapChain(ComPtr<IDXGISwapChain>& InSwapChain, DXGI_SWAP_CHAIN_DESC& InSwapChainDesc);
 	void CheckFeatureSupport(D3D12_FEATURE InFeature, D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS& InMultisampleQualityLevels);
 
-	// Resource interfaces
-	void CreateCommittedResource(class D3D12Resource* InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, D3D12_RESOURCE_DESC& InDesc, D3D12_RESOURCE_STATES InResourceStates, std::optional<D3D12_CLEAR_VALUE> InValue = {});
-	void CreateCommittedResource(class D3D12Resource* InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, UINT64 InByteSize, D3D12_RESOURCE_STATES InResourceStates, std::optional<D3D12_CLEAR_VALUE> InValue = {});
-	void CreateRenderTargetView(class D3D12Resource* InResource, const D3D12_RENDER_TARGET_VIEW_DESC* InDesc, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle);
-	void CreateDepthStencilView(class D3D12Resource* InResource, class D3D12Descriptor* InDescriptor, D3D12_DEPTH_STENCIL_VIEW_DESC& InDepthStencilDesc);
-	void CreateShaderView(class D3D12Resource* InResource, class D3D12Descriptor* InDescriptor, D3D12_SHADER_RESOURCE_VIEW_DESC& InShaderDesc);
-
-	// Descriptor interfaces
-	void CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc, ComPtr<ID3D12DescriptorHeap>& InHeap);
-	UINT GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE InDescriptorHeapType);
-
-	// Pipeline state interfaces
-	void CreateGraphicsPipelineState(ComPtr<ID3D12PipelineState>& InPipelineState, D3D12_GRAPHICS_PIPELINE_STATE_DESC& InPipelineStateDesc);
-
-	// Root signature interfaces
-	void CreateRootSignature(class D3D12RootSignature* InRootSignature, class D3D12BinaryLargeObject* InBlob);
+	void Initialize();
 
 private:
 	void CreateDevice();
 
 protected:
 	ComPtr<ID3D12Device> Device = nullptr; 
-
-	// DirectX Graphics Infrastructure : 공통 그래픽 API
 	ComPtr<IDXGIFactory4> DxgiFactory = nullptr;
 
-	// TODO : 아래 객체를 분리시키자. Device를 상속받은 객체들이 굳이 들고있을 필요는 없고, 기능만 사용할 수 있게 정리
-	std::unique_ptr<class D3D12CommandListExecutor> CommandListExecutor;
-	std::shared_ptr<class D3D12CommandList> CommandList;
-
-	HWND MainWindowHandle = nullptr;
+	D3D12CommandListExecutor* CommandListExecutor = nullptr;
+	D3D12CommandList* CommandList = nullptr;
 };
 
-class D3D12DeviceChild
+// noncopyable
+// this class can just make sure that it's a D3D12 api.
+class D3D12Api
 {
 public:
-	D3D12DeviceChild(D3D12Device* InParent = nullptr) : Parent(InParent) {}
+	D3D12Api() = delete;
+	D3D12Api(const D3D12Api&) = delete;
+	D3D12Api& operator=(const D3D12Api&) = delete;
 
-	D3D12Device* GetParent() const
+	explicit D3D12Api(D3D12Device* InParent) : Parent(InParent) 
 	{
-		ReturnCheckAssert(Parent);
+		assert(InParent);
+	}
+
+	ID3D12Device* GetDevice() const
+	{
+		assert(Parent->GetDevice());
+		ReturnCheckAssert(Parent->GetDevice().Get());
+	}
+
+protected:
+	inline D3D12Device* GetParent() const noexcept
+	{
+		return Parent;
 	}
 
 private:

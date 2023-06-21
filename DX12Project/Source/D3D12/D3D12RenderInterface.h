@@ -1,58 +1,74 @@
 #pragma once
-#include "D3D12Commands.h"
-#include "D3D12Device.h"
+#include <dxgi1_4.h>
+#include <d3d12.h>
+#include <D3Dcompiler.h>
+#include <DirectXMath.h>
+#include <DirectXPackedVector.h>
+#include <DirectXColors.h>
+#include <DirectXCollision.h>
+#include <stdint.h>
+#include <comdef.h>
+#include "d3dx12.h"
+#include "D3DUtil.h"
+#include "GameTimer.h"
+#include "FrameResource.h"
+//#include "MathHelper.h"
+#include "D3D12Viewport.h"
+#include "RenderInterface.h"
 
-// Management for command lists
-class D3D12RenderInterface : public D3D12DeviceChild
+#pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "D3D12.lib")
+#pragma comment(lib, "dxgi.lib")
+
+using namespace DirectX;
+using namespace Microsoft::WRL;
+
+class D3D12Device;
+class D3D12Resource;
+class D3D12DefaultResource;
+class D3D12ShaderResource;
+class D3D12Descriptor;
+
+class D3D12RHI : public RHI
 {
 public:
-	D3D12RenderInterface() = delete;
-	D3D12RenderInterface(class D3D12DeviceChild* InDevice);
-	virtual ~D3D12RenderInterface();
+	D3D12RHI();
+	virtual ~D3D12RHI();
 
-	class D3D12CommandList& GetCommandList() const
+	constexpr FORCEINLINE D3D12Device* GetCurrentDevice()
 	{
-		return *GetParent()->GetCommandList();
+		return CurrentDevice;
 	}
-	
-	void ExecuteCommandList();
+
+	template<class RHIResourceType>
+	static FORCEINLINE TD3D12Types<RHIResourceType>::ResourceType* Cast(RHIResourceType* InResource)
+	{
+		return static_cast<TD3D12Types<RHIResourceType>::ResourceType*>(InResource);
+	}
+
+	void Initialize() override;
+	void Destroy() override;
+
+	RHIViewport* CreateViewport(void* InHWnd, unsigned int InWidth, unsigned int InHeight) override;
+	void ResizeViewport(RHIViewport* InViewportRHI) override;
+
 	void FlushCommandQueue() const;
-	//void UpdateViewport(class D3D12Viewport* InSwapChain);
-	//void SetViewport(class D3DViewportResource& InViewResource, class D3D12Viewport* InSwapChain);
-	//void ReadyToRenderTarget(class D3D12Resource* InBackBuffer, D3D12_CPU_DESCRIPTOR_HANDLE InBackBufferView, D3D12_CPU_DESCRIPTOR_HANDLE InDepthStencilBuffer);
-	//void FinishToRenderTarget(class D3D12Resource* InBackBuffer);
 	void ResetCommandList();
 
-	void CreateResource(class D3D12Resource* InResource, std::optional<D3D12_RESOURCE_DESC> InDesc = {}, std::optional<D3D12_CLEAR_VALUE> InValue = {});
-	void CreateResource(class D3D12Resource* InResource, UINT64 InByteSize, std::optional<D3D12_CLEAR_VALUE> InValue = {});
-	void CreateDefaultBuffer(class D3D12DefaultResource* InResource, const void* InInitData, UINT64 InByteSize);
-	void CreateRenderTarget(class D3D12Resource* InResource, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize);
-	void CreateShaderResource(class D3D12ShaderResource* InResource, class D3D12Descriptor* InDescriptor, std::string InName = nullptr, std::wstring InFilePath = nullptr);
+	void CreateResource(D3D12Resource* InResource, D3D12_RESOURCE_DESC& InDesc, D3D12_CLEAR_VALUE& InValue);
+	void CreateResource(D3D12Resource* InResource, UINT64 InByteSize, D3D12_CLEAR_VALUE& InValue);
+	void CreateDefaultBuffer(D3D12DefaultResource* InResource, const void* InInitData, UINT64 InByteSize);
+	void CreateRenderTarget(D3D12Resource* InResource, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize);
+	void CreateShaderResource(D3D12ShaderResource* InResource, class D3D12Descriptor* InDescriptor, std::string InName = nullptr, std::wstring InFilePath = nullptr);
 	
-	template<typename Type>
-	void CreateUploadResource(class D3D12UploadResource<Type>* InResource, UINT InElementCount)
-	{
-		if (InResource->IsConstBuffer())
-			InResource->SetTypeSize(D3DUtil::CalcConstantBufferByteSize(sizeof(Type)));
+	void LoadTexture(D3D12ShaderResource* InResource, std::string InName = nullptr, std::wstring InFilePath = nullptr);
 
-		if (InElementCount > 0)
-		{
-			GetParent()->CreateCommittedResource(
-				InResource,
-				D3D12_HEAP_TYPE_UPLOAD,
-				D3D12_HEAP_FLAG_NONE,
-				InResource->GetTypeSize() * InElementCount,
-				D3D12_RESOURCE_STATE_GENERIC_READ);
-
-			InResource->Map();
-		}
-	}
-
-	void LoadTexture(class D3D12ShaderResource* InResource, std::string InName = nullptr, std::wstring InFilePath = nullptr);
+	// Resource interfaces
+	void CreateDepthStencilView(D3D12Resource* InResource, D3D12Descriptor* InDescriptor, D3D12_DEPTH_STENCIL_VIEW_DESC& InDepthStencilDesc);
 
 private:
 
-	class D3D12Fence* Fence = nullptr;
+	//std::vector<std::shared_ptr<class D3D12PipelineState>> PipelineStates;
 
-	class D3D12PipelineState* PipelineState;
+	D3D12Device* CurrentDevice;
 };

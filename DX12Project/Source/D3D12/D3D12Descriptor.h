@@ -4,17 +4,17 @@
 #include "MathHelper.h"
 #include "D3D12Device.h"
 
-class D3D12Descriptor : public D3D12DeviceChild
+class D3D12Descriptor : public D3D12Api, public std::enable_shared_from_this< D3D12Descriptor>
 {
 public:
 	D3D12Descriptor() = delete;
-	D3D12Descriptor(class D3D12DeviceChild* InDeivce, D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc);
-	D3D12Descriptor(class D3D12DeviceChild* InDeivce, D3D12_DESCRIPTOR_HEAP_TYPE InType, D3D12_DESCRIPTOR_HEAP_FLAGS InFlags, UINT64 InCount);
+	D3D12Descriptor(D3D12Device* InDeivce, D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc);
+	D3D12Descriptor(D3D12Device* InDeivce, D3D12_DESCRIPTOR_HEAP_TYPE InType, D3D12_DESCRIPTOR_HEAP_FLAGS InFlags, UINT64 InCount);
 	virtual ~D3D12Descriptor() {}
 
-	UINT64 GetSize() { return Size; }
-	void SetSize(UINT64 InSize) { Size = InSize; }
-	UINT64 GetCount() { return Count; }
+	FORCEINLINE UINT64 GetSize() { return Size; }
+	FORCEINLINE void SetSize(UINT64 InSize) { Size = InSize; }
+	FORCEINLINE UINT64 GetCount() { return Count; }
 
 	ComPtr<ID3D12DescriptorHeap>& GetHeap() { return Heap; }
 	ID3D12DescriptorHeap* Get() { return Heap.Get(); }
@@ -23,8 +23,8 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle(UINT64 InIndex) const;
 
 private:
-	UINT64 Size = 0;
-	UINT64 Count = 0;
+	UINT64 Size;
+	UINT64 Count;
 
 	D3D12_CPU_DESCRIPTOR_HANDLE CPUHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE GPUHandle;

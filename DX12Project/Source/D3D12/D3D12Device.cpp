@@ -1,17 +1,9 @@
 #include "stdafx.h"
 #include "D3D12Device.h"
 #include "D3D12Commands.h"
-#include "D3D12Viewport.h"
-#include "D3D12PipelineState.h"
-#include "D3D12BinaryLargeObject.h"
-#include "D3D12RootSignature.h"
 
 D3D12Device::D3D12Device()
 {
-	CreateDevice();
-
-	CommandList.reset(new D3D12CommandList(this));
-	CommandListExecutor.reset(new D3D12CommandListExecutor(this));
 }
 
 D3D12Device::~D3D12Device()
@@ -50,45 +42,19 @@ void D3D12Device::CreateDevice()
 	}
 }
 
-void D3D12Device::ExecuteCommands()
+ID3D12CommandQueue* D3D12Device::GetCommandQueue() const
 {
-	assert(CommandListExecutor);
-	CommandListExecutor->Execute(GetCommandList());
+	return CommandListExecutor->GetCommandQueue();
 }
 
-void D3D12Device::FlushCommandQueue()
+D3D12CommandList& D3D12Device::GetCommandList() const
 {
-	assert(CommandListExecutor);
-	CommandListExecutor->FlushCommands();
+	return *CommandList;
 }
 
-void D3D12Device::CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE InCommandListType, ComPtr<ID3D12CommandAllocator>& InCommandAllocator)
+D3D12CommandListExecutor& D3D12Device::GetCommandListExecutor() const
 {
-	ThrowIfFailed(Device->CreateCommandAllocator(InCommandListType, IID_PPV_ARGS(InCommandAllocator.GetAddressOf())));
-}
-
-void D3D12Device::CreateCommandList(D3D12_COMMAND_LIST_TYPE InCommandListType, ComPtr<ID3D12CommandAllocator>& InCommandAllocator, ComPtr<ID3D12GraphicsCommandList>& InCommandList)
-{
-	CreateCommandAllocator(InCommandListType, InCommandAllocator);
-	
-	ThrowIfFailed(Device->CreateCommandList(
-		0,
-		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		InCommandAllocator.Get(), // Associated command allocator
-		nullptr,                   // Initial PipelineStateObject
-		IID_PPV_ARGS(InCommandList.GetAddressOf())));
-}
-
-void D3D12Device::CreateCommandQueue(D3D12_COMMAND_QUEUE_DESC& InQueueDesc, ComPtr<ID3D12CommandQueue>& InCommandQueue)
-{
-	ThrowIfFailed(Device->CreateCommandQueue(&InQueueDesc, IID_PPV_ARGS(&InCommandQueue)));
-}
-
-void D3D12Device::CreateSwapChain(ComPtr<IDXGISwapChain>& InSwapChain, DXGI_SWAP_CHAIN_DESC& InSwapChainDesc)
-{
-	assert(CommandListExecutor);
-
-	ThrowIfFailed(GetDxgi()->CreateSwapChain(CommandListExecutor->GetExecutorInterface(), &InSwapChainDesc, InSwapChain.GetAddressOf()));
+	return *CommandListExecutor;
 }
 
 void D3D12Device::CheckFeatureSupport(D3D12_FEATURE InFeature, D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS& InMultisampleQualityLevels)
@@ -96,66 +62,15 @@ void D3D12Device::CheckFeatureSupport(D3D12_FEATURE InFeature, D3D12_FEATURE_DAT
 	ThrowIfFailed(Device->CheckFeatureSupport(InFeature, &InMultisampleQualityLevels, sizeof(InMultisampleQualityLevels)));
 }
 
-void D3D12Device::CreateCommittedResource(D3D12Resource* InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, D3D12_RESOURCE_DESC& InDesc, D3D12_RESOURCE_STATES InResourceStates, std::optional<D3D12_CLEAR_VALUE> InValue/* = {}*/)
+void D3D12Device::Initialize()
 {
-	ThrowIfFailed(Device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(InHeapType),
-		InHeapFlags,
-		&InDesc,
-		InResourceStates,
-		&InValue.value(),
-		IID_PPV_ARGS(InResource->GetAddressOf())));
-}
+	CreateDevice();
 
-void D3D12Device::CreateCommittedResource(D3D12Resource* InResource, D3D12_HEAP_TYPE InHeapType, D3D12_HEAP_FLAGS InHeapFlags, UINT64 InByteSize, D3D12_RESOURCE_STATES InResourceStates, std::optional<D3D12_CLEAR_VALUE> InValue/* = {}*/)
-{
-	ThrowIfFailed(Device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(InHeapType),
-		InHeapFlags,
-		&CD3DX12_RESOURCE_DESC::Buffer(InByteSize),
-		InResourceStates,
-		&InValue.value(),
-		IID_PPV_ARGS(InResource->GetAddressOf())));
-}
+	CommandList = new D3D12CommandList();
+	CommandList->Initialize(this);
 
-void D3D12Device::CreateRenderTargetView(D3D12Resource* InResource, const D3D12_RENDER_TARGET_VIEW_DESC* InDesc, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle)
-{
-	Device->CreateRenderTargetView(InResource->GetInterface(), InDesc, InDescriptorHandle);
-}
+	CommandListExecutor = new D3D12CommandListExecutor();
+	CommandListExecutor->Initialize(this);
 
-void D3D12Device::CreateDepthStencilView(D3D12Resource* InResource, class D3D12Descriptor* InDescriptor, D3D12_DEPTH_STENCIL_VIEW_DESC& InDepthStencilDesc)
-{
-	assert(InDescriptor);
-
-	Device->CreateDepthStencilView(InResource->GetInterface(), &InDepthStencilDesc, InDescriptor->GetCpuHandle(0));
-}
-
-void D3D12Device::CreateShaderView(D3D12Resource* InResource, class D3D12Descriptor* InDescriptor, D3D12_SHADER_RESOURCE_VIEW_DESC& InShaderDesc)
-{
-	assert(InDescriptor);
-
-	Device->CreateShaderResourceView(InResource->GetInterface(), &InShaderDesc, InDescriptor->GetCpuHandle(0));
-}
-
-void D3D12Device::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc, ComPtr<ID3D12DescriptorHeap>& InHeap)
-{
-	ThrowIfFailed(Device->CreateDescriptorHeap(&InHeapDesc, IID_PPV_ARGS(InHeap.GetAddressOf())));
-}
-
-UINT D3D12Device::GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE InDescriptorHeapType)
-{
-	return Device->GetDescriptorHandleIncrementSize(InDescriptorHeapType);
-}
-
-void D3D12Device::CreateGraphicsPipelineState(ComPtr<ID3D12PipelineState>& InPipelineState, D3D12_GRAPHICS_PIPELINE_STATE_DESC& InPipelineStateDesc)
-{
-	ThrowIfFailed(Device->CreateGraphicsPipelineState(&InPipelineStateDesc, IID_PPV_ARGS(&InPipelineState)));
-}
-
-void D3D12Device::CreateRootSignature(D3D12RootSignature* InRootSignature, D3D12BinaryLargeObject* InBlob)
-{
-	assert(InRootSignature);
-	assert(InBlob);
-
-	ThrowIfFailed(Device->CreateRootSignature(0, InBlob->GetBufferPointer(), InBlob->GetBufferSize(), IID_PPV_ARGS(InRootSignature->GetAddressOf())));
+	GCommandContext.SetCommandList(CommandList);
 }

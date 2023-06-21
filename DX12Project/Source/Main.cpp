@@ -14,7 +14,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 	{
 		WindowMain app(hInstance);
 
-		if (app.Init())
+		if (app.Initialize())
 		{
 			return app.Run();
 		}

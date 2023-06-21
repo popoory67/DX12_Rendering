@@ -1,31 +1,28 @@
 #include "stdafx.h"
 #include "D3D12Descriptor.h"
 
-D3D12Descriptor::D3D12Descriptor(D3D12DeviceChild* InDeivce, D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc)
-	: D3D12DeviceChild(*InDeivce)
+D3D12Descriptor::D3D12Descriptor(D3D12Device* InDeivce, D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc)
+	: D3D12Api(InDeivce)
+	, Size(0)
 {
-	GetParent()->CreateDescriptorHeap(InHeapDesc, Heap);
+	ThrowIfFailed(GetDevice()->CreateDescriptorHeap(&InHeapDesc, IID_PPV_ARGS(Heap.GetAddressOf())));
 
 	CPUHandle = Heap->GetCPUDescriptorHandleForHeapStart();
 	GPUHandle = Heap->GetGPUDescriptorHandleForHeapStart();
-	Size = GetParent()->GetDescriptorHandleIncrementSize(InHeapDesc.Type);
+	Size = GetDevice()->GetDescriptorHandleIncrementSize(InHeapDesc.Type);
 	Count = InHeapDesc.NumDescriptors;
 }
 
-D3D12Descriptor::D3D12Descriptor(D3D12DeviceChild* InDeivce, D3D12_DESCRIPTOR_HEAP_TYPE InType, D3D12_DESCRIPTOR_HEAP_FLAGS InFlags, UINT64 InCount)
-	: D3D12DeviceChild(*InDeivce)
+D3D12Descriptor::D3D12Descriptor(D3D12Device* InDeivce, D3D12_DESCRIPTOR_HEAP_TYPE InType, D3D12_DESCRIPTOR_HEAP_FLAGS InFlags, UINT64 InCount)
+	: D3D12Api(InDeivce)
+	, Size(0)
 {
 	D3D12_DESCRIPTOR_HEAP_DESC desc = {};
 	desc.Flags = InFlags;
 	desc.NumDescriptors = (UINT)InCount;
 	desc.Type = InType;
 
-	GetParent()->CreateDescriptorHeap(desc, Heap);
-
-	CPUHandle = Heap->GetCPUDescriptorHandleForHeapStart();
-	GPUHandle = Heap->GetGPUDescriptorHandleForHeapStart();
-	Size = GetParent()->GetDescriptorHandleIncrementSize(desc.Type);
-	Count = InCount;
+	D3D12Descriptor(InDeivce, desc);
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE D3D12Descriptor::GetGpuHandle(UINT64 InIndex) const

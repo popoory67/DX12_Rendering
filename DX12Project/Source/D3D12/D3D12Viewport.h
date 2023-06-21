@@ -1,67 +1,96 @@
 #pragma once
-#include <dxgi.h>
-#include <d3d12.h>
-#include "D3DUtil.h"
+#include <dxgi1_5.h>
+#include "RenderInterface.h"
 #include "D3D12Device.h"
+#include "D3D12Types.h"
 
-using namespace Microsoft::WRL;
-
-class D3D12Viewport : public D3D12DeviceChild
+struct D3DViewportResource
 {
 public:
-	explicit D3D12Viewport(class D3D12DeviceChild* InDevice);
-	virtual ~D3D12Viewport() {}
+	FLOAT TopLeftX;
+	FLOAT TopLeftY;
+	FLOAT Width;
+	FLOAT Height;
+	FLOAT MinDepth;
+	FLOAT MaxDepth;
+};
 
-	ComPtr<IDXGISwapChain>& Get() { return SwapChain; }
+class D3D12Resource;
+class D3D12Descriptor;
+class D3D12Fence;
+
+class D3D12Viewport : public D3D12Api, public RHIViewport
+{
+public:
+	D3D12Viewport() = delete;
+	explicit D3D12Viewport(D3D12Device* InDevice, HWND InHandle, unsigned int InWidth, unsigned int InHeight);
+	virtual ~D3D12Viewport();
+
+	ComPtr<IDXGISwapChain4>& Get() { return SwapChain; }
 
 	D3D12_VIEWPORT& GetViewport() { return ScreenViewport; }
 	D3D12_RECT& GetRect() { return ScissorRect; }
-	static float GetWidth() { return ScreenViewport.Width; }
-	static float GetHeight() { return ScreenViewport.Height; }
+	float GetWidth() { return ScreenViewport.Width; }
+	float GetHeight() { return ScreenViewport.Height; }
+
 	static unsigned int GetMsaaQuality() { return Msaa4xQuality; }
 	static bool IsMsaa4xEnabled() { return IsMsaa4xState; }
+
 	DXGI_FORMAT GetBackBufferFormat() { return BackBufferFormat; }
 
-	class D3D12Resource* GetCurrentBackBuffer() const;
+	std::shared_ptr<D3D12Resource> GetCurrentBackBuffer() const;
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
-	unsigned int GetSwapChainBufferCount() const;
-	D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilBufferView() const;
-	DXGI_FORMAT GetDepthStencilFormat() const;
+	constexpr unsigned int GetSwapChainBufferCount();
+	//D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilBufferView() const;
+	//DXGI_FORMAT GetDepthStencilFormat() const;
 
-	void SwapBackBufferToFrontBuffer();
-	float AspectRatio() const;
-	void UpdateViewport();
-	void SetViewport(class D3DViewportResource& InViewResource);
-	void ReadyToRenderTarget();
-	void FinishToRenderTarget();
-	void OnResize();
+	constexpr float GetAspectRatio();
+
+	void Resize();
+	void Present();
+
+	void SetViewport(D3DViewportResource& InViewResource);
 
 private:
 	void CreateSwapChain();
 	void CreateSwapChainBuffer();
-	void CreateDepthStencilBuffer();
+	//void CreateDepthStencilBuffer();
+
+	void WaitForFrameCompletion();
+	void EndFrame();
 
 private:
-	ComPtr<IDXGISwapChain> SwapChain = nullptr;
+	HWND WindowHandle = nullptr;
 
-	static bool IsMsaa4xState;		// 4X MSAA enabled
-	static UINT Msaa4xQuality;			// quality level of 4X MSAA
+	ComPtr<IDXGISwapChain4> SwapChain = nullptr;
 
-	static D3D12_VIEWPORT ScreenViewport;
+	static bool IsMsaa4xState;
+	static UINT Msaa4xQuality;
+
+	D3D12_VIEWPORT ScreenViewport;
 	D3D12_RECT ScissorRect;
 
 	// Swap chain
-	DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+	DXGI_FORMAT BackBufferFormat;
 
 	static const unsigned int SwapChainBufferCount = 2;
 	int CurBackBufferIndex = 0;
 
-	class D3D12Resource* SwapChainBuffer[SwapChainBufferCount];
-	class D3D12Descriptor* SwapChainBufferDesc = nullptr;
+	std::shared_ptr<D3D12Resource> SwapChainBuffer[SwapChainBufferCount];
+	std::shared_ptr<D3D12Descriptor> SwapChainBufferDescriptor;
 
 	// Depth/Stencil
-	DXGI_FORMAT DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	//DXGI_FORMAT DepthStencilFormat;
 
-	class D3D12Resource* DepthStencilBuffer = nullptr;
-	class D3D12Descriptor* DepthStencilBufferDesc = nullptr;
+	//std::shared_ptr<D3D12Resource> DepthStencilBuffer;
+	//std::shared_ptr<D3D12Descriptor> DepthStencilBufferDescriptor;
+
+	D3D12Fence* Fence[SwapChainBufferCount];
+	UINT64 CurrentFence;
+};
+
+template<>
+struct TD3D12Types<RHIViewport>
+{
+	using ResourceType = D3D12Viewport;
 };

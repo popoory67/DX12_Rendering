@@ -1,70 +1,88 @@
 #pragma once
-#include <d3d12.h>
-#include "D3DUtil.h"
-#include "Texture.h"
 #include "D3D12Device.h"
-#include "D3D12Commands.h"
 
-using namespace Microsoft::WRL;
+//#include "D3DUtil.h"
 
-class D3D12Resource : public D3D12DeviceChild
+struct D3D12ResourceDesc : public D3D12_RESOURCE_DESC
+{
+	D3D12ResourceDesc() = default;
+	D3D12ResourceDesc(const CD3DX12_RESOURCE_DESC& InDesc)
+		: D3D12_RESOURCE_DESC(InDesc)
+	{
+	}
+
+	D3D12ResourceDesc(const D3D12_RESOURCE_DESC& InDesc)
+		: D3D12_RESOURCE_DESC(InDesc)
+	{
+	}
+
+};
+
+class D3D12Resource : public D3D12Api, public std::enable_shared_from_this<D3D12Resource>
 {
 public:
-	explicit D3D12Resource(class D3D12DeviceChild* InDevice, class ID3D12Resource* InResource);
-	virtual ~D3D12Resource() { ReleaseCom(Resource); }
+	D3D12Resource() = delete;
+	D3D12Resource(D3D12Device* InDevice, ID3D12Resource* InResource);
+	virtual ~D3D12Resource();
 
-	ComPtr<ID3D12Resource>& Get() { return Resource; }
-	ID3D12Resource** GetAddressOf() { return Resource.GetAddressOf(); }
-	ID3D12Resource* GetInterface() { return Resource.Get(); }
+	ComPtr<ID3D12Resource>& Get() noexcept { return Resource; }
+	ID3D12Resource** GetAddressOf() noexcept { return Resource.GetAddressOf(); }
+	ID3D12Resource* GetResource() noexcept { return Resource.Get(); }
 	
-	D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const { return GpuVirtualAddress; }
-	D3D12_RESOURCE_DESC GetDesc() { return Desc; }
+	D3D12_RESOURCE_DESC GetDesc() const { return Desc; }
+	D3D12_RESOURCE_STATES GetResourceState() const { return ResourceState; }
+
+	void FORCEINLINE SetResourceState(const D3D12_RESOURCE_STATES& InNewState)
+	{
+		ResourceState = InNewState; 
+	}
 
 	void Reset();
 
-	//void Map();
-	//void Unmap();
+	void Map();
+	void Unmap();
 
 protected:
-	ComPtr<struct ID3D12Resource> Resource = nullptr;
+	ComPtr<ID3D12Resource> Resource = nullptr;
 	
-	D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress;
-	
-	D3D12_RESOURCE_DESC Desc;
-	
-	D3D12_RESOURCE_STATES DefaultState;
-	D3D12_RESOURCE_STATES ReadableState;
-	D3D12_RESOURCE_STATES WritableState;
+	D3D12ResourceDesc Desc;
+	D3D12_RESOURCE_STATES ResourceState;
 };
 
 // -------------------------------------------------------------------------------------------------------------------- //
 
-class D3D12ResourceLocation : public D3D12DeviceChild
+class D3D12ResourceLocation : public D3D12Api
 {
 public:
-	explicit D3D12ResourceLocation(class D3D12DeviceChild* InDevice);
+	D3D12ResourceLocation() = delete;
+	explicit D3D12ResourceLocation(D3D12Device* InDevice);
 	virtual ~D3D12ResourceLocation() = default;
 
 	void SetResource(D3D12Resource* InResource);
 	D3D12Resource& GetResource() { return *Resource; }
 
-	D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const { return GpuVirtualAddress; }
+	D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const
+	{
+		return Resource->Get()->GetGPUVirtualAddress(); 
+	}
 
 	uint64_t GetSize() { return Size; }
 	
 private:
 	D3D12Resource* Resource = nullptr;
 	
-	D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress;
+	// This is only for D3D12_RESOURCE_DIMENSION_BUFFER
+	//D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualAddress;
 	uint64_t Size = 0;
 };
 
 // -------------------------------------------------------------------------------------------------------------------- //
 
-class D3D12VertexBuffer : public D3D12DeviceChild
+class D3D12VertexBuffer : public D3D12Api
 {
 public:
-	explicit D3D12VertexBuffer(class D3D12DeviceChild* InDevice);
+	D3D12VertexBuffer() = delete;
+	explicit D3D12VertexBuffer(D3D12Device* InDevice);
 	virtual ~D3D12VertexBuffer() = default;
 
 	D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const { return ResourceLocation->GetGPUVirtualAddress(); }
@@ -76,31 +94,26 @@ private:
 
 // -------------------------------------------------------------------------------------------------------------------- //
 
-class D3D12DefaultResource
+class D3D12DefaultResource : public D3D12Api
 {
 public:
-	D3D12DefaultResource() {}
-	virtual ~D3D12DefaultResource() {}
+	D3D12DefaultResource() = delete;
+	explicit D3D12DefaultResource(D3D12Device* InDevice);
+	virtual ~D3D12DefaultResource() { SafeDelete(Resource); }
 
-	D3D12Resource* GetUploadResource() { return UploadResource; }
+	D3D12Resource* GetResource() { return Resource; }
 
 private:
-	D3D12Resource* UploadResource = nullptr; // cpu to gpu
+	D3D12Resource* Resource = nullptr; // cpu to gpu
 };
 
 // -------------------------------------------------------------------------------------------------------------------- //
 template<typename T>
-class D3D12UploadResource
+class D3D12UploadResource : public D3D12DefaultResource
 {
 public:
 	D3D12UploadResource() = delete;
-	D3D12UploadResource(bool InIsConstantBuffer = false) :
-		IsConstantBuffer(InIsConstantBuffer)
-	{
-		ElementByteSize = sizeof(T);
-
-		//CreateBuffer(InElementCount);
-	}
+	D3D12UploadResource(D3D12Device* InDevice, bool InIsConstantBuffer = false);
 	D3D12UploadResource(const D3D12UploadResource& rhs) = delete;
 	D3D12UploadResource& operator=(const D3D12UploadResource& rhs) = delete;
 	virtual ~D3D12UploadResource()
@@ -171,24 +184,35 @@ private:
 	bool IsConstantBuffer = false;
 };
 
+template<typename T>
+inline D3D12UploadResource<T>::D3D12UploadResource(D3D12Device* InDevice, bool InIsConstantBuffer)
+	: D3D12DefaultResource(InDevice)
+	, IsConstantBuffer(InIsConstantBuffer)
+{
+	ElementByteSize = sizeof(T);
+
+	//CreateBuffer(InElementCount);
+}
+
 // -------------------------------------------------------------------------------------------------------------------- //
 
-class D3D12ShaderResource
+class D3D12ShaderResource : public D3D12Api
 {
 public:
-	D3D12ShaderResource() {}
-	virtual ~D3D12ShaderResource() {}
+	D3D12ShaderResource() = delete;
+	explicit D3D12ShaderResource(D3D12Device* InDevice);
+	virtual ~D3D12ShaderResource() = default;
 
-	class D3D12Descriptor* GetDescriptor() { return ShaderResourceDesc; }
+	inline class D3D12Descriptor* GetDescriptor() { return ShaderResourceDesc; }
 //	void LoadTextures(std::string InName = nullptr, std::wstring InFilePath = nullptr);
-	D3D12Resource* GetTextureResource() { return UploadTextureResource; }
+	inline D3D12Resource* GetResource() { return UploadTextureResource; }
 
 	UINT64 GetDescriptorHandleIncrementSize();
 
 private:
 	class D3D12Descriptor* ShaderResourceDesc = nullptr;
 
-	Texture* Texture = nullptr;
+	class Texture* Texture = nullptr;
 	D3D12Resource* UploadTextureResource = nullptr;
 
 //	std::unique_ptr<MaterialData> Material;

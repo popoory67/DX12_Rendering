@@ -1,14 +1,13 @@
 #pragma once
-#include "CommnadList.h"
 #include <d3d12.h>
 #include <DirectXMath.h>
 #include <comdef.h>
 #include "d3dx12.h"
-#include "D3DUtil.h"
-#include "D3D12Resource.h"
-#include "D3D12PipelineState.h"
 
-#pragma comment(lib,"d3dcompiler.lib")
+#include "CommandList.h"
+#include "D3D12Types.h"
+
+#pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
 #pragma comment(lib, "dxgi.lib")
 
@@ -23,40 +22,67 @@ enum class RenderType : int
 	Max
 };
 
+class D3D12Device;
 class D3D12Resource;
+class D3D12Fence;
+class RHIViewport;
 
-class D3D12CommandList : public CommandListBase
+class D3D12CommandAllocator
 {
 public:
-	D3D12CommandList() = delete;
-	D3D12CommandList(class D3D12Device* InDevice);
+	D3D12CommandAllocator() = delete;
+	explicit D3D12CommandAllocator(D3D12Device* InDevice, const D3D12_COMMAND_LIST_TYPE& InType);
+	~D3D12CommandAllocator();
 
-	virtual ~D3D12CommandList() {}
+	ID3D12CommandAllocator* Get();
+	void Reset();
 
-	ComPtr<ID3D12GraphicsCommandList>& Get() 
+	void Init(D3D12Device* InDevice, const D3D12_COMMAND_LIST_TYPE& InType);
+
+private:
+	ComPtr<ID3D12CommandAllocator> CommandAllocator = nullptr;
+};
+
+
+class D3D12CommandList : public RHICommandList
+{
+public:
+	D3D12CommandList() = default;
+	virtual ~D3D12CommandList() = default;
+
+	constexpr ComPtr<ID3D12GraphicsCommandList>& Get()
 	{
-		ReturnCheckAssert(CommandList);
+		return CommandList;
 	}
 	
 	ID3D12GraphicsCommandList* GetGraphicsInterface() const
 	{
-		ReturnCheckAssert(CommandList.Get());
+		return CommandList.Get();
 	}
 
 	ID3D12CommandList* GetCommandLists();
 
+	void Initialize(D3D12Device* InDevice);
+
+	void BeginDrawWindow(RHIViewport* InViewport) final override;
+	void EndDrawWindow(RHIViewport* InViewport) final override;
+	void BeginRender() final override;
+	void EndRender() final override;
+
+	FORCEINLINE bool IsClosed() const { return bClosed; }
+	void Close();
+	void Reset();
+
 	// Indicate a state transition on the resource usage.
-	void SetResourceTransition(class D3D12Resource* InResource, D3D12_RESOURCE_STATES InPrevState, D3D12_RESOURCE_STATES InNextState);
-	void ResourceBarrier(class D3D12Resource* InResource, D3D12_RESOURCE_STATES InFrom, D3D12_RESOURCE_STATES InTo);
+	void AddTransition(std::shared_ptr<D3D12Resource> InResource, const D3D12_RESOURCE_STATES& InAfterState);
+	void FlushTransitions();
 
 	void ClearRenderTargetView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, XMVECTORF32 InBackColor, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
 	void ClearDepthStencilView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
 	void SetRenderTargets(UINT InNumRenderTargetDescriptors, std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InRenderTargetDescriptorHandle, bool InSingleHandleToDescriptorRange, std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDepthStencilDescriptorHandle);
-	void SetPipelineState(class D3D12PipelineState* InPipelineState) const;
+	void SetPipelineState(class std::shared_ptr<class D3D12PipelineState> InPipelineState) const;
 
 	// Primitive
-	/// Draw µ«¥¬ Ω√¡°ø° ∫“∏∞¥Ÿ
-	/// StreamSource(µ•¿Ã≈Õ∏¶ ≥÷¥¬ Ω√¡°), Set(Draw call Ω√¡°)
 	void SetVertexBuffers(struct D3D12VertexBufferCache& InVertexBufferCache) const;
 	void SetIndexBuffer(std::optional<D3D12_INDEX_BUFFER_VIEW> InView = {}) const;
 	void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY InPrimitiveTopology) const;
@@ -75,56 +101,73 @@ public:
 	void BindShaderResource(RenderType InRenderType, std::vector<D3D12_GPU_VIRTUAL_ADDRESS>& InAddresses);
 	void BindShaderResource(RenderType InRenderType, D3D12_GPU_VIRTUAL_ADDRESS& InAddress);
 
-	void Reset();
+	ComPtr<ID3D12GraphicsCommandList> operator->()
+	{
+		assert(CommandList && !bClosed);
+		return CommandList;
+	}
 
 private:
-	ComPtr<ID3D12GraphicsCommandList> CommandList = nullptr; // List manager∑Œ ∞¸∏Æ«œ∞Ì ∞¢ command list∏¶ æ≤∑πµÂ∑Œ ≥™¥≤ ∏÷∆º∑Œ ¡¯«‡«“ ºˆ ¿÷∞‘ «ÿæﬂ«‘
-	ComPtr<ID3D12CommandAllocator> CommandListAllocator = nullptr;
+	void CreateCommandList(D3D12Device* InDevice);
+
+private:
+	bool bClosed = false;
+	ComPtr<ID3D12GraphicsCommandList> CommandList = nullptr; 
+	D3D12CommandAllocator* CommandListAllocator = nullptr;
+
+	D3D12Fence* Fence = nullptr;
 
 	std::vector<ID3D12DescriptorHeap*> Heaps;
 
-	D3D12PipelineStateCache StateCache;
+	std::vector<D3D12_RESOURCE_BARRIER> Barriers;
+
+	//D3D12PipelineStateCache StateCache;
 	
 	// const buffer
-	// caches : ∏µÁ ∑ª¥ı ªÛ≈¬∏¶ ¿˙¿Â(ƒ≥ΩÃ)«œ¥¬ ±∏¡∂√º
+	// caches : Î™®Îì† Î†åÎçî ÏÉÅÌÉúÎ•º Ï†ÄÏû•(Ï∫êÏã±)ÌïòÎäî Íµ¨Ï°∞Ï≤¥
 	
-	// rhi : ∞¢ ±‚¥…(struct)¿ª ∞°¡Æø¿¥¬ ¿Œ≈Õ∆‰¿ÃΩ∫(sampler state, pixel shader µÓ)
+	// rhi : Í∞Å Í∏∞Îä•(struct)ÏùÑ Í∞ÄÏ†∏Ïò§Îäî Ïù∏ÌÑ∞ÌéòÏù¥Ïä§(sampler state, pixel shader Îì±)
 	// allocate manager
 	// uniform buffers
 	//
-	// commandlist¥¬ æ≤∑πµÂ∏∂¥Ÿ ¡¯«‡¿Ã µ…∞≈∞Ì, ø©±‚ø° ¿˙¿Âµ» state cacheøÕ descriptor cache∑Œ ¿Â∏È¿ª ±◊∑¡≥™∞•∞≈¿”
+	// commandlistÎäî Ïì∞Î†àÎìúÎßàÎã§ ÏßÑÌñâÏù¥ Îê†Í±∞Í≥†, Ïó¨Í∏∞Ïóê Ï†ÄÏû•Îêú state cacheÏôÄ descriptor cacheÎ°ú Ïû•Î©¥ÏùÑ Í∑∏Î†§ÎÇòÍ∞àÍ±∞ÏûÑ
 	//
 };
 
-class D3D12CommandListExecutor : public CommandListExecutor
+class D3D12CommandListExecutor : public RHICommandListExecutor
 {
 public:
-	D3D12CommandListExecutor() = delete;
-	D3D12CommandListExecutor(class D3D12Device* InDevice);
-	virtual ~D3D12CommandListExecutor();
+	D3D12CommandListExecutor() = default;
+	virtual ~D3D12CommandListExecutor() = default;
 
-	void Execute(CommandListBase& InCommandList) override {}
-	void Execute(class D3D12CommandList* InCommandList);
-	void FlushCommands() override;
+	void Initialize(D3D12Device* InDevice);
 
-	ComPtr<ID3D12CommandQueue>& GetExecutor() { ReturnCheckAssert(CommandQueue); }
-	ID3D12CommandQueue* GetExecutorInterface() { ReturnCheckAssert(CommandQueue.Get()); }
+	void ExecuteCommandLists(RHICommandList* InCommandList) override;
+	void FlushCommandLists() override;
+
+	ID3D12CommandQueue* GetCommandQueue() { ReturnCheckAssert(CommandQueue.Get()); }
 
 private:
-	ComPtr<ID3D12CommandQueue> CommandQueue = nullptr;
-	//ComPtr<ID3D12Fence> Fence;
-	class D3D12Fence* Fence = nullptr;
+	void CreateCommandQueue(D3D12Device* InDevice);
 
-	UINT64 CurrentFenceCount = 0;
+private:
+	ComPtr<ID3D12CommandQueue> CommandQueue;
+
+	D3D12Fence* Fence = nullptr;
 };
 
-// ø©±‚∫Œ≈Õ command
+template<>
+struct TD3D12Types<RHICommandList>
+{
+	using ResourceType = D3D12CommandList;
+};
+
 // struct D3D12ViewportCommand : public CommandBase<D3D12ViewportCommand>
 // {
 // 	D3D12ViewportCommand() {}
 // 	virtual ~D3D12ViewportCommand() {}
 // 
-// 	virtual void Execute(CommandListBase& InCmdList)
+// 	virtual void Execute(CommandList& InCmdList)
 // 	{
 // 		D3D12CommandList* pList = static_cast<class D3D12CommandList*>(&InCmdList);
 // 		if (pList)

@@ -1,15 +1,16 @@
 #pragma once
 #include <d3d12.h>
+#include "D3D12Device.h"
 #include "D3D12Resource.h"
 
 using namespace Microsoft::WRL;
 
 // TODO : Graphics/Compute
-class D3D12PipelineState
+class D3D12PipelineState : public D3D12Api
 {
 public:
 	D3D12PipelineState() = delete;
-	D3D12PipelineState(class D3D12Device* InDevice, DXGI_FORMAT InBackBufferFormat, DXGI_FORMAT InDepthStencilFormat);
+	explicit D3D12PipelineState(class D3D12Device* InDevice, DXGI_FORMAT InBackBufferFormat, DXGI_FORMAT InDepthStencilFormat);
 	~D3D12PipelineState();
 
 	ComPtr<ID3D12PipelineState> Get() { return PipelineState; }

@@ -3,7 +3,8 @@
 #include "D3D12Device.h"
 #include "D3D12BinaryLargeObject.h"
 
-D3D12RootSignature::D3D12RootSignature()
+D3D12RootSignature::D3D12RootSignature(D3D12Device* InDevice)
+	: D3D12Api(InDevice)
 {
 	RootParameterSlots.clear();
 }
@@ -52,10 +53,8 @@ void D3D12RootSignature::InitShaderResource()
 	++ShaderResourceOffset;
 }
 
-void D3D12RootSignature::SetRootSignature(D3D12Device* InDevice)
+void D3D12RootSignature::SetRootSignature()
 {
-	assert(InDevice);
-
 // 	CD3DX12_DESCRIPTOR_RANGE texTable;
 // 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 0);
 
@@ -95,7 +94,7 @@ void D3D12RootSignature::SetRootSignature(D3D12Device* InDevice)
 
 		ThrowIfFailed(hr);
 
-		InDevice->CreateRootSignature(this, pSerializedRootSig);
+		ThrowIfFailed(GetDevice()->CreateRootSignature(0, pSerializedRootSig->GetBufferPointer(), pSerializedRootSig->GetBufferSize(), IID_PPV_ARGS(GetAddressOf())));
 	}
 }
 

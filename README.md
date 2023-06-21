@@ -1,2 +1,2 @@
 # DX12_Rendering
-Practice project with dx12
+a practice project with DX12

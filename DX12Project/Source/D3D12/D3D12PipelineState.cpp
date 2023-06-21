@@ -7,19 +7,18 @@
 #include "D3D12RootSignature.h"
 
 D3D12PipelineState::D3D12PipelineState(class D3D12Device* InDevice, DXGI_FORMAT InBackBufferFormat, DXGI_FORMAT InDepthStencilFormat)
+	: D3D12Api(InDevice)
 {
-	assert(InDevice);
-
 	D3D12VertexShaderObject* pDefaultVS = new D3D12VertexShaderObject();
 	assert(pDefaultVS);
 
 	D3D12PixelShaderObject* pDefaultPS = new D3D12PixelShaderObject();
 	assert(pDefaultPS);
 
-	D3D12RootSignature* pRootSignature = new D3D12RootSignature();
+	D3D12RootSignature* pRootSignature = new D3D12RootSignature(InDevice);
 	assert(pRootSignature);
 
-	pRootSignature->SetRootSignature(InDevice); // test
+	pRootSignature->SetRootSignature();
 
 	// PSO for opaque objects.
 	// The opaque is default.
@@ -55,7 +54,7 @@ D3D12PipelineState::D3D12PipelineState(class D3D12Device* InDevice, DXGI_FORMAT 
 	PipelineStateDesc.SampleDesc.Quality = D3D12Viewport::IsMsaa4xEnabled() ? (D3D12Viewport::GetMsaaQuality() - 1) : 0;
 	PipelineStateDesc.DSVFormat = InDepthStencilFormat;
 
-	InDevice->CreateGraphicsPipelineState(PipelineState, PipelineStateDesc);
+	ThrowIfFailed(GetDevice()->CreateGraphicsPipelineState(&PipelineStateDesc, IID_PPV_ARGS(&PipelineState)));
 }
 
 D3D12PipelineState::~D3D12PipelineState()
