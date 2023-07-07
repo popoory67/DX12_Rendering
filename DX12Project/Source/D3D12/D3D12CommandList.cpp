@@ -6,6 +6,12 @@
 #include "D3D12PipelineState.h"
 #include "D3D12RootSignature.h"
 
+D3D12CommandList::D3D12CommandList(D3D12Device* InDevice)
+	: D3D12Api(InDevice)
+{
+
+}
+
 void D3D12CommandList::Reset()
 {
 	// GPU가 command list의 명령을 모두 처리한 후에 리셋
@@ -35,9 +41,9 @@ ID3D12CommandList* D3D12CommandList::GetCommandLists()
 	return CommandList.Get();
 }
 
-void D3D12CommandList::Initialize(D3D12Device* InDevice)
+void D3D12CommandList::Initialize()
 {
-	CreateCommandList(InDevice);
+	CreateCommandList(GetParent());
 }
 
 void D3D12CommandList::AddTransition(std::shared_ptr<D3D12Resource> InResource, const D3D12_RESOURCE_STATES& InAfterState)

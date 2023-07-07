@@ -21,7 +21,7 @@
 //			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
 //			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
 //
-//			ObjectBuffer.Get()->CopyData(pObject->ObjCBIndex, objConstants); // Draw¿¡¼­ ¾²·Á°í
+//			ObjectBuffer.Get()->CopyData(pObject->ObjCBIndex, objConstants); // Drawì—ì„œ ì“°ë ¤ê³ 
 //
 //			// Next FrameResource need to be updated too.
 //			pObject->UpdateFrameRate--;

@@ -52,7 +52,6 @@ bool SceneRenderer::Initialize()
 	//RenderInterface->ExecuteCommandList();
 	//RenderInterface->FlushCommandQueue();
 
-	// 리소스가 있을때 사용되는거라 일단 주석처리
 // 	BuildRootSignature();
 // 	BuildShadersAndInputLayout();
 // 	BuildShapeGeometry();
@@ -98,7 +97,7 @@ void SceneRenderer::BeginRender()
 
 void SceneRenderer::Render(GameTimer& gt)
 {
-
+	// Render pass
 }
 
 void SceneRenderer::EndRender()

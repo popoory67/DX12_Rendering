@@ -7,10 +7,15 @@
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
+#pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "D3D12.lib")
+#pragma comment(lib, "dxgi.lib")
+
 // namespace backend {
 
 class D3D12CommandList;
 class D3D12CommandListExecutor;
+class D3D12PipelineStateCache;
 
 class D3D12Device
 {
@@ -31,6 +36,7 @@ public:
 	ID3D12CommandQueue* GetCommandQueue() const;
 	D3D12CommandList& GetCommandList() const;
 	D3D12CommandListExecutor& GetCommandListExecutor() const;
+	D3D12PipelineStateCache& GetPSOCache() const;
 
 	void CheckFeatureSupport(D3D12_FEATURE InFeature, D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS& InMultisampleQualityLevels);
 
@@ -45,9 +51,10 @@ protected:
 
 	D3D12CommandListExecutor* CommandListExecutor = nullptr;
 	D3D12CommandList* CommandList = nullptr;
+
+	D3D12PipelineStateCache* PipelineStateCache = nullptr;
 };
 
-// noncopyable
 // this class can just make sure that it's a D3D12 api.
 class D3D12Api
 {

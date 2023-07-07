@@ -25,8 +25,8 @@ void D3D12RootSignature::InitTable(D3D12_DESCRIPTOR_RANGE_TYPE InType, D3D12_SHA
 	table.Init(InType, InCount, 0, 0);
 
 	CD3DX12_ROOT_PARAMETER param;
-	param.InitAsDescriptorTable(1, &table, InVisibility); // 1 : table °³¼ö
-	// append¸¦ ¾²µµ·Ï ÇÏÀÚ => Ã¥ Âü°í(7Àå)
+	param.InitAsDescriptorTable(1, &table, InVisibility); // 1 : table ê°œìˆ˜
+	// appendë¥¼ ì“°ë„ë¡ í•˜ìž => ì±… ì°¸ê³ (7ìž¥)
 
 	AddParam(param);
 

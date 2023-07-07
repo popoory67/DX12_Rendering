@@ -16,13 +16,6 @@
 #include "D3D12Viewport.h"
 #include "RenderInterface.h"
 
-#pragma comment(lib, "d3dcompiler.lib")
-#pragma comment(lib, "D3D12.lib")
-#pragma comment(lib, "dxgi.lib")
-
-using namespace DirectX;
-using namespace Microsoft::WRL;
-
 class D3D12Device;
 class D3D12Resource;
 class D3D12DefaultResource;

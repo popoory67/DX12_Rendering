@@ -36,7 +36,7 @@ void Scene::AddEntity(Entity* InEntity)
 
 void Scene::UpdateVisibility()
 {
-	// visible ¿©ºÎ È®ÀÎÇÏÁö ¾Ê°í ±×¸®°Ô ¼öÁ¤
+	// visible ì—¬ë¶€ í™•ì¸í•˜ì§€ ì•Šê³  ê·¸ë¦¬ê²Œ ìˆ˜ì •
 	for (auto it : EntityVisibility)
 	{
 		if (IsVisible(it.first))

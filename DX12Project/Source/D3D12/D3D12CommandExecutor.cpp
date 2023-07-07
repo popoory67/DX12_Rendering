@@ -4,13 +4,18 @@
 #include "D3D12Fence.h"
 #include "D3D12RenderInterface.h"
 
-void D3D12CommandListExecutor::Initialize(D3D12Device* InDevice)
+
+D3D12CommandListExecutor::D3D12CommandListExecutor(D3D12Device* InDevice)
+	: D3D12Api(InDevice)
 {
-	assert(InDevice);
 
-	Fence = new D3D12Fence(InDevice);
+}
 
-	CreateCommandQueue(InDevice);
+void D3D12CommandListExecutor::Initialize()
+{
+	Fence = new D3D12Fence(GetParent());
+
+	CreateCommandQueue(GetParent());
 }
 
 void D3D12CommandListExecutor::ExecuteCommandLists(RHICommandList* InCommandList)

@@ -5,6 +5,7 @@
 #include "d3dx12.h"
 
 #include "CommandList.h"
+#include "D3D12Device.h"
 #include "D3D12Types.h"
 
 #pragma comment(lib, "d3dcompiler.lib")
@@ -44,10 +45,11 @@ private:
 };
 
 
-class D3D12CommandList : public RHICommandList
+class D3D12CommandList : public RHICommandList, public D3D12Api
 {
 public:
-	D3D12CommandList() = default;
+	D3D12CommandList() = delete;
+	explicit D3D12CommandList(D3D12Device* InDevice);
 	virtual ~D3D12CommandList() = default;
 
 	constexpr ComPtr<ID3D12GraphicsCommandList>& Get()
@@ -62,7 +64,7 @@ public:
 
 	ID3D12CommandList* GetCommandLists();
 
-	void Initialize(D3D12Device* InDevice);
+	void Initialize();
 
 	void BeginDrawWindow(RHIViewport* InViewport) final override;
 	void EndDrawWindow(RHIViewport* InViewport) final override;
@@ -134,13 +136,14 @@ private:
 	//
 };
 
-class D3D12CommandListExecutor : public RHICommandListExecutor
+class D3D12CommandListExecutor : public RHICommandListExecutor, public D3D12Api
 {
 public:
-	D3D12CommandListExecutor() = default;
+	D3D12CommandListExecutor() = delete;
+	explicit D3D12CommandListExecutor(D3D12Device* InDevice);
 	virtual ~D3D12CommandListExecutor() = default;
 
-	void Initialize(D3D12Device* InDevice);
+	void Initialize();
 
 	void ExecuteCommandLists(RHICommandList* InCommandList) override;
 	void FlushCommandLists() override;

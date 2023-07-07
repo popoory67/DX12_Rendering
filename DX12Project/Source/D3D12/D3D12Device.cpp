@@ -1,6 +1,12 @@
 #include "stdafx.h"
 #include "D3D12Device.h"
 #include "D3D12Commands.h"
+#include "D3D12PipelineState.h"
+
+// test
+#include "D3D12BinaryLargeObject.h"
+#include "D3D12RootSignature.h"
+#include "D3D12Viewport.h"
 
 D3D12Device::D3D12Device()
 {
@@ -57,6 +63,11 @@ D3D12CommandListExecutor& D3D12Device::GetCommandListExecutor() const
 	return *CommandListExecutor;
 }
 
+D3D12PipelineStateCache& D3D12Device::GetPSOCache() const
+{
+	return *PipelineStateCache;
+}
+
 void D3D12Device::CheckFeatureSupport(D3D12_FEATURE InFeature, D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS& InMultisampleQualityLevels)
 {
 	ThrowIfFailed(Device->CheckFeatureSupport(InFeature, &InMultisampleQualityLevels, sizeof(InMultisampleQualityLevels)));
@@ -66,11 +77,63 @@ void D3D12Device::Initialize()
 {
 	CreateDevice();
 
-	CommandList = new D3D12CommandList();
-	CommandList->Initialize(this);
+	CommandList = new D3D12CommandList(this);
+	CommandList->Initialize();
 
-	CommandListExecutor = new D3D12CommandListExecutor();
-	CommandListExecutor->Initialize(this);
+	CommandListExecutor = new D3D12CommandListExecutor(this);
+	CommandListExecutor->Initialize();
 
 	GCommandContext.SetCommandList(CommandList);
+
+	// TODO
+	// The test code that I write down below has to be stored as a CSV file.
+	// What I need to do is to create a reader/writer for an Excel file.
+	// Additionally, pipeline state object will read the file on the step of loading resources.
+	PipelineStateCache = new D3D12PipelineStateCache(this);
+	{
+		D3D12GraphicsPipelineState::Desc PipelineStateDesc;
+
+		D3D12VertexShaderObject* pDefaultVS = new D3D12VertexShaderObject();
+		assert(pDefaultVS);
+
+		D3D12PixelShaderObject* pDefaultPS = new D3D12PixelShaderObject();
+		assert(pDefaultPS);
+
+		D3D12RootSignature* pRootSignature = new D3D12RootSignature(this);
+		assert(pRootSignature);
+
+		pRootSignature->SetRootSignature();
+
+		std::vector<D3D12_INPUT_ELEMENT_DESC> InputLayout =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		};
+
+		PipelineStateDesc.InputLayout = { InputLayout.data(), (UINT)InputLayout.size() };
+		PipelineStateDesc.pRootSignature = pRootSignature->GetInterface();
+		PipelineStateDesc.VS =
+		{
+			pDefaultVS->GetBufferPointer(),
+			pDefaultVS->GetBufferSize()
+		};
+		PipelineStateDesc.PS =
+		{
+			pDefaultPS->GetBufferPointer(),
+			pDefaultPS->GetBufferSize()
+		};
+		PipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		PipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		PipelineStateDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		PipelineStateDesc.SampleMask = UINT_MAX;
+		PipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		PipelineStateDesc.NumRenderTargets = 1;
+		PipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		PipelineStateDesc.SampleDesc.Count = D3D12Viewport::IsMsaa4xEnabled() ? 4 : 1;
+		PipelineStateDesc.SampleDesc.Quality = D3D12Viewport::IsMsaa4xEnabled() ? (D3D12Viewport::GetMsaaQuality() - 1) : 0;
+		//PipelineStateDesc.DSVFormat = InDepthStencilFormat;
+
+		PipelineStateCache->CreateAndAddCache(PipelineStateDesc);
+	}
 }

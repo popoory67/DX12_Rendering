@@ -6,8 +6,8 @@
 
 using namespace Microsoft::WRL;
 
-// ¿©·¯°³ °¡´ÉÇÑÁö Å×½ºÆ®
-// parameter°¡ array·Î °ü¸® °¡´ÉÇÑÁö Å×½ºÆ®
+// ì—¬ëŸ¬ê°œ ê°€ëŠ¥í•œì§€ í…ŒìŠ¤íŠ¸
+// parameterê°€ arrayë¡œ ê´€ë¦¬ ê°€ëŠ¥í•œì§€ í…ŒìŠ¤íŠ¸
 class D3D12RootSignature : public D3D12Api
 {
 public:

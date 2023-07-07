@@ -11,12 +11,7 @@ using namespace DirectX;
 D3D12RHI::D3D12RHI()
 	: CurrentDevice(nullptr)
 {
-	// test
-	//D3D12PipelineState* pPipelineState = new D3D12PipelineState(InDevice, GetBackBufferFormat(), GetDepthStencilFormat());
-	//if (pPipelineState)
-	//{
-	//	PipelineStates.emplace_back(pPipelineState);
-	//}
+
 }
 
 D3D12RHI::~D3D12RHI()
@@ -136,8 +131,6 @@ void D3D12RHI::CreateShaderResource(D3D12ShaderResource* InResource, D3D12Descri
 
 	InDescriptor = new D3D12Descriptor(CurrentDevice, srvHeapDesc);
 
-	// 리소스 테스트
-	// 텍스쳐를 어떻게 정리할지 고민해야함
 	LoadTexture(InResource, InName, InFilePath);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};

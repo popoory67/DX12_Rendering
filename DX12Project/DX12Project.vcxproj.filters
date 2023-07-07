@@ -168,6 +168,7 @@
     <ClCompile Include="Source\D3D12\D3D12CommandExecutor.cpp">
       <Filter>D3D12\Private</Filter>
     </ClCompile>
+    <ClCompile Include="RenderPass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3DUtil.h">
@@ -296,5 +297,9 @@
     <ClInclude Include="Source\D3D12\D3D12Types.h">
       <Filter>D3D12\Public</Filter>
     </ClInclude>
+    <ClInclude Include="RenderPass.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.editorconfig" />
   </ItemGroup>
 </Project>
