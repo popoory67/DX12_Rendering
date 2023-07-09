@@ -168,7 +168,8 @@
     <ClCompile Include="Source\D3D12\D3D12CommandExecutor.cpp">
       <Filter>D3D12\Private</Filter>
     </ClCompile>
-    <ClCompile Include="RenderPass.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\RenderPass.cpp" />
+    <ClCompile Include="Source\Engine\ThreadBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3DUtil.h">
@@ -297,7 +298,8 @@
     <ClInclude Include="Source\D3D12\D3D12Types.h">
       <Filter>D3D12\Public</Filter>
     </ClInclude>
-    <ClInclude Include="RenderPass.h" />
+    <ClInclude Include="Source\Engine\Renderer\RenderPass.h" />
+    <ClInclude Include="Source\Engine\ThreadBase.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" />

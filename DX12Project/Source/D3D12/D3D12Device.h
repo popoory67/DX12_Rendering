@@ -37,8 +37,7 @@ public:
 	D3D12CommandList& GetCommandList() const;
 	D3D12CommandListExecutor& GetCommandListExecutor() const;
 	D3D12PipelineStateCache& GetPSOCache() const;
-
-	void CheckFeatureSupport(D3D12_FEATURE InFeature, D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS& InMultisampleQualityLevels);
+	D3D_ROOT_SIGNATURE_VERSION GetRootSignatureVersion() const;
 
 	void Initialize();
 
@@ -53,6 +52,8 @@ protected:
 	D3D12CommandList* CommandList = nullptr;
 
 	D3D12PipelineStateCache* PipelineStateCache = nullptr;
+
+	D3D_ROOT_SIGNATURE_VERSION RootSignatureVersion;
 };
 
 // this class can just make sure that it's a D3D12 api.

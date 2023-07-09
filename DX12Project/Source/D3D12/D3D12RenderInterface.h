@@ -65,3 +65,9 @@ private:
 
 	D3D12Device* CurrentDevice;
 };
+
+template<>
+struct TD3D12Types<RHI>
+{
+	using ResourceType = D3D12RHI;
+};

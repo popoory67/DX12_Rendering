@@ -12,10 +12,7 @@ public:
 
 	ComPtr<ID3DBlob> Get() { return BinaryLargeObject; }
 
-	BYTE* GetBufferPointer() const;
-	SIZE_T GetBufferSize() const;
-
-	ID3DBlob** GetAddressOf();
+	D3D12_SHADER_BYTECODE GetShaderBytecode() const;
 
 	void CreateBlob(const UINT InByteSize = 0);
 

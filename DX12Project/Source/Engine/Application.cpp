@@ -2,6 +2,8 @@
 #include "Application.h"
 #include "InputManager.h"
 #include "CommandList.h"
+#include "SceneRendering.h"
+#include "Viewport.h"
 
 // dummy
 #include "../TestScene.h"
@@ -42,6 +44,10 @@ bool Application::Initialize(std::shared_ptr<RHI> InRenderInterface)
 			return true;
 		}
 	}
+
+	// TODO
+	// Load assets, PSO(on the other thread)
+
 	return false;
 }
 
@@ -60,8 +66,7 @@ int Application::Run()
 	// GCommandContext has to be managed in the render thread, and the thread is the only place we can access it.
 	//ViewportRenderer->Draw(GCommandContext.GetCommandList());
 
-	Renderer->Update(GetTimer());
-	Renderer->Render(GetTimer());
+	Renderer->Render(GCommandContext.GetCommandList());
 
 	Renderer->EndRender();
 	ViewportRenderer->EndDrawWindow(GCommandContext.GetCommandList());

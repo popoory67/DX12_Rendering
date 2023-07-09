@@ -1,28 +1,41 @@
 #pragma once
-#include "D3D12Commands.h"
-#include "D3D12Device.h"
-#include "D3D12Viewport.h"
-#include "D3D12RootSignature.h"
-#include "D3D12RenderInterface.h"
+#include "ThreadBase.h"
 
-class SceneRenderer
+// thread test
+class RenderingThread : public WindowsThread
+{
+public:
+	void Suspend() override {}
+	void Kill() override {}
+
+protected:
+	void ThreadProc() override;
+
+private:
+
+};
+
+class SceneRenderer : public WorkingUnit
 {
 public:
 	SceneRenderer() = delete;
-	SceneRenderer(std::shared_ptr<RHI> InRenderInterface);
+	SceneRenderer(std::shared_ptr<class RHI> InRenderInterface);
 	SceneRenderer(const SceneRenderer& rhs) = delete;
 	SceneRenderer& operator=(const SceneRenderer& rhs) = delete;
 
 	~SceneRenderer() = default;
+
+	bool Init() override;
+	void Run() override;
+	void Stop() override;
 
 	std::shared_ptr<class Scene> GetCurrentScene();
 	void AddScene(class Scene* InScene);
 	void SetCurrentScene(int InIndex);
 
 	bool Initialize();
-	void Update(GameTimer& InTimer)/* = 0*/; // update datas
 	void BeginRender();
-	void Render(GameTimer& InTimer)/* = 0*/; // update render commands
+	void Render(class RHICommandList& InCommandList);
 	void EndRender();
 
 private:
@@ -40,6 +53,6 @@ private:
 
 	//ID3D12Resource* Pass = nullptr; // The mean of pass is like a buffer (upload buffer)
 
-	std::shared_ptr<D3D12RHI> RenderInterface;
+	std::shared_ptr<class D3D12RHI> RenderInterface;
 	//std::unique_ptr<D3D12Viewport> Viewport; // TODO : change unique param to array
 };

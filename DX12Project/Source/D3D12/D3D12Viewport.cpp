@@ -202,7 +202,7 @@ void D3D12Viewport::CreateSwapChain()
 		MultiSampleQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
 		MultiSampleQualityLevels.NumQualityLevels = 0;
 
-		pDevice->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, MultiSampleQualityLevels);
+		ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &MultiSampleQualityLevels, sizeof(MultiSampleQualityLevels)));
 
 		Msaa4xQuality = MultiSampleQualityLevels.NumQualityLevels;
 

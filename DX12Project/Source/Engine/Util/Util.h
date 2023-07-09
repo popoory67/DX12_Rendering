@@ -21,3 +21,14 @@ inline std::wstring AnsiToWString(const std::string& str)
 #ifndef SafeDeleteArray
 #define SafeDeleteArray(x) { delete[](x); *x = nullptr; }
 #endif
+
+class Noncopyable
+{
+protected:
+	Noncopyable() {}
+	~Noncopyable() {}
+
+private:
+	Noncopyable(const Noncopyable&) = delete;
+	Noncopyable& operator=(const Noncopyable&) = delete;
+};

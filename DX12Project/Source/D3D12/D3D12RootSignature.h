@@ -1,18 +1,12 @@
 #pragma once
-#include <d3d12.h>
 #include <array>
-#include "d3dx12.h"
 #include "D3D12Device.h"
 
-using namespace Microsoft::WRL;
-
-// 여러개 가능한지 테스트
-// parameter가 array로 관리 가능한지 테스트
 class D3D12RootSignature : public D3D12Api
 {
 public:
 	D3D12RootSignature() = delete;
-	explicit D3D12RootSignature(D3D12Device* InDevice);
+	explicit D3D12RootSignature(D3D12Device* InDevice, const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& InDesc);
 	~D3D12RootSignature();
 
 	ID3D12RootSignature* GetInterface() { return RootSignature.Get(); }
@@ -22,19 +16,18 @@ public:
 	void InitConstBuffer();
 	void InitShaderResource();
 
-	void SetRootSignature();
-
 private:
-	void AddParam(CD3DX12_ROOT_PARAMETER& InParam);
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 
 private:
 	ComPtr<ID3D12RootSignature> RootSignature = nullptr;
+	ComPtr<ID3DBlob> RootSignatureBlob = nullptr;
 
 	// Root parameter can be a table, root descriptor or root constants.
-	std::vector<CD3DX12_ROOT_PARAMETER> RootParameterSlots;
+	static constexpr unsigned MaxRootParameter = 32;
+	std::array<CD3DX12_ROOT_PARAMETER1, MaxRootParameter> RootParameterSlots;
 
-	unsigned TableCount = 0;
+	unsigned RootParameterCount = 0;
 	unsigned ConstBufferOffset = 0;
 	unsigned ShaderResourceOffset = 0;
 };

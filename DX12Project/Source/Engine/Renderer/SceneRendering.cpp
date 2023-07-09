@@ -4,11 +4,39 @@
 #include "Scene.h"
 #include "ObjectCommand.h"
 #include "PrimitiveComponent.h"
+#include "RenderInterface.h"
+#include "D3D12RenderInterface.h"
+#include "D3D12Commands.h" // it must be removed
+
+// thread test
+void RenderingThread::ThreadProc()
+{
+    if (Action->Init() == true)
+    {
+        Action->Run();
+    }
+}
+
+bool SceneRenderer::Init()
+{
+	return true;
+}
+
+void SceneRenderer::Run()
+{
+
+}
+
+void SceneRenderer::Stop()
+{
+
+}
 
 SceneRenderer::SceneRenderer(std::shared_ptr<RHI> InRenderInterface)
 {
 	RenderInterface = std::static_pointer_cast<D3D12RHI>(InRenderInterface);
 }
+
 
 std::shared_ptr<Scene> SceneRenderer::GetCurrentScene()
 {
@@ -48,10 +76,6 @@ void SceneRenderer::SetCurrentScene(int InIndex)
 
 bool SceneRenderer::Initialize()
 {
-	//RenderInterface->ResetCommandList();
-	//RenderInterface->ExecuteCommandList();
-	//RenderInterface->FlushCommandQueue();
-
 // 	BuildRootSignature();
 // 	BuildShadersAndInputLayout();
 // 	BuildShapeGeometry();
@@ -63,63 +87,21 @@ bool SceneRenderer::Initialize()
 	return true;
 }
 
-void SceneRenderer::Update(GameTimer& gt)
-{
-	// 	OnKeyboardInput(gt);
-	// 	UpdateCamera(gt);
-	// 
-	// 	// Cycle through the circular frame resource array.
-	// 	CurFrameResourceIndex = (CurFrameResourceIndex + 1) % gNumFrameResources;
-	// 	CurFrameResource = mFrameResources[CurFrameResourceIndex].get();
-	// 
-	// 	// Has the GPU finished processing the commands of the current frame resource?
-	// 	// If not, wait until the GPU has completed commands up to this fence point.
-	// 	if (CurFrameResource->Fence != 0 && Fence->GetCompletedValue() < CurFrameResource->Fence)
-	// 	{
-	// 		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
-	// 		ThrowIfFailed(Fence->SetEventOnCompletion(CurFrameResource->Fence, eventHandle));
-	// 		WaitForSingleObject(eventHandle, INFINITE);
-	// 		CloseHandle(eventHandle);
-	// 	}
-	// 
-	// 	AnimateMaterials(gt);
-	// 	UpdateObjectCBs(gt);
-	// 	UpdateMaterialCBs(gt);
-	// 	UpdateMainPassCB(gt);
-
-	//	UpdateObjectManager->UpdateTransform(gt);
-}
-
 void SceneRenderer::BeginRender()
 {
 	RenderInterface->ResetCommandList();
 }
 
-void SceneRenderer::Render(GameTimer& gt)
+void SceneRenderer::Render(RHICommandList& InCommandList)
 {
-	// Render pass
+	// TODO
+	// Process render passes
 }
 
 void SceneRenderer::EndRender()
 {
 	RenderInterface->FlushCommandQueue();
 }
-
-// void SceneRenderer::UpdateCamera(const GameTimer& gt)
-// {
-// 	// Convert Spherical to Cartesian coordinates.
-// 	mEyePos.x = mRadius * sinf(mPhi)*cosf(mTheta);
-// 	mEyePos.z = mRadius * sinf(mPhi)*sinf(mTheta);
-// 	mEyePos.y = mRadius * cosf(mPhi);
-// 
-// 	// Build the view matrix.
-// 	XMVECTOR pos = XMVectorSet(mEyePos.x, mEyePos.y, mEyePos.z, 1.0f);
-// 	XMVECTOR target = XMVectorZero();
-// 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-// 
-// 	XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
-// 	XMStoreFloat4x4(&mView, view);
-// }
 
 void SceneRenderer::RenderPrimitives(D3D12CommandList& InCommandList)
 {

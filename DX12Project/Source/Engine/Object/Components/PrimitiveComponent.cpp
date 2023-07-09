@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include <GeometryGenerator.h>
 #include "PrimitiveComponent.h"
 #include "Util.h"
 #include "RenderInterface.h"

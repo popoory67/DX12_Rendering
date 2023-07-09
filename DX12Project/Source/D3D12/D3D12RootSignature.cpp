@@ -3,10 +3,21 @@
 #include "D3D12Device.h"
 #include "D3D12BinaryLargeObject.h"
 
-D3D12RootSignature::D3D12RootSignature(D3D12Device* InDevice)
+D3D12RootSignature::D3D12RootSignature(D3D12Device* InDevice, const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& InDesc)
 	: D3D12Api(InDevice)
 {
-	RootParameterSlots.clear();
+    ComPtr<ID3DBlob> error;
+	const D3D_ROOT_SIGNATURE_VERSION version = GetParent()->GetRootSignatureVersion();
+
+	HRESULT serializeHR = D3DX12SerializeVersionedRootSignature(&InDesc, version, &RootSignatureBlob, &error);
+	if (error)
+	{
+		::OutputDebugStringA((char*)error->GetBufferPointer());
+		ThrowIfFailed(serializeHR);
+	}
+
+	ThrowIfFailed(GetDevice()->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&
+		RootSignature)));
 }
 
 D3D12RootSignature::~D3D12RootSignature()
@@ -21,86 +32,25 @@ ID3D12RootSignature** D3D12RootSignature::GetAddressOf()
 
 void D3D12RootSignature::InitTable(D3D12_DESCRIPTOR_RANGE_TYPE InType, D3D12_SHADER_VISIBILITY InVisibility, unsigned InCount)
 {
-	CD3DX12_DESCRIPTOR_RANGE table;
+	CD3DX12_DESCRIPTOR_RANGE1 table;
 	table.Init(InType, InCount, 0, 0);
 
-	CD3DX12_ROOT_PARAMETER param;
-	param.InitAsDescriptorTable(1, &table, InVisibility); // 1 : table 개수
-	// append를 쓰도록 하자 => 책 참고(7장)
-
-	AddParam(param);
-
-	++TableCount;
+	RootParameterSlots[RootParameterCount].InitAsDescriptorTable(1, &table, InVisibility); // 1 : table count
+	++RootParameterCount;
 }
 
 void D3D12RootSignature::InitConstBuffer()
 {
-	CD3DX12_ROOT_PARAMETER param;
-	param.InitAsConstantBufferView(ConstBufferOffset);
-
-	AddParam(param);
-
+    RootParameterSlots[RootParameterCount].InitAsConstantBufferView(ConstBufferOffset);
+    ++RootParameterCount;
 	++ConstBufferOffset;
 }
 
 void D3D12RootSignature::InitShaderResource()
 {
-	CD3DX12_ROOT_PARAMETER param;
-	param.InitAsShaderResourceView(ShaderResourceOffset, 1);
-
-	AddParam(param);
-
+    RootParameterSlots[RootParameterCount].InitAsShaderResourceView(ShaderResourceOffset, 1);
+    ++RootParameterCount;
 	++ShaderResourceOffset;
-}
-
-void D3D12RootSignature::SetRootSignature()
-{
-// 	CD3DX12_DESCRIPTOR_RANGE texTable;
-// 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 0);
-
-	// Perfomance TIP: Order from most frequent to least frequent.
-// 	SlotRootParameter[0].InitAsConstantBufferView(0); // b0
-// 	SlotRootParameter[1].InitAsConstantBufferView(1); // b1
-// 	SlotRootParameter[2].InitAsShaderResourceView(0, 1); // t0 space1
-// 	SlotRootParameter[3].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
-
-// 	SlotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
-// 	SlotRootParameter[1].InitAsConstantBufferView(0);
-// 	SlotRootParameter[2].InitAsConstantBufferView(1);
-// 	SlotRootParameter[3].InitAsConstantBufferView(2);
-
-	// test
-	InitTable(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_SHADER_VISIBILITY_PIXEL, 2);
-	InitConstBuffer();
-	InitConstBuffer();
-	InitConstBuffer();
-
-	auto staticSamplers = GetStaticSamplers();
-
-	// A root signature is an array of root parameters.
-	UINT count = TableCount + ConstBufferOffset + ShaderResourceOffset;
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(count, &*RootParameterSlots.begin(), (UINT)staticSamplers.size(), staticSamplers.data(), D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
-	D3D12BinaryLargeObject* pSerializedRootSig = new D3D12BinaryLargeObject();
-	D3D12BinaryLargeObject* pErrorBlob = new D3D12BinaryLargeObject();
-
-	if (pSerializedRootSig && pErrorBlob)
-	{
-		HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, pSerializedRootSig->GetAddressOf(), pErrorBlob->GetAddressOf());
-
-		if (pErrorBlob->Get())
-			::OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
-
-		ThrowIfFailed(hr);
-
-		ThrowIfFailed(GetDevice()->CreateRootSignature(0, pSerializedRootSig->GetBufferPointer(), pSerializedRootSig->GetBufferSize(), IID_PPV_ARGS(GetAddressOf())));
-	}
-}
-
-void D3D12RootSignature::AddParam(CD3DX12_ROOT_PARAMETER& InParam)
-{
-	RootParameterSlots.emplace_back(InParam);
 }
 
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> D3D12RootSignature::GetStaticSamplers()

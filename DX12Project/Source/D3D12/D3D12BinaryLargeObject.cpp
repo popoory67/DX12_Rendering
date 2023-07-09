@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "D3D12BinaryLargeObject.h"
+#include "d3dx12.h"
 #include "d3dcompiler.h"
 #include "D3DUtil.h"
 
@@ -18,26 +19,14 @@ D3D12BinaryLargeObject::~D3D12BinaryLargeObject()
 
 }
 
-BYTE* D3D12BinaryLargeObject::GetBufferPointer() const
+D3D12_SHADER_BYTECODE D3D12BinaryLargeObject::GetShaderBytecode() const
 {
-	assert(BinaryLargeObject);
-	return reinterpret_cast<BYTE*>(BinaryLargeObject->GetBufferPointer());
-}
-
-SIZE_T D3D12BinaryLargeObject::GetBufferSize() const
-{
-	assert(BinaryLargeObject);
-	return BinaryLargeObject->GetBufferSize();
-}
-
-ID3DBlob** D3D12BinaryLargeObject::GetAddressOf()
-{
-	return BinaryLargeObject.GetAddressOf();
+	return CD3DX12_SHADER_BYTECODE(BinaryLargeObject->GetBufferPointer(), BinaryLargeObject->GetBufferSize());
 }
 
 void D3D12BinaryLargeObject::CreateBlob(const UINT InByteSize /*= 0*/)
 {
-	ThrowIfFailed(D3DCreateBlob(InByteSize, GetAddressOf()));
+	ThrowIfFailed(D3DCreateBlob(InByteSize, BinaryLargeObject.GetAddressOf()));
 }
 
 void D3D12BinaryLargeObject::CompileShader(const std::wstring& InFilename, const D3D_SHADER_MACRO* InShaderMacros, const std::string& InEntrypoint, const std::string& InTarget)
@@ -55,7 +44,9 @@ void D3D12BinaryLargeObject::CompileShader(const std::wstring& InFilename, const
 	hr = D3DCompileFromFile(InFilename.c_str(), InShaderMacros, D3D_COMPILE_STANDARD_FILE_INCLUDE, InEntrypoint.c_str(), InTarget.c_str(), compileFlags, 0, &byteCode, &errors);
 
 	if (errors != nullptr)
+	{
 		OutputDebugStringA((char*)errors->GetBufferPointer());
+	}
 
 	ThrowIfFailed(hr);
 
@@ -64,7 +55,7 @@ void D3D12BinaryLargeObject::CompileShader(const std::wstring& InFilename, const
 
 D3D12VertexShaderObject::D3D12VertexShaderObject()
 {
-	CompileShader(L"Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
+	CompileShader(L"Shaders\\TestShader.hlsl", nullptr, "VS", "vs_5_1");
 }
 
 D3D12VertexShaderObject::D3D12VertexShaderObject(const std::wstring& InFilename)
@@ -79,7 +70,7 @@ D3D12VertexShaderObject::~D3D12VertexShaderObject()
 
 D3D12PixelShaderObject::D3D12PixelShaderObject()
 {
-	CompileShader(L"Shaders\\Default.hlsl", nullptr, "PS", "ps_5_1");
+	CompileShader(L"Shaders\\TestShader.hlsl", nullptr, "PS", "ps_5_1");
 }
 
 D3D12PixelShaderObject::D3D12PixelShaderObject(const std::wstring& InFilename)

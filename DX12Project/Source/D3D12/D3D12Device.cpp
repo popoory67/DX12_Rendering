@@ -68,9 +68,9 @@ D3D12PipelineStateCache& D3D12Device::GetPSOCache() const
 	return *PipelineStateCache;
 }
 
-void D3D12Device::CheckFeatureSupport(D3D12_FEATURE InFeature, D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS& InMultisampleQualityLevels)
+D3D_ROOT_SIGNATURE_VERSION D3D12Device::GetRootSignatureVersion() const
 {
-	ThrowIfFailed(Device->CheckFeatureSupport(InFeature, &InMultisampleQualityLevels, sizeof(InMultisampleQualityLevels)));
+	return RootSignatureVersion;
 }
 
 void D3D12Device::Initialize()
@@ -86,43 +86,68 @@ void D3D12Device::Initialize()
 	GCommandContext.SetCommandList(CommandList);
 
 	// TODO
-	// The test code that I write down below has to be stored as a CSV file.
+	// The test code that I write down below has to be separated other classes and stored as a CSV file.
 	// What I need to do is to create a reader/writer for an Excel file.
 	// Additionally, pipeline state object will read the file on the step of loading resources.
 	PipelineStateCache = new D3D12PipelineStateCache(this);
 	{
-		D3D12GraphicsPipelineState::Desc PipelineStateDesc;
+		D3D12GraphicsPipelineState::Desc PipelineStateDesc{};
 
-		D3D12VertexShaderObject* pDefaultVS = new D3D12VertexShaderObject();
-		assert(pDefaultVS);
+		// root signature
+        CD3DX12_DESCRIPTOR_RANGE1 ranges[3];
+        ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
-		D3D12PixelShaderObject* pDefaultPS = new D3D12PixelShaderObject();
-		assert(pDefaultPS);
+        CD3DX12_ROOT_PARAMETER1 rootParameters[3];
+        rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_ALL);
+        rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_ALL);
+        rootParameters[2].InitAsDescriptorTable(1, &ranges[2], D3D12_SHADER_VISIBILITY_PIXEL);
 
-		D3D12RootSignature* pRootSignature = new D3D12RootSignature(this);
+        D3D12_STATIC_SAMPLER_DESC sampler = {};
+        sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+        sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+        sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+        sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+        sampler.MipLODBias = 0;
+        sampler.MaxAnisotropy = 0;
+        sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+        sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+        sampler.MinLOD = 0.0f;
+        sampler.MaxLOD = 9999.0f;
+        sampler.ShaderRegister = 0;
+        sampler.RegisterSpace = 0;
+        sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
+        rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 1, &sampler, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+        D3D12_FEATURE_DATA_ROOT_SIGNATURE rootSignatureCaps = {};
+        rootSignatureCaps.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+
+        if (Device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &rootSignatureCaps, sizeof(rootSignatureCaps)))
+        {
+            rootSignatureCaps.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
+        }
+        RootSignatureVersion = rootSignatureCaps.HighestVersion;
+
+		D3D12RootSignature* pRootSignature = new D3D12RootSignature(this, rootSignatureDesc);
 		assert(pRootSignature);
-
-		pRootSignature->SetRootSignature();
 
 		std::vector<D3D12_INPUT_ELEMENT_DESC> InputLayout =
 		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 		};
+
+        D3D12VertexShaderObject* pDefaultVS = new D3D12VertexShaderObject();
+        assert(pDefaultVS);
+
+        D3D12PixelShaderObject* pDefaultPS = new D3D12PixelShaderObject();
+        assert(pDefaultPS);
 
 		PipelineStateDesc.InputLayout = { InputLayout.data(), (UINT)InputLayout.size() };
 		PipelineStateDesc.pRootSignature = pRootSignature->GetInterface();
-		PipelineStateDesc.VS =
-		{
-			pDefaultVS->GetBufferPointer(),
-			pDefaultVS->GetBufferSize()
-		};
-		PipelineStateDesc.PS =
-		{
-			pDefaultPS->GetBufferPointer(),
-			pDefaultPS->GetBufferSize()
-		};
+		PipelineStateDesc.VS = { pDefaultVS->GetShaderBytecode() };
+		PipelineStateDesc.PS = { pDefaultPS->GetShaderBytecode() };
 		PipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		PipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		PipelineStateDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);

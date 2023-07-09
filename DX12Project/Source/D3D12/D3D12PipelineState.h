@@ -43,6 +43,7 @@ namespace D3D12GraphicsPipelineState
 	struct Desc : public D3D12_GRAPHICS_PIPELINE_STATE_DESC
 	{
 		Desc()
+			: D3D12_GRAPHICS_PIPELINE_STATE_DESC()
 		{
 			// TODO
 			// Has it to be a UUID? (IID_PPV_ARGS)

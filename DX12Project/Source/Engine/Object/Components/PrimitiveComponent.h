@@ -1,9 +1,7 @@
 #pragma once
-#include <dxgiformat.h>
-#include <d3dcommon.h>
-#include <d3d12.h>
 #include "RenderComponent.h"
 #include "ObjectCommand.h"
+#include "GeometryGenerator.h"
 
 struct PrimitiveUploadData : public UploadData
 {

@@ -4,6 +4,7 @@
 #include "Material.h"
 #include "Entity.h"
 #include "EntityQuery.h"
+#include "PrimitiveComponent.h"
 
 //void TransformSystem::Update(std::shared_ptr<EntityQuery> InQuery)
 //{
@@ -81,10 +82,10 @@ void TestScene::BuildRenderItems()
 	MaterialData->AddShaderBinding<XMFLOAT4X4>("MatTransform", MathHelper::Identity4x4());
 
 	// Primitive
-	PrimitiveData.reset(new PrimitiveComponent());
+	//PrimitiveData.reset(new PrimitiveComponent());
 
-	PrimitiveData->AddShaderBinding<XMFLOAT4X4>("World", MathHelper::Identity4x4());
-	PrimitiveData->AddShaderBinding<XMFLOAT4X4>("TexTransform", MathHelper::Identity4x4());
+	//PrimitiveData->AddShaderBinding<XMFLOAT4X4>("World", MathHelper::Identity4x4());
+	//PrimitiveData->AddShaderBinding<XMFLOAT4X4>("TexTransform", MathHelper::Identity4x4());
 
-	PrimitiveData->CreateMesh("");
+	//PrimitiveData->CreateMesh("");
 }

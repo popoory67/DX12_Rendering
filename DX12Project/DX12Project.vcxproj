@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="RenderPass.cpp" />
     <ClCompile Include="Source\D3D12\D3D12BinaryLargeObject.cpp" />
     <ClCompile Include="Source\D3D12\D3D12CommandAllocator.cpp" />
     <ClCompile Include="Source\D3D12\D3D12CommandExecutor.cpp" />
@@ -51,11 +50,13 @@
     <ClCompile Include="Source\Engine\Renderer\Material.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Mesh.cpp" />
     <ClCompile Include="Source\Engine\Renderer\RenderInterface.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Scene.cpp" />
     <ClCompile Include="Source\Engine\Renderer\SceneRendering.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Texture.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Transform.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Viewport.cpp" />
+    <ClCompile Include="Source\Engine\ThreadBase.cpp" />
     <ClCompile Include="Source\Engine\Util\GameTimer.cpp" />
     <ClCompile Include="Source\Engine\Util\MathHelper.cpp" />
     <ClCompile Include="Source\Engine\Util\Util.cpp" />
@@ -67,7 +68,6 @@
     <ClCompile Include="TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="RenderPass.h" />
     <ClInclude Include="Source\D3D12\D3D12BinaryLargeObject.h" />
     <ClInclude Include="Source\D3D12\D3D12Commands.h" />
     <ClInclude Include="Source\D3D12\D3D12Descriptor.h" />
@@ -99,11 +99,13 @@
     <ClInclude Include="Source\Engine\Renderer\Material.h" />
     <ClInclude Include="Source\Engine\Renderer\Mesh.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderInterface.h" />
+    <ClInclude Include="Source\Engine\Renderer\RenderPass.h" />
     <ClInclude Include="Source\Engine\Renderer\Scene.h" />
     <ClInclude Include="Source\Engine\Renderer\SceneRendering.h" />
     <ClInclude Include="Source\Engine\Renderer\Texture.h" />
     <ClInclude Include="Source\Engine\Renderer\Transform.h" />
     <ClInclude Include="Source\Engine\Renderer\Viewport.h" />
+    <ClInclude Include="Source\Engine\ThreadBase.h" />
     <ClInclude Include="Source\Engine\Util\GameTimer.h" />
     <ClInclude Include="Source\Engine\Util\MathHelper.h" />
     <ClInclude Include="Source\Engine\Util\Util.h" />
