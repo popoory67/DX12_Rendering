@@ -1,5 +1,4 @@
 #pragma once
-#include "stdafx.h"
 #include "WindowMain.h"
 #include "D3DUtil.h"
 

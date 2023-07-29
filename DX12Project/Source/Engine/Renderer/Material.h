@@ -1,5 +1,4 @@
 #pragma once
-#include "Component.h"
 #include "RenderComponent.h"
 
 class MaterialComponent : public RenderComponent

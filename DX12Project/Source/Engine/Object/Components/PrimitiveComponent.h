@@ -1,29 +1,29 @@
 #pragma once
+#include <d3d12.h>
 #include "RenderComponent.h"
-#include "ObjectCommand.h"
-#include "GeometryGenerator.h"
+#include "Util.h"
+#include "Mesh.h"
 
-struct PrimitiveUploadData : public UploadData
+class PrimitiveBuilder : public Uncopyable
 {
-	// DrawIndexedInstanced parameters.
-	UINT IndexCount = 0;
-	UINT StartIndexLocation = 0;
-	int BaseVertexLocation = 0;
+public:
+	PrimitiveBuilder() = default;
+	virtual ~PrimitiveBuilder() = default;
 
-	// Data about the buffers.
-	UINT VertexByteStride = 0;
-	UINT VertexBufferByteSize = 0;
-	DXGI_FORMAT IndexFormat = DXGI_FORMAT_R16_UINT;
-	UINT IndexBufferByteSize = 0;
+	virtual void Build(const VertexStream& InVertexStream, class PrimitiveProxy* InProxy);
 };
 
-struct PrimitiveCommand : public ObjectCommand
+class PrimitiveProxy
 {
-	class D3D12BinaryLargeObject* VertexBufferCPU = nullptr;
-	class D3D12BinaryLargeObject* IndexBufferCPU = nullptr;
+public:
+	PrimitiveProxy() = delete;
+	PrimitiveProxy(PrimitiveComponent* InComponent);
+	virtual ~PrimitiveProxy() = default;
 
-	class D3D12DefaultResource* VertexBufferGPU = nullptr;
-	class D3D12DefaultResource* IndexBufferGPU = nullptr;
+	virtual void DrawElements();
+
+private:
+	class PrimitiveComponent* Component;
 };
 
 class PrimitiveComponent : public RenderComponent
@@ -34,22 +34,23 @@ public:
 	
 	UINT GetIndex() const { return Index; }
 
-	void CreateMesh(const std::string& InPath);
+	void SetMeshModel(const std::string& InPath);
+
+	virtual PrimitiveProxy* CreateProxy();
 
 protected:
+	virtual void CreateResource();
+	
 	void Update() override;
-
-private:
-	void Build(struct GeometryGenerator::MeshData& InMeshData);
 
 public:
 	D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	
+	PrimitiveProxy* Proxy = nullptr;
+
+protected:
+	PrimitiveBuilder* Builder = nullptr;
 
 private:
-
-//	std::unordered_map<unsigned, Geometry> DrawArgs;
-
 	UINT Index = 0;
-
-	PrimitiveUploadData* PrimitiveData = nullptr;
 };

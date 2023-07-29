@@ -1,6 +1,5 @@
-#include "stdafx.h"
 #include "RenderComponent.h"
-#include "D3DUtil.h"
+#include "D3DUtil.h" // test
 
 UINT RenderComponent::GetBindingSize()
 {

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "D3DUtil.h"
 #include <comdef.h>
 #include "d3dx12.h"

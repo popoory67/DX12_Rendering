@@ -1,21 +1,8 @@
 #pragma once
-#include "ThreadBase.h"
+#include <unordered_map>
+#include <memory>
 
-// thread test
-class RenderingThread : public WindowsThread
-{
-public:
-	void Suspend() override {}
-	void Kill() override {}
-
-protected:
-	void ThreadProc() override;
-
-private:
-
-};
-
-class SceneRenderer : public WorkingUnit
+class SceneRenderer
 {
 public:
 	SceneRenderer() = delete;
@@ -24,10 +11,6 @@ public:
 	SceneRenderer& operator=(const SceneRenderer& rhs) = delete;
 
 	~SceneRenderer() = default;
-
-	bool Init() override;
-	void Run() override;
-	void Stop() override;
 
 	std::shared_ptr<class Scene> GetCurrentScene();
 	void AddScene(class Scene* InScene);
@@ -44,7 +27,7 @@ private:
 	void RenderMaterials(class D3D12CommandList& InCommandList);
 
 private:
-	std::map<unsigned int, std::shared_ptr<class Scene>> SceneList;
+	std::unordered_map<unsigned int, std::shared_ptr<class Scene>> SceneList;
 	unsigned IndexCount = 0;
 	int CurrentSceneIndex = -1;
 

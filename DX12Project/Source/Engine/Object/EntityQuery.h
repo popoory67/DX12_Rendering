@@ -1,6 +1,7 @@
 #pragma once
 #include "Entity.h"
 #include <typeinfo>
+#include <unordered_map>
 
 class EntityQuery
 {
@@ -26,5 +27,5 @@ public:
 	}
 
 private:
-	std::map<size_t, std::vector<class Entity*>> Entities; // need to check the vector size if it is over 16kb
+	std::unordered_map<size_t, std::vector<class Entity*>> Entities; // need to check the vector size if it is over 16kb
 };

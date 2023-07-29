@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include <DirectXColors.h>
 #include "d3dx12.h"
 #include "D3D12Viewport.h"

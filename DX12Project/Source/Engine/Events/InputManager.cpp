@@ -1,5 +1,5 @@
-#include "stdafx.h"
 #include "InputManager.h"
+#include <assert.h>
 
 InputManager* InputManager::Instance = nullptr;
 

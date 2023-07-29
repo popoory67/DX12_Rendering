@@ -2,8 +2,9 @@
 #include <d3d12.h>
 #include <DirectXMath.h>
 #include <comdef.h>
+#include <optional>
 #include "d3dx12.h"
-
+#include "Util.h"
 #include "CommandList.h"
 #include "D3D12Device.h"
 #include "D3D12Types.h"

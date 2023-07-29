@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "D3D12BinaryLargeObject.h"
 #include "d3dx12.h"
 #include "d3dcompiler.h"

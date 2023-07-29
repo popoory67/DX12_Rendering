@@ -1,5 +1,6 @@
 #pragma once
 #include <DirectXCollision.h>
+#include <vector>
 #include "MathHelper.h"
 #include "RenderPass.h"
 
@@ -7,31 +8,22 @@ using namespace DirectX;
 
 struct Vertex
 {
-	DirectX::XMFLOAT3 Pos;
-	DirectX::XMFLOAT3 Normal;
-	DirectX::XMFLOAT2 TexUV;
+	XMFLOAT3 Pos;
+	XMFLOAT4 Color;
 };
 
-struct Geometry
-{
-	UINT IndexCount = 0;
-	UINT StartIndexLocation = 0;
-	INT BaseVertexLocation = 0;
-
-	// Bounding box of the geometry defined by this submesh. 
-	DirectX::BoundingBox Bounds;
-};
+using VertexStream = std::vector<Vertex>;
 
 struct MeshRenderBatchElement
 {
-	Vertex Primitive;
+	VertexStream* Primitive;
 
 	// TODO
-	// Material, Mesh Options
+	// Material, Mesh Options, Proxy
 };
 
 // Mesh batching is a technique used to reduce the number of draw calls.
-// It collects the mesh elements depending on the mesh options
+// It collects the mesh elements depending on the mesh options.
 // The meshes that have the same options will be processed.
 struct MeshRenderBatch : public RenderBatch
 {

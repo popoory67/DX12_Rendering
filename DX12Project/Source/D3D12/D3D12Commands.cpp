@@ -1,9 +1,9 @@
-#include "stdafx.h"
 #include "D3D12Commands.h"
 #include "D3D12RenderInterface.h"
 #include "D3D12Viewport.h"
 #include "D3D12Resource.h"
 #include "D3D12Fence.h"
+#include "DirectXColors.h"
 
 void D3D12CommandList::BeginDrawWindow(RHIViewport* InViewport)
 {
@@ -21,7 +21,7 @@ void D3D12CommandList::BeginDrawWindow(RHIViewport* InViewport)
 		const auto& backBufferView = viewport->GetCurrentBackBufferView();
 
 		// Clear the back buffer and depth buffer.
-		ClearRenderTargetView(backBufferView, Colors::LightSteelBlue, 0);
+		ClearRenderTargetView(backBufferView, DirectX::Colors::LightSteelBlue, 0);
 		
 		//ClearDepthStencilView(GetDepthStencilBufferView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0);
 

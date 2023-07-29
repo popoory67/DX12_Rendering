@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Mesh.h"
 #include "CommandList.h"
 
@@ -9,7 +8,11 @@ MeshRenderPass::MeshRenderPass()
 
 void MeshRenderPass::AddMeshBatch(MeshRenderBatch&& InBatch)
 {
+    // MeshRenderBatchElement
+    // MeshRenderBatch
 
+    //MeshRenderBatch meshBatch;
+    //MeshRenderBatchElement& element = meshBatch.Elements[0];
 }
 
 void MeshRenderPass::Process(RHICommandList& InCommandList)

@@ -18,7 +18,7 @@ struct D3D12ResourceDesc : public D3D12_RESOURCE_DESC
 
 };
 
-class D3D12Resource : public D3D12Api, public std::enable_shared_from_this<D3D12Resource>
+class D3D12Resource : public D3D12Api
 {
 public:
 	D3D12Resource() = delete;
@@ -99,7 +99,7 @@ class D3D12DefaultResource : public D3D12Api
 public:
 	D3D12DefaultResource() = delete;
 	explicit D3D12DefaultResource(D3D12Device* InDevice);
-	virtual ~D3D12DefaultResource() { SafeDelete(Resource); }
+	virtual ~D3D12DefaultResource();
 
 	D3D12Resource* GetResource() { return Resource; }
 

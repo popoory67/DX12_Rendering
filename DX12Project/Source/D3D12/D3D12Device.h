@@ -1,10 +1,8 @@
 #pragma once
-
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include "d3dx12.h"
 
-using namespace DirectX;
 using namespace Microsoft::WRL;
 
 #pragma comment(lib, "d3dcompiler.lib")
@@ -23,15 +21,8 @@ public:
 	D3D12Device();
 	virtual ~D3D12Device();
 
-	ComPtr<ID3D12Device> GetDevice() const 
-	{ 
-		ReturnCheckAssert(Device); 
-	}
-
-	ComPtr<IDXGIFactory4> GetDxgi() const
-	{
-		ReturnCheckAssert(DxgiFactory);
-	}
+	ComPtr<ID3D12Device> GetDevice() const;
+	ComPtr<IDXGIFactory4> GetDxgi() const;
 
 	ID3D12CommandQueue* GetCommandQueue() const;
 	D3D12CommandList& GetCommandList() const;
@@ -64,16 +55,9 @@ public:
 	D3D12Api(const D3D12Api&) = delete;
 	D3D12Api& operator=(const D3D12Api&) = delete;
 
-	explicit D3D12Api(D3D12Device* InParent) : Parent(InParent) 
-	{
-		assert(InParent);
-	}
+	explicit D3D12Api(D3D12Device* InParent);
 
-	ID3D12Device* GetDevice() const
-	{
-		assert(Parent->GetDevice());
-		ReturnCheckAssert(Parent->GetDevice().Get());
-	}
+	ID3D12Device* GetDevice() const;
 
 protected:
 	inline D3D12Device* GetParent() const noexcept

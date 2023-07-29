@@ -1,6 +1,7 @@
-#include "stdafx.h"
+#include "Class.h"
 #include "Component.h"
 #include "D3DUtil.h"
+#include <typeindex>
 
 static size_t CreateType(std::any InClass)
 {

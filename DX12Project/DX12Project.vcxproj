@@ -39,11 +39,12 @@
     <ClCompile Include="Source\Engine\Events\InputManager.cpp" />
     <ClCompile Include="Source\Engine\Object\Class.cpp" />
     <ClCompile Include="Source\Engine\Object\Commands\ObjectCommand.cpp" />
-    <ClCompile Include="Source\Engine\Object\Component.cpp" />
+    <ClCompile Include="Source\Engine\Object\Components\Component.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\PrimitiveComponent.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\RenderComponent.cpp" />
     <ClCompile Include="Source\Engine\Object\Entity.cpp" />
     <ClCompile Include="Source\Engine\Object\EntityQuery.cpp" />
+    <ClCompile Include="Source\Engine\Object\Scene.cpp" />
     <ClCompile Include="Source\Engine\Renderer\CommandList.cpp" />
     <ClCompile Include="Source\Engine\Renderer\GeometryGenerator.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Light.cpp" />
@@ -51,19 +52,17 @@
     <ClCompile Include="Source\Engine\Renderer\Mesh.cpp" />
     <ClCompile Include="Source\Engine\Renderer\RenderInterface.cpp" />
     <ClCompile Include="Source\Engine\Renderer\RenderPass.cpp" />
-    <ClCompile Include="Source\Engine\Renderer\Scene.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\RenderResource.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\RenderThread.cpp" />
     <ClCompile Include="Source\Engine\Renderer\SceneRendering.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Texture.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Transform.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Viewport.cpp" />
-    <ClCompile Include="Source\Engine\ThreadBase.cpp" />
+    <ClCompile Include="Source\Engine\Core\ThreadBase.cpp" />
     <ClCompile Include="Source\Engine\Util\GameTimer.cpp" />
     <ClCompile Include="Source\Engine\Util\MathHelper.cpp" />
     <ClCompile Include="Source\Engine\Util\Util.cpp" />
     <ClCompile Include="Source\Engine\WindowMain.cpp" />
-    <ClCompile Include="Source\stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="TestScene.cpp" />
   </ItemGroup>
@@ -85,14 +84,17 @@
     <ClInclude Include="Source\D3D12\FrameResource.h" />
     <ClInclude Include="Source\D3D12\UploadBuffer.h" />
     <ClInclude Include="Source\Engine\Application.h" />
+    <ClInclude Include="Source\Engine\Core\Global.h" />
+    <ClInclude Include="Source\Engine\Core\TaskGraph.h" />
     <ClInclude Include="Source\Engine\Events\InputManager.h" />
     <ClInclude Include="Source\Engine\Object\Class.h" />
     <ClInclude Include="Source\Engine\Object\Commands\ObjectCommand.h" />
-    <ClInclude Include="Source\Engine\Object\Component.h" />
+    <ClInclude Include="Source\Engine\Object\Components\Component.h" />
     <ClInclude Include="Source\Engine\Object\Components\PrimitiveComponent.h" />
     <ClInclude Include="Source\Engine\Object\Components\RenderComponent.h" />
     <ClInclude Include="Source\Engine\Object\Entity.h" />
     <ClInclude Include="Source\Engine\Object\EntityQuery.h" />
+    <ClInclude Include="Source\Engine\Object\Scene.h" />
     <ClInclude Include="Source\Engine\Renderer\CommandList.h" />
     <ClInclude Include="Source\Engine\Renderer\GeometryGenerator.h" />
     <ClInclude Include="Source\Engine\Renderer\Light.h" />
@@ -100,17 +102,17 @@
     <ClInclude Include="Source\Engine\Renderer\Mesh.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderInterface.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderPass.h" />
-    <ClInclude Include="Source\Engine\Renderer\Scene.h" />
+    <ClInclude Include="Source\Engine\Renderer\RenderResource.h" />
+    <ClInclude Include="Source\Engine\Renderer\RenderThread.h" />
     <ClInclude Include="Source\Engine\Renderer\SceneRendering.h" />
     <ClInclude Include="Source\Engine\Renderer\Texture.h" />
     <ClInclude Include="Source\Engine\Renderer\Transform.h" />
     <ClInclude Include="Source\Engine\Renderer\Viewport.h" />
-    <ClInclude Include="Source\Engine\ThreadBase.h" />
+    <ClInclude Include="Source\Engine\Core\ThreadBase.h" />
     <ClInclude Include="Source\Engine\Util\GameTimer.h" />
     <ClInclude Include="Source\Engine\Util\MathHelper.h" />
     <ClInclude Include="Source\Engine\Util\Util.h" />
     <ClInclude Include="Source\Engine\WindowMain.h" />
-    <ClInclude Include="Source\stdafx.h" />
     <ClInclude Include="TestScene.h" />
   </ItemGroup>
   <ItemGroup>
@@ -188,13 +190,15 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Create</PrecompiledHeader>
-      <AdditionalIncludeDirectories>..\DX12Project\Source;..\DX12Project\Source\Engine;..\DX12Project\Source\Engine\Util;..\DX12Project\Source\Engine\Events;..\DX12Project\Source\Engine\Renderer;..\DX12Project\Source\Engine\Object;..\DX12Project\Source\Engine\Object\Commands;..\DX12Project\Source\Engine\Object\Components;..\DX12Project\Source\D3D12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>..\DX12Project\Source;..\DX12Project\Source\Engine;..\DX12Project\Source\Engine\Core;..\DX12Project\Source\Engine\Util;..\DX12Project\Source\Engine\Events;..\DX12Project\Source\Engine\Renderer;..\DX12Project\Source\Engine\Object;..\DX12Project\Source\Engine\Object\Commands;..\DX12Project\Source\Engine\Object\Components;..\DX12Project\Source\D3D12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>
       </AdditionalOptions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <DisableSpecificWarnings>4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
       <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>

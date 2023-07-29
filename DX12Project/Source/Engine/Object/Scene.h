@@ -1,4 +1,7 @@
 #pragma once
+#include <bitset>
+#include <memory>
+#include <unordered_map>
 #include "EntityQuery.h"
 
 class Scene
@@ -15,6 +18,7 @@ public:
 	void SetSceneId(unsigned InId) { Id = InId; }
 
 	void AddEntity(class Entity* InEntity);
+	void AddPrimitive(class PrimitiveComponent* InPrimitiveComponent);
 
 	template<typename ComponentType>
 	void GetComponents(std::vector<ComponentType*>& OutComponents)
@@ -23,14 +27,16 @@ public:
 	}
 
 private:
-
 	void UpdateVisibility();
+	void RenderScene();
+
 	bool IsVisible(unsigned InId);
 
-protected:
+private:
 	unsigned int Id = 0;
+
+	std::unordered_map<size_t, std::bitset<1>> EntityVisibility;
 	std::shared_ptr<EntityQuery> EntityInterface;
 
-private:
-	std::map<size_t, bool> EntityVisibility;
+	std::unordered_map<class PrimitiveProxy*, std::bitset<1>> Primitives;
 };

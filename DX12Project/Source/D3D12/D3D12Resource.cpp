@@ -1,7 +1,7 @@
-#include "stdafx.h"
 #include "D3D12Resource.h"
 #include "D3D12Device.h"
 #include "D3D12Descriptor.h"
+#include "D3DUtil.h"
 #include "DDSTextureLoader.h"
 #include "Texture.h"
 
@@ -184,4 +184,9 @@ UINT64 D3D12ShaderResource::GetDescriptorHandleIncrementSize()
 D3D12DefaultResource::D3D12DefaultResource(D3D12Device* InDevice)
 	: D3D12Api(InDevice)
 {
+}
+
+D3D12DefaultResource::~D3D12DefaultResource()
+{
+	SafeDelete(Resource); 
 }

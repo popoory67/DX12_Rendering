@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "RenderPass.h"
 #include "CommandList.h"
 

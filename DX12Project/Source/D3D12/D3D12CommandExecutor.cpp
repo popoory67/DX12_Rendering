@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "D3D12Commands.h"
 #include "D3D12Device.h"
 #include "D3D12Fence.h"

@@ -1,5 +1,5 @@
-#include "stdafx.h"
 #include "CommandList.h"
+#include <assert.h>
 
 RHICommandContext GCommandContext;
 

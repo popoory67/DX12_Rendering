@@ -1,10 +1,10 @@
-#include "stdafx.h"
 #include "D3D12PipelineState.h"
 #include "D3D12Device.h"
 #include "D3D12Viewport.h"
 #include "D3D12Commands.h"
 #include "D3D12BinaryLargeObject.h"
 #include "D3D12RootSignature.h"
+#include "D3DUtil.h"
 
 D3D12PipelineState::D3D12PipelineState(D3D12Device* InDevice, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& InDesc)
 	: D3D12Api(InDevice)

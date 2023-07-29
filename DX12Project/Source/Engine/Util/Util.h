@@ -10,6 +10,11 @@ inline std::wstring AnsiToWString(const std::string& str)
 	return std::wstring(buffer);
 }
 
+#if defined(DEBUG) || defined(_DEBUG)
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+#endif
+
 #ifndef ReturnCheckAssert
 #define ReturnCheckAssert(x) { assert(x); return x; }
 #endif
@@ -22,13 +27,13 @@ inline std::wstring AnsiToWString(const std::string& str)
 #define SafeDeleteArray(x) { delete[](x); *x = nullptr; }
 #endif
 
-class Noncopyable
+class Uncopyable
 {
 protected:
-	Noncopyable() {}
-	~Noncopyable() {}
+	Uncopyable() {}
+	~Uncopyable() {}
 
 private:
-	Noncopyable(const Noncopyable&) = delete;
-	Noncopyable& operator=(const Noncopyable&) = delete;
+	Uncopyable(const Uncopyable&) = delete;
+	Uncopyable& operator=(const Uncopyable&) = delete;
 };

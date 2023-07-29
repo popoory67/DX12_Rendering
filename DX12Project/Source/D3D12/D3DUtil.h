@@ -1,13 +1,13 @@
 #pragma once
-
+#include "Util.h"
+#include <windef.h>
 #include <windows.h>
 #include <string>
+#include <wrl.h>
 #include <dxgi1_4.h>
 #include <d3d12.h>
 #include <D3Dcompiler.h>
 #include <DirectXMath.h>
-
-#include "Util.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;

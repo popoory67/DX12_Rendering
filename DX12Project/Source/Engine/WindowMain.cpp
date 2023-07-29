@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "WindowMain.h"
 #include "InputManager.h"
 #include "D3D12RenderInterface.h"
@@ -65,8 +64,7 @@ bool WindowMain::Initialize()
 {
 	if (InitMainWindow())
 	{	
-		// d3d12 test
-		return Parent::Initialize(std::make_shared<D3D12RHI>());
+		return Parent::Initialize();
 	}
 	return false;
 }

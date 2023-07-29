@@ -1,5 +1,5 @@
-#include "stdafx.h"
 #include "EntityQuery.h"
+#include <assert.h>
 
 void EntityQuery::AddEntity(Entity* InEntity)
 {

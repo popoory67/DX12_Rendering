@@ -1,10 +1,11 @@
-#include "stdafx.h"
-#include "D3D12Device.h"
 #include "D3D12Commands.h"
+#include "D3D12Device.h"
 #include "D3D12Descriptor.h"
 #include "D3D12Resource.h"
 #include "D3D12PipelineState.h"
 #include "D3D12RootSignature.h"
+#include "D3DUtil.h"
+#include <optional>
 
 D3D12CommandList::D3D12CommandList(D3D12Device* InDevice)
 	: D3D12Api(InDevice)

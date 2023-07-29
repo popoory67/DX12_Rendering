@@ -1,6 +1,6 @@
-#include "stdafx.h"
 #include "Entity.h"
 #include "Component.h"
+#include <assert.h>
 
 void Entity::AddType(ClassType* InType)
 {

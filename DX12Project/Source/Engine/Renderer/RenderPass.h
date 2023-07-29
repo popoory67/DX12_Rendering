@@ -14,10 +14,11 @@ protected:
 	int PipelineStateId = -1;
 };
 
-// Render Pass is a stage to render in the rendering pipeline in a specific order.
+// Render Pass is a stage to render in the rendering pipeline in a specific order and sometimes dependency.
 // The meaning of "Pass" is more of the feature that has a particular effect,
 // for example, base color, lighting, shadows, reflection, and so on.
 // It is sometimes compared with the understanding of an image layer, but not the same thing.
+// Because the pass contains the meaning of process, such as the process to calculate the base color with textures and modeling assets and draw a 2D texture to frame buffer on VRAM.
 class RenderPass
 {
 public:

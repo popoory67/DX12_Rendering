@@ -1,9 +1,8 @@
 #pragma once
-
 #include <Windows.h>
 #include <WindowsX.h>
-#include <windows.h>
 #include "Application.h"
+#include "ThreadBase.h"
 
 class WindowMain : public Application
 {

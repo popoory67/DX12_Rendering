@@ -1,7 +1,7 @@
-#include "stdafx.h"
 #include "D3D12RootSignature.h"
 #include "D3D12Device.h"
 #include "D3D12BinaryLargeObject.h"
+#include "D3DUtil.h"
 
 D3D12RootSignature::D3D12RootSignature(D3D12Device* InDevice, const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& InDesc)
 	: D3D12Api(InDevice)

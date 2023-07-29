@@ -1,5 +1,5 @@
-#include "stdafx.h"
 #include "D3D12Fence.h"
+#include "D3DUtil.h"
 
 D3D12Fence::D3D12Fence(D3D12Device* InDevice, UINT64 InInitialValue)
 	: D3D12Api(InDevice)

@@ -1,6 +1,6 @@
-#include "stdafx.h"
 #include "D3D12Commands.h"
 #include "D3D12Device.h"
+#include "D3DUtil.h"
 
 D3D12CommandAllocator::D3D12CommandAllocator(D3D12Device* InDevice, const D3D12_COMMAND_LIST_TYPE& InType)
 {

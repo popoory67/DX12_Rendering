@@ -1,5 +1,7 @@
 #pragma once
 #include "Class.h"
+#include <vector>
+#include <memory>
 
 class Entity
 {

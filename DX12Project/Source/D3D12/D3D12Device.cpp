@@ -1,7 +1,8 @@
-#include "stdafx.h"
 #include "D3D12Device.h"
 #include "D3D12Commands.h"
 #include "D3D12PipelineState.h"
+#include "D3DUtil.h"
+#include "Util.h"
 
 // test
 #include "D3D12BinaryLargeObject.h"
@@ -14,6 +15,16 @@ D3D12Device::D3D12Device()
 
 D3D12Device::~D3D12Device()
 {
+}
+
+Microsoft::WRL::ComPtr<ID3D12Device> D3D12Device::GetDevice() const
+{
+    ReturnCheckAssert(Device);
+}
+
+Microsoft::WRL::ComPtr<IDXGIFactory4> D3D12Device::GetDxgi() const
+{
+    ReturnCheckAssert(DxgiFactory);
 }
 
 void D3D12Device::CreateDevice()
@@ -132,6 +143,7 @@ void D3D12Device::Initialize()
 		D3D12RootSignature* pRootSignature = new D3D12RootSignature(this, rootSignatureDesc);
 		assert(pRootSignature);
 
+		// resource
 		std::vector<D3D12_INPUT_ELEMENT_DESC> InputLayout =
 		{
             { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -143,6 +155,16 @@ void D3D12Device::Initialize()
 
         D3D12PixelShaderObject* pDefaultPS = new D3D12PixelShaderObject();
         assert(pDefaultPS);
+
+        // triangle
+        //VertexStream triangleVertices =
+        //{
+        //    { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+        //    { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+        //    { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+        //};
+
+		//const UINT size = triangleVertices.size();
 
 		PipelineStateDesc.InputLayout = { InputLayout.data(), (UINT)InputLayout.size() };
 		PipelineStateDesc.pRootSignature = pRootSignature->GetInterface();
@@ -161,4 +183,16 @@ void D3D12Device::Initialize()
 
 		PipelineStateCache->CreateAndAddCache(PipelineStateDesc);
 	}
+}
+
+D3D12Api::D3D12Api(D3D12Device* InParent)
+    : Parent(InParent)
+{
+    assert(InParent);
+}
+
+ID3D12Device* D3D12Api::GetDevice() const
+{
+    assert(Parent->GetDevice());
+    ReturnCheckAssert(Parent->GetDevice().Get());
 }

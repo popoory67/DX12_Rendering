@@ -1,12 +1,9 @@
-#include "stdafx.h"
 #include "D3D12Device.h"
 #include "D3D12RenderInterface.h"
 #include "D3D12Resource.h"
 #include "D3D12Descriptor.h"
 #include "D3D12PipelineState.h"
 #include "D3D12Commands.h"
-
-using namespace DirectX;
 
 D3D12RHI::D3D12RHI()
 	: CurrentDevice(nullptr)

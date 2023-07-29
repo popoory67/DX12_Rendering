@@ -9,3 +9,5 @@ README.md
 *.vcxproj.user
 *.dds
 *.vspx
+*.psess
+*.vspx

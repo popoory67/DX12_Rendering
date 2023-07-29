@@ -1,6 +1,8 @@
 #pragma once
 #include <type_traits>
 #include <d3d12.h>
+#include <unordered_map>
+
 #include "D3D12Resource.h"
 
 class D3D12PipelineState : public D3D12Api

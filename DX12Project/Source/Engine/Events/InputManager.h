@@ -2,7 +2,6 @@
 
 #include <Windows.h>
 #include <WindowsX.h>
-#include <windows.h>
 #include "GameTimer.h"
 
 class InputManager

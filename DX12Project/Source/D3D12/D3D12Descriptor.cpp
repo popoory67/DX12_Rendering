@@ -1,5 +1,6 @@
-#include "stdafx.h"
+#include <stdexcept>
 #include "D3D12Descriptor.h"
+#include "D3DUtil.h"
 
 D3D12Descriptor::D3D12Descriptor(D3D12Device* InDeivce, D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc)
 	: D3D12Api(InDeivce)

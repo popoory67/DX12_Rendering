@@ -90,9 +90,6 @@
     <ClCompile Include="Source\Engine\Renderer\Mesh.cpp">
       <Filter>Engine\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Renderer\Scene.cpp">
-      <Filter>Engine\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\SceneRendering.cpp">
       <Filter>Engine\Renderer</Filter>
     </ClCompile>
@@ -123,7 +120,7 @@
     <ClCompile Include="Source\Engine\Object\Class.cpp">
       <Filter>Engine\Object</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Object\Component.cpp">
+    <ClCompile Include="Source\Engine\Object\Components\Component.cpp">
       <Filter>Engine\Object</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Object\Entity.cpp">
@@ -139,9 +136,6 @@
       <Filter>Engine\Launch</Filter>
     </ClCompile>
     <ClCompile Include="Source\Main.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\stdafx.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Events\InputManager.cpp">
@@ -169,7 +163,10 @@
       <Filter>D3D12\Private</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\RenderPass.cpp" />
-    <ClCompile Include="Source\Engine\ThreadBase.cpp" />
+    <ClCompile Include="Source\Engine\Core\ThreadBase.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\RenderResource.cpp" />
+    <ClCompile Include="Source\Engine\Object\Scene.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\RenderThread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3DUtil.h">
@@ -232,9 +229,6 @@
     <ClInclude Include="Source\Engine\Renderer\Mesh.h">
       <Filter>Engine\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Renderer\Scene.h">
-      <Filter>Engine\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Renderer\SceneRendering.h">
       <Filter>Engine\Renderer</Filter>
     </ClInclude>
@@ -265,7 +259,7 @@
     <ClInclude Include="Source\Engine\Object\Class.h">
       <Filter>Engine\Object</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Object\Component.h">
+    <ClInclude Include="Source\Engine\Object\Components\Component.h">
       <Filter>Engine\Object</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Object\Entity.h">
@@ -279,9 +273,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\WindowMain.h">
       <Filter>Engine\Launch</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\stdafx.h">
-      <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Events\InputManager.h">
       <Filter>Engine\Events</Filter>
@@ -299,7 +290,12 @@
       <Filter>D3D12\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Renderer\RenderPass.h" />
-    <ClInclude Include="Source\Engine\ThreadBase.h" />
+    <ClInclude Include="Source\Engine\Core\ThreadBase.h" />
+    <ClInclude Include="Source\Engine\Renderer\RenderResource.h" />
+    <ClInclude Include="Source\Engine\Object\Scene.h" />
+    <ClInclude Include="Source\Engine\Core\Global.h" />
+    <ClInclude Include="Source\Engine\Renderer\RenderThread.h" />
+    <ClInclude Include="Source\Engine\Core\TaskGraph.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" />

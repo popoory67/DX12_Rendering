@@ -1,5 +1,9 @@
 #pragma once
 #include "Component.h"
+#include <windows.h>
+#include <minwindef.h>
+#include <unordered_map>
+#include <any>
 
 // For using data mirroring
 // The data must be used to connect from Component and Render update
@@ -33,6 +37,5 @@ public:
 	UINT GetBindingSize();
 
 private:
-
-	std::map<std::string, std::any> Bindings;
+	std::unordered_map<std::string, std::any> Bindings;
 };

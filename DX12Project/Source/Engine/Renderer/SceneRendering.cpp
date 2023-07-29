@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "SceneRendering.h"
 #include "Mesh.h"
 #include "Scene.h"
@@ -8,29 +7,6 @@
 #include "D3D12RenderInterface.h"
 #include "D3D12Commands.h" // it must be removed
 
-// thread test
-void RenderingThread::ThreadProc()
-{
-    if (Action->Init() == true)
-    {
-        Action->Run();
-    }
-}
-
-bool SceneRenderer::Init()
-{
-	return true;
-}
-
-void SceneRenderer::Run()
-{
-
-}
-
-void SceneRenderer::Stop()
-{
-
-}
 
 SceneRenderer::SceneRenderer(std::shared_ptr<RHI> InRenderInterface)
 {
