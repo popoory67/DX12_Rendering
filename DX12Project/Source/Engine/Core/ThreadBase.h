@@ -48,6 +48,11 @@ T* ThreadBase<T>::Create(Task* InAction, ThreadPriority InPriority)
 			SafeDelete(newThread);
 		}
 	}
+
+	// TODO
+	// A thread manager or thread pool must manage the new thread.
+	// The new thread have to be added and cleaned on the management system.
+
 	return newThread;
 }
 

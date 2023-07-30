@@ -4,7 +4,8 @@
 
 WindowsThread::~WindowsThread()
 {
-    //Thread.join();
+    Thread.join();
+    SafeDelete(Action);
 }
 
 WindowsThread* WindowsThread::CreateThread()
