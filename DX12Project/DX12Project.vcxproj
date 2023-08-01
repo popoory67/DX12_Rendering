@@ -36,6 +36,7 @@
     <ClCompile Include="Source\D3D12\DDSTextureLoader.cpp" />
     <ClCompile Include="Source\D3D12\FrameResource.cpp" />
     <ClCompile Include="Source\Engine\Application.cpp" />
+    <ClCompile Include="Source\Engine\Core\WindowsThread.cpp" />
     <ClCompile Include="Source\Engine\Events\InputManager.cpp" />
     <ClCompile Include="Source\Engine\Object\Class.cpp" />
     <ClCompile Include="Source\Engine\Object\Commands\ObjectCommand.cpp" />
@@ -53,7 +54,7 @@
     <ClCompile Include="Source\Engine\Renderer\RenderInterface.cpp" />
     <ClCompile Include="Source\Engine\Renderer\RenderPass.cpp" />
     <ClCompile Include="Source\Engine\Renderer\RenderResource.cpp" />
-    <ClCompile Include="Source\Engine\Renderer\RenderThread.cpp" />
+    <ClCompile Include="Source\Engine\Core\RenderThread.cpp" />
     <ClCompile Include="Source\Engine\Renderer\SceneRendering.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Texture.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Transform.cpp" />
@@ -86,6 +87,7 @@
     <ClInclude Include="Source\Engine\Application.h" />
     <ClInclude Include="Source\Engine\Core\Global.h" />
     <ClInclude Include="Source\Engine\Core\TaskGraph.h" />
+    <ClInclude Include="Source\Engine\Core\WindowsThread.h" />
     <ClInclude Include="Source\Engine\Events\InputManager.h" />
     <ClInclude Include="Source\Engine\Object\Class.h" />
     <ClInclude Include="Source\Engine\Object\Commands\ObjectCommand.h" />
@@ -103,7 +105,7 @@
     <ClInclude Include="Source\Engine\Renderer\RenderInterface.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderPass.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderResource.h" />
-    <ClInclude Include="Source\Engine\Renderer\RenderThread.h" />
+    <ClInclude Include="Source\Engine\Core\RenderThread.h" />
     <ClInclude Include="Source\Engine\Renderer\SceneRendering.h" />
     <ClInclude Include="Source\Engine\Renderer\Texture.h" />
     <ClInclude Include="Source\Engine\Renderer\Transform.h" />

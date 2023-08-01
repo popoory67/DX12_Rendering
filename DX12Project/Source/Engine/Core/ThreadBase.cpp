@@ -1,41 +1,24 @@
 #include "ThreadBase.h"
-#include <thread>
-#include <assert.h>
+#include "Global.h"
 
-WindowsThread::~WindowsThread()
+// It would be much better to be abstracted depending on target platforms.
+// More specifically if I would say my idea,
+// WindowsThread need to be created by another class that selects and manages platforms.
+// However, this project is for DirectX 12, so I didn't think other platforms so far.
+#include "WindowsThread.h"
+using ProcessPlatform = WindowsThread;
+
+GenericThread* GenericThread::Create(Task* InAction, ThreadPriority InPriority)
 {
-    //Thread.join();
-}
+    GenericThread* newThread = ProcessPlatform::CreateThread();
 
-WindowsThread* WindowsThread::CreateThread()
-{
-    return new WindowsThread();
-}
-
-void WindowsThread::Suspend()
-{
-
-}
-
-void WindowsThread::Kill()
-{
-
-}
-
-bool WindowsThread::CreateInternal(Task* InAction, ThreadPriority InPriority)
-{
-    assert(InAction);
-    Action = InAction;
-
-    Thread = std::thread{ &WindowsThread::ThreadProc, this };
-
-    return true;
-}
-
-void WindowsThread::ThreadProc()
-{
-    if (Action->Init() == true)
+    if (newThread)
     {
-        Action->Run();
+        bool bValid = newThread->CreateInternal(InAction, InPriority);
+        if (!bValid)
+        {
+            SafeDelete(newThread);
+        }
     }
+    return newThread;
 }

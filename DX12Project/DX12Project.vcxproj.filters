@@ -166,7 +166,8 @@
     <ClCompile Include="Source\Engine\Core\ThreadBase.cpp" />
     <ClCompile Include="Source\Engine\Renderer\RenderResource.cpp" />
     <ClCompile Include="Source\Engine\Object\Scene.cpp" />
-    <ClCompile Include="Source\Engine\Renderer\RenderThread.cpp" />
+    <ClCompile Include="Source\Engine\Core\RenderThread.cpp" />
+    <ClCompile Include="Source\Engine\Core\WindowsThread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3DUtil.h">
@@ -294,8 +295,9 @@
     <ClInclude Include="Source\Engine\Renderer\RenderResource.h" />
     <ClInclude Include="Source\Engine\Object\Scene.h" />
     <ClInclude Include="Source\Engine\Core\Global.h" />
-    <ClInclude Include="Source\Engine\Renderer\RenderThread.h" />
+    <ClInclude Include="Source\Engine\Core\RenderThread.h" />
     <ClInclude Include="Source\Engine\Core\TaskGraph.h" />
+    <ClInclude Include="Source\Engine\Core\WindowsThread.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" />

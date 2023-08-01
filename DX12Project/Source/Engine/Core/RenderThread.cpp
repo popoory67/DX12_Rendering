@@ -11,7 +11,7 @@
 // dummy
 #include "../TestScene.h"
 
-WindowsThread* GRenderThread = nullptr;
+GenericThread* GRenderThread = nullptr;
 Task* GRenderWorker = nullptr;
 
 class RenderWorker : public Task
@@ -79,14 +79,13 @@ namespace RenderThread
     {
         GRenderWorker = new RenderWorker();
 
-        GRenderThread = WindowsThread::Create(GRenderWorker);
-
+        GRenderThread = GenericThread::Create(GRenderWorker);
 
     }
 
     void StopRenderThread()
     {
-        SafeDelete(GRenderWorker);
-        SafeDelete(GRenderThread);
+        GRenderWorker = nullptr;
+        GRenderThread = nullptr;
     }
 };

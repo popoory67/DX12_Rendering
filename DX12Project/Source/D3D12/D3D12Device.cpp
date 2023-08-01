@@ -15,6 +15,9 @@ D3D12Device::D3D12Device()
 
 D3D12Device::~D3D12Device()
 {
+	SafeDelete(CommandListExecutor);
+    SafeDelete(CommandList);
+    SafeDelete(PipelineStateCache);
 }
 
 Microsoft::WRL::ComPtr<ID3D12Device> D3D12Device::GetDevice() const

@@ -10,6 +10,11 @@ D3D12CommandListExecutor::D3D12CommandListExecutor(D3D12Device* InDevice)
 
 }
 
+D3D12CommandListExecutor::~D3D12CommandListExecutor()
+{
+	SafeDelete(Fence);
+}
+
 void D3D12CommandListExecutor::Initialize()
 {
 	Fence = new D3D12Fence(GetParent());

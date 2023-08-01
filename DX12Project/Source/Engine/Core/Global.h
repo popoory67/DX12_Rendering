@@ -1,5 +1,5 @@
 #pragma once
 #include "ThreadBase.h"
 
-extern WindowsThread* GRenderThread;
+extern GenericThread* GRenderThread;
 extern Task* GRenderWorker;

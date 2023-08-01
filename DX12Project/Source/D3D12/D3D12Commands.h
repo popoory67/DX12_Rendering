@@ -142,7 +142,7 @@ class D3D12CommandListExecutor : public RHICommandListExecutor, public D3D12Api
 public:
 	D3D12CommandListExecutor() = delete;
 	explicit D3D12CommandListExecutor(D3D12Device* InDevice);
-	virtual ~D3D12CommandListExecutor() = default;
+	virtual ~D3D12CommandListExecutor();
 
 	void Initialize();
 

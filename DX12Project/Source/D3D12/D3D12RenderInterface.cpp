@@ -13,7 +13,7 @@ D3D12RHI::D3D12RHI()
 
 D3D12RHI::~D3D12RHI()
 {
-
+	Destroy();
 }
 
 void D3D12RHI::Initialize()
@@ -27,7 +27,7 @@ void D3D12RHI::Initialize()
 
 void D3D12RHI::Destroy()
 {
-
+	SafeDelete(CurrentDevice);
 }
 
 void D3D12RHI::ResetCommandList()
