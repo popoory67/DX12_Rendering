@@ -51,7 +51,7 @@ class D3D12CommandList : public RHICommandList, public D3D12Api
 public:
 	D3D12CommandList() = delete;
 	explicit D3D12CommandList(D3D12Device* InDevice);
-	virtual ~D3D12CommandList() = default;
+	virtual ~D3D12CommandList();
 
 	constexpr ComPtr<ID3D12GraphicsCommandList>& Get()
 	{

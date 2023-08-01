@@ -13,6 +13,12 @@ D3D12CommandList::D3D12CommandList(D3D12Device* InDevice)
 
 }
 
+D3D12CommandList::~D3D12CommandList()
+{
+    SafeDelete(CommandListAllocator);
+    SafeDelete(Fence);
+}
+
 void D3D12CommandList::Reset()
 {
 	// GPU가 command list의 명령을 모두 처리한 후에 리셋

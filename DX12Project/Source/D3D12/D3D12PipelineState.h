@@ -84,7 +84,7 @@ public:
 	void SetIndexBuffer();
 	
 	void CreateAndAddCache(const D3D12GraphicsPipelineState::Desc& InDesc);
-	D3D12PipelineState* FindCache(const D3D12GraphicsPipelineState::Desc& InDesc);
+	std::weak_ptr<D3D12PipelineState> FindCache(const D3D12GraphicsPipelineState::Desc& InDesc);
 
 private:
 	
@@ -105,5 +105,5 @@ private:
 
 	} PipelineStateCache;
 
-	std::unordered_map<D3D12GraphicsPipelineState::Desc, D3D12PipelineState*, D3D12GraphicsPipelineState::Hash, D3D12GraphicsPipelineState::HashCompare> PipelineStateCaches;
+	std::unordered_map<D3D12GraphicsPipelineState::Desc, std::shared_ptr<D3D12PipelineState>, D3D12GraphicsPipelineState::Hash, D3D12GraphicsPipelineState::HashCompare> PipelineStateCaches;
 };

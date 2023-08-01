@@ -73,7 +73,7 @@ int WindowMain::Run()
 {
 	MSG msg = { 0 };
 
-	GetTimer().Reset();
+	ResetTimer();
 
 	while (msg.message != WM_QUIT)
 	{
@@ -86,7 +86,7 @@ int WindowMain::Run()
 		// Otherwise, do animation/game stuff.
 		else
 		{
-			GetTimer().Tick();
+			TickTimer();
 
 			if (!IsPaused)
 			{
@@ -98,6 +98,10 @@ int WindowMain::Run()
 			}
 		}
 	}
+
+#if defined(DEBUG) | defined(_DEBUG)
+    _CrtSetBreakAlloc(162);
+#endif
 
 	return (int)msg.wParam;
 }

@@ -56,6 +56,7 @@ public:
 	D3D12Api& operator=(const D3D12Api&) = delete;
 
 	explicit D3D12Api(D3D12Device* InParent);
+	virtual ~D3D12Api();
 
 	ID3D12Device* GetDevice() const;
 

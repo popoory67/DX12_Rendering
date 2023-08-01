@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <memory>
 
 class Application
 {
@@ -10,7 +11,8 @@ public:
 	bool Initialize();
 	virtual int Run() = 0;
 
-	class GameTimer& GetTimer() const;
+	void ResetTimer() const;
+	void TickTimer() const;
 
 	static void* GetWindowHandle();
 
@@ -22,4 +24,7 @@ protected:
 	bool IsPaused = false;
 
 	static void* MainWindowHandle;
+
+private:
+	std::unique_ptr<class GameTimer> Timer;
 };

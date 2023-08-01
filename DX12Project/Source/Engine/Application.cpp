@@ -3,6 +3,7 @@
 #include "CommandList.h"
 #include "Viewport.h"
 #include "RenderThread.h"
+#include "GameTimer.h"
 
 void* Application::MainWindowHandle = nullptr;
 
@@ -11,7 +12,7 @@ Application::Application()
 	, ClientWidth(800)
 	, ClientHeight(600)
 {
-
+    Timer = std::make_unique<GameTimer>();
 }
 
 Application::~Application()
@@ -31,9 +32,14 @@ int Application::Run()
 	return 1;
 }
 
-GameTimer& Application::GetTimer() const
+void Application::ResetTimer() const
 {
-	return *InputManager::Get().GetTimer();
+	Timer->Reset();
+}
+
+void Application::TickTimer() const
+{
+	Timer->Tick();
 }
 
 void* Application::GetWindowHandle()

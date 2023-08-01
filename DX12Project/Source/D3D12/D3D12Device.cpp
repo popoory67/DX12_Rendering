@@ -91,13 +91,13 @@ void D3D12Device::Initialize()
 {
 	CreateDevice();
 
-	CommandList = new D3D12CommandList(this);
-	CommandList->Initialize();
+    CommandList = new D3D12CommandList(this);
+    CommandList->Initialize();
 
-	CommandListExecutor = new D3D12CommandListExecutor(this);
-	CommandListExecutor->Initialize();
+    CommandListExecutor = new D3D12CommandListExecutor(this);
+    CommandListExecutor->Initialize();
 
-	GCommandContext.SetCommandList(CommandList);
+    GCommandContext.SetCommandList(CommandList);
 
 	// TODO
 	// The test code that I write down below has to be separated other classes and stored as a CSV file.
@@ -192,6 +192,11 @@ D3D12Api::D3D12Api(D3D12Device* InParent)
     : Parent(InParent)
 {
     assert(InParent);
+}
+
+D3D12Api::~D3D12Api()
+{
+	Parent = nullptr;
 }
 
 ID3D12Device* D3D12Api::GetDevice() const

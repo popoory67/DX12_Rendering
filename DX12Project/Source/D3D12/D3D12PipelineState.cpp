@@ -18,7 +18,6 @@ D3D12PipelineState::D3D12PipelineState(D3D12Device* InDevice, const D3D12_GRAPHI
 
 D3D12PipelineState::~D3D12PipelineState()
 {
-
 }
 
 void D3D12PipelineState::SetVertexShader(D3D12_SHADER_BYTECODE& InShaderByte)
@@ -61,19 +60,19 @@ void D3D12PipelineStateCache::SetIndexBuffer()
 
 void D3D12PipelineStateCache::CreateAndAddCache(const D3D12GraphicsPipelineState::Desc& InDesc)
 {
-	D3D12PipelineState* pipelineState = new D3D12PipelineState(GetParent(), InDesc);
+	std::shared_ptr<D3D12PipelineState> pipelineState = std::make_shared<D3D12PipelineState>(GetParent(), InDesc);
 	if (pipelineState)
 	{
 		PipelineStateCaches.emplace(InDesc, pipelineState);
 	}
 }
 
-D3D12PipelineState* D3D12PipelineStateCache::FindCache(const D3D12GraphicsPipelineState::Desc& InDesc)
+std::weak_ptr<D3D12PipelineState> D3D12PipelineStateCache::FindCache(const D3D12GraphicsPipelineState::Desc& InDesc)
 {
 	auto it = PipelineStateCaches.find(InDesc);
 	if (it != PipelineStateCaches.cend())
 	{
 		return it->second;
 	}
-	return nullptr;
+	return {};
 }

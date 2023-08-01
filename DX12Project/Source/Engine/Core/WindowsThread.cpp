@@ -3,7 +3,11 @@
 
 WindowsThread::~WindowsThread()
 {
-    //Thread.join();
+    if (Thread.joinable())
+    {
+        Thread.join();
+        SafeDelete(Action);
+    }
 }
 
 GenericThread* WindowsThread::CreateThread()
