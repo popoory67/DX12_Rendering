@@ -99,9 +99,5 @@ int WindowMain::Run()
 		}
 	}
 
-#if defined(DEBUG) | defined(_DEBUG)
-    _CrtSetBreakAlloc(162);
-#endif
-
 	return (int)msg.wParam;
 }

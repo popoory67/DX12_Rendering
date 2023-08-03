@@ -8,6 +8,11 @@
 #include "WindowsThread.h"
 using ProcessPlatform = WindowsThread;
 
+GenericThread::~GenericThread()
+{
+    SafeDelete(Action);
+}
+
 GenericThread* GenericThread::Create(Task* InAction, ThreadPriority InPriority)
 {
     GenericThread* newThread = ProcessPlatform::CreateThread();

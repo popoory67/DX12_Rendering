@@ -66,9 +66,6 @@
     <ClCompile Include="Source\D3D12\D3D12PipelineState.cpp">
       <Filter>D3D12\Private</Filter>
     </ClCompile>
-    <ClCompile Include="Source\D3D12\D3D12BinaryLargeObject.cpp">
-      <Filter>D3D12\Private</Filter>
-    </ClCompile>
     <ClCompile Include="Source\D3D12\D3D12RootSignature.cpp">
       <Filter>D3D12\Private</Filter>
     </ClCompile>
@@ -201,9 +198,6 @@
       <Filter>D3D12\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\D3D12\D3D12PipelineState.h">
-      <Filter>D3D12\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\D3D12\D3D12BinaryLargeObject.h">
       <Filter>D3D12\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\D3D12\D3D12RootSignature.h">

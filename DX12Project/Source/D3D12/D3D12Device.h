@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d12.h>
 #include <dxgi1_4.h>
+#include <unordered_map>
 #include "d3dx12.h"
 
 using namespace Microsoft::WRL;
@@ -14,6 +15,7 @@ using namespace Microsoft::WRL;
 class D3D12CommandList;
 class D3D12CommandListExecutor;
 class D3D12PipelineStateCache;
+class D3D12ResourceManager;
 
 class D3D12Device
 {
@@ -45,6 +47,7 @@ protected:
 	D3D12PipelineStateCache* PipelineStateCache = nullptr;
 
 	D3D_ROOT_SIGNATURE_VERSION RootSignatureVersion;
+	D3D12ResourceManager* ResourceManager = nullptr;
 };
 
 // this class can just make sure that it's a D3D12 api.
@@ -68,4 +71,18 @@ protected:
 
 private:
 	D3D12Device* Parent = nullptr;
+};
+
+class D3D12ResourceManager
+{
+public:
+	D3D12ResourceManager() = default;
+	~D3D12ResourceManager() = default;
+
+	void AddRootSignature(int InKey, const std::shared_ptr<class D3D12RootSignature>& InSignature);
+
+private:
+
+private:
+	std::unordered_map<int, std::shared_ptr<class D3D12RootSignature>> RootSignatures;
 };

@@ -24,10 +24,8 @@ public:
         rhi->Initialize();
 
         // create viewport
-        if (RHIViewport* viewport = rhi->CreateViewport(Application::GetWindowHandle(), 100, 100/*MainWindowHandle, ClientWidth, ClientHeight*/))
-        {
-            ViewportRenderer = std::make_unique<Viewport>(std::move(viewport));
-        }
+        RHIViewport* viewport = rhi->CreateViewport(Application::GetWindowHandle(), 100, 100/*MainWindowHandle, ClientWidth, ClientHeight*/);
+        ViewportRenderer = std::make_unique<Viewport>(std::move(viewport));
 
         // create scene renderer
         Renderer = std::make_unique<SceneRenderer>(rhi);

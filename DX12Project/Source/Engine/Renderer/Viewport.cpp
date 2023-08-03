@@ -3,7 +3,7 @@
 #include "CommandList.h"
 
 Viewport::Viewport(RHIViewport*&& InViewportRHI)
-	: ViewportInterface(InViewportRHI)
+	: ViewportInterface(std::move(InViewportRHI))
 {
 
 }

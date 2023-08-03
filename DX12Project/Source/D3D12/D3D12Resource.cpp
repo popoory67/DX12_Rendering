@@ -16,7 +16,7 @@ D3D12Resource::D3D12Resource(D3D12Device* InDevice, ID3D12Resource* InResource)
 
 D3D12Resource::~D3D12Resource()
 { 
-	ReleaseCom(Resource); 
+	Reset();
 }
 
 void D3D12Resource::Reset()

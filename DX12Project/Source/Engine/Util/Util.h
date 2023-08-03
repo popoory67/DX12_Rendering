@@ -20,7 +20,7 @@ inline std::wstring AnsiToWString(const std::string& str)
 #endif
 
 #ifndef SafeDelete
-#define SafeDelete(x) { delete(x); x = nullptr; }
+#define SafeDelete(x) { if (x) { delete(x); x = nullptr; } }
 #endif
 
 #ifndef SafeDeleteArray

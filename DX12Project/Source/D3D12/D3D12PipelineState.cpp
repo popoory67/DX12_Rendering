@@ -2,7 +2,6 @@
 #include "D3D12Device.h"
 #include "D3D12Viewport.h"
 #include "D3D12Commands.h"
-#include "D3D12BinaryLargeObject.h"
 #include "D3D12RootSignature.h"
 #include "D3DUtil.h"
 
@@ -20,12 +19,12 @@ D3D12PipelineState::~D3D12PipelineState()
 {
 }
 
-void D3D12PipelineState::SetVertexShader(D3D12_SHADER_BYTECODE& InShaderByte)
+void D3D12PipelineState::SetVertexShader(const D3D12_SHADER_BYTECODE& InShaderByte)
 {
 	memcpy_s(&PipelineStateDesc.VS, sizeof(PipelineStateDesc.VS) , &InShaderByte, sizeof(InShaderByte));
 }
 
-void D3D12PipelineState::SetPixelShader(D3D12_SHADER_BYTECODE& InShaderByte)
+void D3D12PipelineState::SetPixelShader(const D3D12_SHADER_BYTECODE& InShaderByte)
 {
 	memcpy_s(&PipelineStateDesc.PS, sizeof(PipelineStateDesc.PS), &InShaderByte, sizeof(InShaderByte));
 }

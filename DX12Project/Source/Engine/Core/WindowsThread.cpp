@@ -6,7 +6,6 @@ WindowsThread::~WindowsThread()
     if (Thread.joinable())
     {
         Thread.join();
-        SafeDelete(Action);
     }
 }
 

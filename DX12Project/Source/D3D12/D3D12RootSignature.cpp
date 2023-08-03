@@ -1,6 +1,5 @@
 #include "D3D12RootSignature.h"
 #include "D3D12Device.h"
-#include "D3D12BinaryLargeObject.h"
 #include "D3DUtil.h"
 
 D3D12RootSignature::D3D12RootSignature(D3D12Device* InDevice, const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& InDesc)
@@ -9,15 +8,15 @@ D3D12RootSignature::D3D12RootSignature(D3D12Device* InDevice, const D3D12_VERSIO
     ComPtr<ID3DBlob> error;
 	const D3D_ROOT_SIGNATURE_VERSION version = GetParent()->GetRootSignatureVersion();
 
-	HRESULT serializeHR = D3DX12SerializeVersionedRootSignature(&InDesc, version, &RootSignatureBlob, &error);
-	if (error)
-	{
-		::OutputDebugStringA((char*)error->GetBufferPointer());
-		ThrowIfFailed(serializeHR);
-	}
+    HRESULT serializeHR = D3DX12SerializeVersionedRootSignature(&InDesc, version, &RootSignatureBlob, &error);
+    if (error)
+    {
+        ::OutputDebugStringA((char*)error->GetBufferPointer());
+        ThrowIfFailed(serializeHR);
+    }
 
-	ThrowIfFailed(GetDevice()->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&
-		RootSignature)));
+    ThrowIfFailed(GetDevice()->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&
+        RootSignature)));
 }
 
 D3D12RootSignature::~D3D12RootSignature()

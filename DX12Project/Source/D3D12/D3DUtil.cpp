@@ -107,3 +107,30 @@ ComPtr<ID3DBlob> D3DUtil::CompileShader(
 
 	return byteCode;
 }
+
+namespace D3D12
+{
+	D3D12_SHADER_BYTECODE CompileShader(const std::wstring& InFilename, const D3D_SHADER_MACRO* InShaderMacros, const std::string& InEntrypoint, const std::string& InTarget)
+	{
+		UINT compileFlags = 0;
+#if defined(DEBUG) || defined(_DEBUG)  
+		compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+		HRESULT hr = S_OK;
+
+		ComPtr<ID3DBlob> byteCode = nullptr;
+		ComPtr<ID3DBlob> errors;
+
+		hr = D3DCompileFromFile(InFilename.c_str(), InShaderMacros, D3D_COMPILE_STANDARD_FILE_INCLUDE, InEntrypoint.c_str(), InTarget.c_str(), compileFlags, 0, &byteCode, &errors);
+
+		if (errors != nullptr)
+		{
+			OutputDebugStringA((char*)errors->GetBufferPointer());
+		}
+
+		ThrowIfFailed(hr);
+
+		return CD3DX12_SHADER_BYTECODE(byteCode->GetBufferPointer(), byteCode->GetBufferSize());
+	}
+};

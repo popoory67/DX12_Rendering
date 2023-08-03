@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\D3D12\D3D12BinaryLargeObject.cpp" />
     <ClCompile Include="Source\D3D12\D3D12CommandAllocator.cpp" />
     <ClCompile Include="Source\D3D12\D3D12CommandExecutor.cpp" />
     <ClCompile Include="Source\D3D12\D3D12CommandList.cpp" />
@@ -68,7 +67,6 @@
     <ClCompile Include="TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\D3D12\D3D12BinaryLargeObject.h" />
     <ClInclude Include="Source\D3D12\D3D12Commands.h" />
     <ClInclude Include="Source\D3D12\D3D12Descriptor.h" />
     <ClInclude Include="Source\D3D12\D3D12Device.h" />

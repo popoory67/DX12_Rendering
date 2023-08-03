@@ -5,6 +5,8 @@
 class Task
 {
 public:
+	virtual ~Task() = default;
+
 	virtual bool Init() = 0;
 	virtual void Run() = 0;
 	virtual void Stop()

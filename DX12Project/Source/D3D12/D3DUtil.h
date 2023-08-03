@@ -23,10 +23,6 @@ class DxException;
 }
 #endif
 
-#ifndef ReleaseCom
-#define ReleaseCom(x) { if(x){ x->Release(); x = nullptr; } }
-#endif
-
 class DxException
 {
 public:
@@ -77,3 +73,7 @@ public:
 		const std::string& target);
 };
 
+namespace D3D12
+{
+	D3D12_SHADER_BYTECODE CompileShader(const std::wstring& InFilename, const D3D_SHADER_MACRO* InShaderMacros, const std::string& InEntrypoint, const std::string& InTarget);
+};

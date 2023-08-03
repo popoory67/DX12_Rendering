@@ -5,7 +5,6 @@
 #include "Util.h"
 
 // test
-#include "D3D12BinaryLargeObject.h"
 #include "D3D12RootSignature.h"
 #include "D3D12Viewport.h"
 
@@ -18,6 +17,7 @@ D3D12Device::~D3D12Device()
 	SafeDelete(CommandListExecutor);
     SafeDelete(CommandList);
     SafeDelete(PipelineStateCache);
+    SafeDelete(ResourceManager);
 }
 
 Microsoft::WRL::ComPtr<ID3D12Device> D3D12Device::GetDevice() const
@@ -99,14 +99,14 @@ void D3D12Device::Initialize()
 
     GCommandContext.SetCommandList(CommandList);
 
+	ResourceManager = new D3D12ResourceManager();
+
 	// TODO
 	// The test code that I write down below has to be separated other classes and stored as a CSV file.
 	// What I need to do is to create a reader/writer for an Excel file.
 	// Additionally, pipeline state object will read the file on the step of loading resources.
 	PipelineStateCache = new D3D12PipelineStateCache(this);
 	{
-		D3D12GraphicsPipelineState::Desc PipelineStateDesc{};
-
 		// root signature
         CD3DX12_DESCRIPTOR_RANGE1 ranges[3];
         ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
@@ -143,8 +143,8 @@ void D3D12Device::Initialize()
         }
         RootSignatureVersion = rootSignatureCaps.HighestVersion;
 
-		D3D12RootSignature* pRootSignature = new D3D12RootSignature(this, rootSignatureDesc);
-		assert(pRootSignature);
+		std::shared_ptr<D3D12RootSignature> rootSignature = std::make_shared<D3D12RootSignature>(this, rootSignatureDesc);
+		ResourceManager->AddRootSignature(1, rootSignature);
 
 		// resource
 		std::vector<D3D12_INPUT_ELEMENT_DESC> InputLayout =
@@ -152,12 +152,6 @@ void D3D12Device::Initialize()
             { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
             { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 		};
-
-        D3D12VertexShaderObject* pDefaultVS = new D3D12VertexShaderObject();
-        assert(pDefaultVS);
-
-        D3D12PixelShaderObject* pDefaultPS = new D3D12PixelShaderObject();
-        assert(pDefaultPS);
 
         // triangle
         //VertexStream triangleVertices =
@@ -169,10 +163,35 @@ void D3D12Device::Initialize()
 
 		//const UINT size = triangleVertices.size();
 
+        // we need PSO cache
+        ComPtr<ID3DBlob> byteCode = nullptr;
+        ComPtr<ID3DBlob> byteCode2 = nullptr;
+        D3D12_SHADER_BYTECODE VS;
+        D3D12_SHADER_BYTECODE PS;
+		{
+            UINT compileFlags = 0;
+#if defined(DEBUG) || defined(_DEBUG)  
+            compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+            HRESULT hr = S_OK;
+            ComPtr<ID3DBlob> errors;
+
+            hr = D3DCompileFromFile(L"Shaders\\TestShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "VS", "vs_5_1", compileFlags, 0, &byteCode, &errors);
+
+            VS = CD3DX12_SHADER_BYTECODE(byteCode->GetBufferPointer(), byteCode->GetBufferSize());
+
+            hr = D3DCompileFromFile(L"Shaders\\TestShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "PS", "ps_5_1", compileFlags, 0, &byteCode2, &errors);
+
+            PS = CD3DX12_SHADER_BYTECODE(byteCode2->GetBufferPointer(), byteCode2->GetBufferSize());
+		}
+
+        D3D12GraphicsPipelineState::Desc PipelineStateDesc{};
+
 		PipelineStateDesc.InputLayout = { InputLayout.data(), (UINT)InputLayout.size() };
-		PipelineStateDesc.pRootSignature = pRootSignature->GetInterface();
-		PipelineStateDesc.VS = { pDefaultVS->GetShaderBytecode() };
-		PipelineStateDesc.PS = { pDefaultPS->GetShaderBytecode() };
+		PipelineStateDesc.pRootSignature = rootSignature->GetInterface();
+        PipelineStateDesc.VS = VS;//D3D12::CompileShader(L"Shaders\\TestShader.hlsl", nullptr, "VS", "vs_5_1");
+        PipelineStateDesc.PS = PS;// D3D12::CompileShader(L"Shaders\\TestShader.hlsl", nullptr, "PS", "ps_5_1");
 		PipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		PipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		PipelineStateDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
@@ -203,4 +222,9 @@ ID3D12Device* D3D12Api::GetDevice() const
 {
     assert(Parent->GetDevice());
     ReturnCheckAssert(Parent->GetDevice().Get());
+}
+
+void D3D12ResourceManager::AddRootSignature(int InKey, const std::shared_ptr<D3D12RootSignature>& InSignature)
+{
+	RootSignatures[InKey] = InSignature;
 }

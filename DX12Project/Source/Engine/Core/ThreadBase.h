@@ -14,7 +14,7 @@ enum class ThreadPriority : unsigned
 class GenericThread : public Uncopyable
 {
 public:
-	virtual ~GenericThread() = default;
+	virtual ~GenericThread();
 
 	static GenericThread* Create(Task* InAction, ThreadPriority InPriority = ThreadPriority::Normal);
 

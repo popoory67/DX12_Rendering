@@ -15,8 +15,8 @@ public:
 	ComPtr<ID3D12PipelineState> Get() { return PipelineState; }
 	ID3D12PipelineState* GetInterface() { return PipelineState.Get(); }
 
-	void SetVertexShader(D3D12_SHADER_BYTECODE& InShaderByte);
-	void SetPixelShader(D3D12_SHADER_BYTECODE& InShaderByte);
+	void SetVertexShader(const D3D12_SHADER_BYTECODE& InShaderByte);
+	void SetPixelShader(const D3D12_SHADER_BYTECODE& InShaderByte);
 
 private:
 	ComPtr<ID3D12PipelineState> PipelineState = nullptr;

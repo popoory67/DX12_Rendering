@@ -53,10 +53,10 @@ D3D12Viewport::~D3D12Viewport()
 {
 	WindowHandle = nullptr;
 
-	for (int i = 0; i < SwapChainBufferCount; ++i)
-	{
-		SafeDelete(Fence[i]);
-	}
+    for (int i = 0; i < SwapChainBufferCount; ++i)
+    {
+        SafeDelete(Fence[i]);
+    }
 }
 
 std::shared_ptr<D3D12Resource> D3D12Viewport::GetCurrentBackBuffer() const
