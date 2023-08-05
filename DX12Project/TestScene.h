@@ -15,16 +15,7 @@ public:
 	virtual ~TestScene();
 
 	virtual void Start();
-	virtual void Update();
-	virtual void End();
 
 private:
-	void BuildRenderItems();
-
-private:
-	std::shared_ptr<class TransformSystem> TestTransform;
-
-	// Render items
-	std::shared_ptr<class MaterialComponent> MaterialData;
-	std::shared_ptr<class PrimitiveComponent> PrimitiveData;
+	std::shared_ptr<Entity> Object;
 };

@@ -4,7 +4,6 @@
 class MaterialComponent : public RenderComponent
 {
 public:
-	MaterialComponent();
 	virtual ~MaterialComponent();
 
 	int GetDiffuseSrvHeapIndex() const { return DiffuseSrvHeapIndex; }

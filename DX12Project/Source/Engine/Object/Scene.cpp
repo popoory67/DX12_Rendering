@@ -3,6 +3,9 @@
 #include "TaskGraph.h"
 #include "ThreadBase.h"
 #include "RenderThread.h"
+#include "RenderPass.h"
+#include "CommandList.h"
+#include "Entity.h"
 
 Scene::Scene()
 {
@@ -15,7 +18,6 @@ Scene::~Scene()
 
 void Scene::Start()
 {
-    EntityInterface.reset(new EntityQuery());
 }
 
 void Scene::Update()
@@ -26,15 +28,12 @@ void Scene::End()
 {
 }
 
-void Scene::AddEntity(Entity* InEntity)
+void Scene::AddEntity(std::shared_ptr<Entity> InEntity)
 {
-	EntityInterface->AddEntity(InEntity);
+	assert(InEntity.use_count() > 0);
 
-	auto it = EntityVisibility.find(InEntity->GetId());
-	if (it == EntityVisibility.cend())
-	{
-		EntityVisibility.emplace(std::make_pair(InEntity->GetId(), false));
-	}
+	Entities[InEntity->GetId()] = InEntity;
+	EntityVisibility[InEntity->GetId()] = false;
 }
 
 void Scene::AddPrimitive(PrimitiveComponent* InPrimitiveComponent)
@@ -62,23 +61,41 @@ void Scene::UpdateVisibility()
 	}
 }
 
-void Scene::RenderScene()
-{
-	TaskGraphSystem::Get().AddTask<RenderCommand>(std::move([](const RHICommandList& InCommandList)
-	{
-
-	}), ThreadType::Render);
-
-	// create mesh batches
-	
-
-    // send to render thread with primitive info
-	// lambda to render thread
-}
-
 bool Scene::IsVisible(unsigned InId)
 {
 	// Visible test
 
 	return false;
+}
+
+void Scene::RenderScene()
+{
+    // TODO : this is test code
+    // 1. Mesh pass
+    {
+        // Create mesh batches
+        // Send to render thread with the primitive info
+		MeshRenderBatch batch;
+        for (const auto& it : Primitives)
+        {
+            // If the primitive is invisible, this scope is skipped.
+            if (it.second == 0)
+            {
+                continue;
+            }
+
+			batch.Elements.emplace_back(std::move(it.first->PrimitiveData));
+        }
+
+        // Lambda moves to render thread
+        TaskGraphSystem::Get().AddTask<RenderCommand>([meshBatch = std::move(batch)](const RHICommandList& InCommandList) mutable
+        {
+			MeshRenderPass* meshPass = new MeshRenderPass();
+			meshPass->AddMeshBatch(std::move(meshBatch));
+
+			RenderGraph::Get().AddTask(std::move(meshPass));
+
+        }, ThreadType::Render);
+    }
+
 }

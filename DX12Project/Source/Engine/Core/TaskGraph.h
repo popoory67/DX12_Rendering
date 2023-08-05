@@ -3,16 +3,6 @@
 #include <unordered_map>
 #include <assert.h>
 
-class Task
-{
-public:
-	virtual ~Task() = default;
-
-	virtual bool Init() = 0;
-	virtual void Run() = 0;
-	virtual void Stop() {}
-};
-
 class TaskGraphBase : public Uncopyable
 {
 	friend class TaskGraphSystem;
@@ -53,6 +43,9 @@ public:
 
 	void Execute()
 	{
+		// TODO
+		// concurrency
+
 		if (Prerequisite && Prerequisite->IsCompleted())
 		{
 			Prerequisite->Execute();
@@ -69,7 +62,7 @@ public:
 		return bCompleted;
 	}
 
-private:
+protected:
 	TaskType* TaskInternal = nullptr;
 
 	bool bCompleted = false;

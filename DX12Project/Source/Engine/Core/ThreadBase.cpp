@@ -1,6 +1,5 @@
 #include "ThreadBase.h"
 #include "Global.h"
-#include "TaskGraph.h"
 
 // It would be much better to be abstracted depending on target platforms.
 // More specifically if I would say my idea,
@@ -14,13 +13,13 @@ GenericThread::~GenericThread()
     SafeDelete(Action);
 }
 
-GenericThread* GenericThread::Create(Task* InAction, ThreadPriority InPriority)
+GenericThread* GenericThread::Create(Task* InAction, ThreadType InThreadType, ThreadPriority InPriority)
 {
     GenericThread* newThread = ProcessPlatform::CreateThread();
 
     if (newThread)
     {
-        bool bValid = newThread->CreateInternal(InAction, InPriority);
+        bool bValid = newThread->CreateInternal(InAction, InThreadType, InPriority);
         if (!bValid)
         {
             SafeDelete(newThread);

@@ -27,6 +27,10 @@ struct MeshRenderBatchElement
 // The meshes that have the same options will be processed.
 struct MeshRenderBatch : public RenderBatch
 {
+	MeshRenderBatch() = default;
+	MeshRenderBatch(std::vector<MeshRenderBatchElement>&& InMeshStream);
+	virtual ~MeshRenderBatch() = default;
+
 	std::vector<MeshRenderBatchElement> Elements;
 };
 
@@ -38,9 +42,7 @@ public:
 	virtual ~MeshRenderPass() = default;
 
 	void AddMeshBatch(MeshRenderBatch&& InBatch);
-
-protected:
-	void Process(class RHICommandList& InCommandList) override;
+	void DoTask() override;
 
 private:
 	std::vector<MeshRenderBatch> Batches;

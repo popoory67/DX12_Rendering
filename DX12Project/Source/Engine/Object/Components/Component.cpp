@@ -1,16 +1,24 @@
 #include "Component.h"
+#include "Scene.h"
 
-class Scene* Component::GetScene() const
+Component::Component(Scene* InScene, Component* InParent)
+    : CurrentScene(InScene)
+    , Parent(InParent)
 {
-    return nullptr;
+
 }
 
-void Component::Register(class Scene* InScene)
+Scene* Component::GetScene() const
+{
+    return CurrentScene;
+}
+
+void Component::Register(Scene* InScene)
 {
     CurrentScene = InScene;
 }
 
 Component* Component::GetParent() const
 {
-    return nullptr;
+    return Parent;
 }

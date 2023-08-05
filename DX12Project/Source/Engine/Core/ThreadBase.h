@@ -1,6 +1,5 @@
 #pragma once
 #include "Util.h"
-#include "TaskGraph.h"
 
 enum class ThreadType : int
 {
@@ -18,22 +17,34 @@ enum class ThreadPriority : unsigned
 	Immediate,
 };
 
+class Task
+{
+public:
+	virtual ~Task() = default;
+
+	virtual bool Init() = 0;
+	virtual void Run() = 0;
+	virtual void Stop() {}
+};
+
 class GenericThread : public Uncopyable
 {
 public:
 	virtual ~GenericThread();
 
-	static GenericThread* Create(Task* InAction, ThreadPriority InPriority = ThreadPriority::Normal);
+	static GenericThread* Create(Task* InAction, ThreadType InThreadType, ThreadPriority InPriority = ThreadPriority::Normal);
 
 	virtual void Suspend() = 0;
 	virtual void Kill() = 0;
 
 protected:
-	virtual bool CreateInternal(Task* InAction, ThreadPriority InPriority) = 0;
+	virtual bool CreateInternal(Task* InAction, ThreadType InThreadType, ThreadPriority InPriority) = 0;
 
 protected:
 	Task* Action = nullptr;
+
 	ThreadPriority Priority;
+	ThreadType Type;
 };
 
 // thread pool

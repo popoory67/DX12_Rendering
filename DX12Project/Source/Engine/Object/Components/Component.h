@@ -1,16 +1,12 @@
 #pragma once
 #include "Class.h"
-#include "Scene.h"
-
-struct UploadData
-{
-
-};
+#include <string>
 
 class Component : public BaseClass
 {
 public:
-	Component() = default;
+	Component() = delete;
+	Component(class Scene* InScene, Component* InParent);
 	virtual ~Component() = default;
 
 protected:
@@ -27,4 +23,5 @@ protected:
 
 private:
 	class Scene* CurrentScene = nullptr;
+	class Component* Parent = nullptr;
 };

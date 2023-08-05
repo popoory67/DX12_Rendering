@@ -37,17 +37,11 @@ public:
 		}
 	}
 
-//	int UpdateFrameRate = -1;
-
 private:
 
 	void AddType(ClassType* InType);
 	
 private:
-
-	// Index into GPU constant buffer corresponding to the ObjectCB for this render item.
-//	UINT ObjCBIndex = -1;
-
 	std::vector<ClassType*> EntityTypes;
 	std::vector<std::shared_ptr<class Component>> Components;
 

@@ -24,10 +24,12 @@ void WindowsThread::Kill()
 
 }
 
-bool WindowsThread::CreateInternal(Task* InAction, ThreadPriority InPriority)
+bool WindowsThread::CreateInternal(Task* InAction, ThreadType InThreadType, ThreadPriority InPriority)
 {
     assert(InAction);
+
     Action = InAction;
+    Type = InThreadType;
 
     Thread = std::thread{ &WindowsThread::ThreadProc, this };
 

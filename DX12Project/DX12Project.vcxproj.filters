@@ -120,9 +120,6 @@
     <ClCompile Include="Source\Engine\Object\Entity.cpp">
       <Filter>Engine\Object</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Object\EntityQuery.cpp">
-      <Filter>Engine\Object</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Application.cpp">
       <Filter>Engine\Launch</Filter>
     </ClCompile>
@@ -253,9 +250,6 @@
       <Filter>Engine\Object</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Object\Entity.h">
-      <Filter>Engine\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Object\EntityQuery.h">
       <Filter>Engine\Object</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Application.h">

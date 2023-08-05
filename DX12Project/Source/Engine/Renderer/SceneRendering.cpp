@@ -51,14 +51,6 @@ void SceneRenderer::SetCurrentScene(int InIndex)
 
 bool SceneRenderer::Initialize()
 {
-// 	BuildRootSignature();
-// 	BuildShadersAndInputLayout();
-// 	BuildShapeGeometry();
-// 	BuildMaterials();
-// 	BuildRenderItems();
-// 	BuildFrameResources();
-// 	BuildPSOs();
-
 	return true;
 }
 

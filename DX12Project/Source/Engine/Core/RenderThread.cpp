@@ -2,7 +2,6 @@
 #include "Global.h"
 #include "Application.h"
 #include "ThreadBase.h"
-#include "TaskGraph.h"
 #include "CommandList.h"
 #include "SceneRendering.h"
 #include "Viewport.h"
@@ -33,10 +32,14 @@ public:
         {
             if (Renderer->Initialize())
             {
-                // Create dummy scene
+                // TODO
+                // Scene has to run on the main thread, not the render thread.
+                
                 TestScene* test = new TestScene();
                 Renderer->AddScene(test);
                 Renderer->SetCurrentScene(test->GetSceneId());
+
+                test->Start();
             }
         }
 
@@ -78,7 +81,7 @@ namespace RenderThread
     {
         GRenderWorker = new RenderWorker();
 
-        GRenderThread = GenericThread::Create(GRenderWorker);
+        GRenderThread = GenericThread::Create(GRenderWorker, ThreadType::Render);
 
     }
 

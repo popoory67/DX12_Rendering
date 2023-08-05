@@ -43,7 +43,6 @@
     <ClCompile Include="Source\Engine\Object\Components\PrimitiveComponent.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\RenderComponent.cpp" />
     <ClCompile Include="Source\Engine\Object\Entity.cpp" />
-    <ClCompile Include="Source\Engine\Object\EntityQuery.cpp" />
     <ClCompile Include="Source\Engine\Object\Scene.cpp" />
     <ClCompile Include="Source\Engine\Renderer\CommandList.cpp" />
     <ClCompile Include="Source\Engine\Renderer\GeometryGenerator.cpp" />
@@ -92,7 +91,6 @@
     <ClInclude Include="Source\Engine\Object\Components\PrimitiveComponent.h" />
     <ClInclude Include="Source\Engine\Object\Components\RenderComponent.h" />
     <ClInclude Include="Source\Engine\Object\Entity.h" />
-    <ClInclude Include="Source\Engine\Object\EntityQuery.h" />
     <ClInclude Include="Source\Engine\Object\Scene.h" />
     <ClInclude Include="Source\Engine\Renderer\CommandList.h" />
     <ClInclude Include="Source\Engine\Renderer\GeometryGenerator.h" />

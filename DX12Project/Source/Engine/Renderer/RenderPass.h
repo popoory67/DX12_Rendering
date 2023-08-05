@@ -11,6 +11,9 @@ enum class RenderPassType : unsigned
 // Batching is to process jobs at once, which reduces overhead.
 struct RenderBatch
 {
+public:
+	virtual ~RenderBatch() = default;
+
 protected:
 	int PipelineStateId = -1;
 };
@@ -28,9 +31,7 @@ public:
 
 public:
 	virtual void DoTask() {}
-
-protected:
-	virtual void Process(class RHICommandList& InCommandList) = 0;
+	constexpr int GetPriority() { return Priority; }
 
 protected:
 	int Priority;
@@ -39,5 +40,11 @@ protected:
 
 class RenderGraph : public TaskGraph<RenderPass>
 {
+public:
+	RenderGraph();
+	virtual ~RenderGraph() = default;
 
+	static RenderGraph& Get();
+
+	void AddTask(RenderPass*&& InRenderPass);
 };

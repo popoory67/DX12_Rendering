@@ -7,3 +7,22 @@ RenderPass::RenderPass()
 {
 
 }
+
+RenderGraph::RenderGraph()
+{
+
+}
+
+RenderGraph& RenderGraph::Get()
+{
+    static RenderGraph graphInterface;
+    return graphInterface;
+}
+
+void RenderGraph::AddTask(RenderPass*&& InRenderPass)
+{
+    // TODO
+    // Render pass has a priority, and we need to compare it.
+
+    TaskInternal = InRenderPass;
+}

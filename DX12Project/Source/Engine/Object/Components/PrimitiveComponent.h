@@ -1,7 +1,6 @@
 #pragma once
 #include <d3d12.h>
 #include "RenderComponent.h"
-#include "Util.h"
 #include "Mesh.h"
 
 class PrimitiveBuilder : public Uncopyable
@@ -10,26 +9,33 @@ public:
 	PrimitiveBuilder() = default;
 	virtual ~PrimitiveBuilder() = default;
 
-	virtual void Build(const VertexStream& InVertexStream, class PrimitiveProxy* InProxy);
+	virtual void Build(VertexStream& InVertexStream, class PrimitiveProxy* InProxy);
 };
 
 class PrimitiveProxy
 {
+	friend class PrimitiveBuilder;
+	friend class Scene;
+
 public:
 	PrimitiveProxy() = delete;
-	PrimitiveProxy(PrimitiveComponent* InComponent);
+	PrimitiveProxy(class PrimitiveComponent* InComponent);
 	virtual ~PrimitiveProxy() = default;
 
-	virtual void DrawElements();
+	virtual void DrawElements() {}
 
 private:
-	class PrimitiveComponent* Component;
+	class PrimitiveComponent* OwnerComponent;
+	VertexStream* PrimitiveData;
 };
 
 class PrimitiveComponent : public RenderComponent
 {
+	using Parent = RenderComponent;
+
 public:
-	PrimitiveComponent();
+	PrimitiveComponent() = delete;
+	PrimitiveComponent(class Scene* InScene, Component* InParent);
 	virtual ~PrimitiveComponent();
 	
 	UINT GetIndex() const { return Index; }
@@ -49,7 +55,7 @@ public:
 	PrimitiveProxy* Proxy = nullptr;
 
 protected:
-	PrimitiveBuilder* Builder = nullptr;
+	static PrimitiveBuilder* Builder;
 
 private:
 	UINT Index = 0;

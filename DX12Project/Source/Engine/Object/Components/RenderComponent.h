@@ -5,17 +5,13 @@
 #include <unordered_map>
 #include <any>
 
-// For using data mirroring
-// The data must be used to connect from Component and Render update
-struct RenderUploadData : public UploadData
-{
-
-};
-
 class RenderComponent : public Component
 {
+	using Parent = Component;
+
 public:
-	RenderComponent() = default;
+	RenderComponent() = delete;
+	RenderComponent(class Scene* InScene, Component* InParent);
 	virtual ~RenderComponent() = default;
 
 	template<typename DataType>

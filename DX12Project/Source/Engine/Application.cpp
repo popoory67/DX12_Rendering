@@ -3,6 +3,8 @@
 #include "CommandList.h"
 #include "Viewport.h"
 #include "RenderThread.h"
+#include "TaskGraph.h"
+#include "ThreadBase.h"
 #include "GameTimer.h"
 
 void* Application::MainWindowHandle = nullptr;
@@ -29,6 +31,8 @@ bool Application::Initialize()
 
 int Application::Run()
 {
+	TaskGraphSystem::Get().Execute(ThreadType::Render);
+
 	return 1;
 }
 
