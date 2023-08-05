@@ -15,7 +15,7 @@ public:
 	void Suspend() override;
 	void Kill() override;
 
-	bool CreateInternal(Task* InAction, ThreadPriority InPriority) override;
+	bool CreateInternal(class Task* InAction, ThreadPriority InPriority) override;
 
 protected:
 	void ThreadProc();

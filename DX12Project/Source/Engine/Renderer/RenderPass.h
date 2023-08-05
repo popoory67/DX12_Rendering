@@ -1,4 +1,5 @@
 #pragma once
+#include "TaskGraph.h"
 
 enum class RenderPassType : unsigned
 {
@@ -25,6 +26,9 @@ public:
 	RenderPass();
 	virtual ~RenderPass() = default;
 
+public:
+	virtual void DoTask() {}
+
 protected:
 	virtual void Process(class RHICommandList& InCommandList) = 0;
 
@@ -33,7 +37,7 @@ protected:
 	RenderPassType Type;
 };
 
-class RenderGraph
+class RenderGraph : public TaskGraph<RenderPass>
 {
 
 };

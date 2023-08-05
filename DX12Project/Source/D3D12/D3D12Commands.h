@@ -71,6 +71,7 @@ public:
 	void EndDrawWindow(RHIViewport* InViewport) final override;
 	void BeginRender() final override;
 	void EndRender() final override;
+	void AddCommand(struct RHICommand*&& InCommand) override;
 
 	FORCEINLINE bool IsClosed() const { return bClosed; }
 	void Close();
@@ -124,17 +125,9 @@ private:
 
 	std::vector<D3D12_RESOURCE_BARRIER> Barriers;
 
+	std::vector<std::unique_ptr<RHICommand>> Commands;
+
 	//D3D12PipelineStateCache StateCache;
-	
-	// const buffer
-	// caches : 모든 렌더 상태를 저장(캐싱)하는 구조체
-	
-	// rhi : 각 기능(struct)을 가져오는 인터페이스(sampler state, pixel shader 등)
-	// allocate manager
-	// uniform buffers
-	//
-	// commandlist는 쓰레드마다 진행이 될거고, 여기에 저장된 state cache와 descriptor cache로 장면을 그려나갈거임
-	//
 };
 
 class D3D12CommandListExecutor : public RHICommandListExecutor, public D3D12Api

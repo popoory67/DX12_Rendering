@@ -105,9 +105,6 @@
     <ClCompile Include="Source\Engine\Util\Util.cpp">
       <Filter>Engine\Util</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Object\Commands\ObjectCommand.cpp">
-      <Filter>Engine\Object\Commands</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Object\Components\PrimitiveComponent.cpp">
       <Filter>Engine\Object\Components</Filter>
     </ClCompile>
@@ -165,6 +162,7 @@
     <ClCompile Include="Source\Engine\Object\Scene.cpp" />
     <ClCompile Include="Source\Engine\Core\RenderThread.cpp" />
     <ClCompile Include="Source\Engine\Core\WindowsThread.cpp" />
+    <ClCompile Include="Source\Engine\Core\TaskGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3DUtil.h">
@@ -241,9 +239,6 @@
     </ClInclude>
     <ClInclude Include="Source\Engine\Util\Util.h">
       <Filter>Engine\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Object\Commands\ObjectCommand.h">
-      <Filter>Engine\Object\Commands</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Object\Components\PrimitiveComponent.h">
       <Filter>Engine\Object\Components</Filter>

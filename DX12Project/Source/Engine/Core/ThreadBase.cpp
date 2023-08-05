@@ -1,5 +1,6 @@
 #include "ThreadBase.h"
 #include "Global.h"
+#include "TaskGraph.h"
 
 // It would be much better to be abstracted depending on target platforms.
 // More specifically if I would say my idea,

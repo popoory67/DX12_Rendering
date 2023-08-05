@@ -47,3 +47,8 @@ void D3D12CommandList::EndRender()
 {
 
 }
+
+void D3D12CommandList::AddCommand(RHICommand*&& InCommand)
+{
+	Commands.emplace_back(std::move(InCommand));
+}

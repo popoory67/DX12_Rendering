@@ -1,5 +1,8 @@
 #include "Scene.h"
 #include "PrimitiveComponent.h"
+#include "TaskGraph.h"
+#include "ThreadBase.h"
+#include "RenderThread.h"
 
 Scene::Scene()
 {
@@ -61,7 +64,16 @@ void Scene::UpdateVisibility()
 
 void Scene::RenderScene()
 {
+	TaskGraphSystem::Get().AddTask<RenderCommand>(std::move([](const RHICommandList& InCommandList)
+	{
+
+	}), ThreadType::Render);
+
+	// create mesh batches
+	
+
     // send to render thread with primitive info
+	// lambda to render thread
 }
 
 bool Scene::IsVisible(unsigned InId)

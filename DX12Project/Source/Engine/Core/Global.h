@@ -1,5 +1,4 @@
 #pragma once
-#include "ThreadBase.h"
 
-extern GenericThread* GRenderThread;
-extern Task* GRenderWorker;
+extern class GenericThread* GRenderThread;
+extern class Task* GRenderWorker;

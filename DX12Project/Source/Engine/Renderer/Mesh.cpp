@@ -17,5 +17,11 @@ void MeshRenderPass::AddMeshBatch(MeshRenderBatch&& InBatch)
 
 void MeshRenderPass::Process(RHICommandList& InCommandList)
 {
-
+    // loop batches
+    //for (const auto& batch : Batches)
+    //{
+    //    // command
+    //    // input vertex to dx12
+    //    // set pso
+    //}
 }

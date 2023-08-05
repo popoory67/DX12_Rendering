@@ -13,6 +13,7 @@ public:
 	virtual void EndDrawWindow(class RHIViewport* InViewport) = 0;
 	virtual void BeginRender() = 0;
 	virtual void EndRender() = 0;
+	virtual void AddCommand(struct RHICommand*&& InCommand) = 0;
 };
 
 class RHICommandListExecutor
@@ -37,8 +38,17 @@ private:
 	RHICommandList* CommandList = nullptr;
 };
 
+struct RHICommand
+{
+public:
+	RHICommand() = default;
+	virtual ~RHICommand() = default;
+
+	virtual void Execute(RHICommandList& InCmdList) = 0;
+};
+
 template<class TCommand>
-struct RHICommandBase
+struct RHICommandBase : public RHICommand
 {
 public:
 	RHICommandBase() = default;

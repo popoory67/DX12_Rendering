@@ -2,6 +2,13 @@
 #include "Util.h"
 #include "TaskGraph.h"
 
+enum class ThreadType : int
+{
+	Main = 0,
+	Render,
+	Worker,
+};
+
 enum class ThreadPriority : unsigned
 {
 	Lowest = 0,
@@ -25,7 +32,7 @@ protected:
 	virtual bool CreateInternal(Task* InAction, ThreadPriority InPriority) = 0;
 
 protected:
-	Task* Action;
+	Task* Action = nullptr;
 	ThreadPriority Priority;
 };
 
