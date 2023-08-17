@@ -48,7 +48,8 @@ void D3D12CommandList::EndRender()
 
 }
 
-void D3D12CommandList::AddCommand(RHICommand*&& InCommand)
+void D3D12CommandList::AddCommand(RHICommand*&& InCommand) const
 {
-	Commands.emplace_back(std::move(InCommand));
+	std::unique_ptr<RHICommand> command(std::move(InCommand));
+	Commands.push(std::move(command));
 }

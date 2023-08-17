@@ -1,6 +1,5 @@
 #include "Scene.h"
 #include "PrimitiveComponent.h"
-#include "TaskGraph.h"
 #include "ThreadBase.h"
 #include "RenderThread.h"
 #include "RenderPass.h"
@@ -18,10 +17,20 @@ Scene::~Scene()
 
 void Scene::Start()
 {
+	std::shared_ptr<Scene> thisPtr = shared_from_this();
+
+	TaskGraphSystem::Get().AddTask<RenderCommand>([ThisPtr = std::weak_ptr<Scene>{ thisPtr }](const RHICommandList& InCommandList)
+    {
+		if (auto shared = ThisPtr.lock())
+		{
+			shared->RenderScene();
+		}
+    }, ThreadType::Render);
 }
 
 void Scene::Update()
 {
+
 }
 
 void Scene::End()
@@ -61,7 +70,7 @@ void Scene::UpdateVisibility()
 	}
 }
 
-bool Scene::IsVisible(unsigned InId)
+bool Scene::IsVisible(int InId)
 {
 	// Visible test
 
@@ -87,15 +96,9 @@ void Scene::RenderScene()
 			batch.Elements.emplace_back(std::move(it.first->PrimitiveData));
         }
 
-        // Lambda moves to render thread
-        TaskGraphSystem::Get().AddTask<RenderCommand>([meshBatch = std::move(batch)](const RHICommandList& InCommandList) mutable
-        {
-			MeshRenderPass* meshPass = new MeshRenderPass();
-			meshPass->AddMeshBatch(std::move(meshBatch));
+        MeshRenderPass* meshPass = new MeshRenderPass();
+        meshPass->AddMeshBatch(std::move(batch));
 
-			RenderGraph::Get().AddTask(std::move(meshPass));
-
-        }, ThreadType::Render);
+        RenderGraph::Get().AddTask(std::move(meshPass));
     }
-
 }

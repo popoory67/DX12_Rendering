@@ -1,5 +1,5 @@
-
 #include "RenderPass.h"
+#include "ThreadBase.h"
 #include "CommandList.h"
 
 RenderPass::RenderPass()
@@ -25,4 +25,6 @@ void RenderGraph::AddTask(RenderPass*&& InRenderPass)
     // Render pass has a priority, and we need to compare it.
 
     TaskInternal = InRenderPass;
+
+    //TaskGraphSystem::Get().AddTask(this, ThreadType::Render);
 }

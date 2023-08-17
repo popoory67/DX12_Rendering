@@ -10,6 +10,8 @@
 
 class TestScene : public Scene
 {
+	using Parent = Scene;
+
 public:
 	TestScene();
 	virtual ~TestScene();

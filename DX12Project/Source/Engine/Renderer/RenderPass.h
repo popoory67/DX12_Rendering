@@ -47,4 +47,7 @@ public:
 	static RenderGraph& Get();
 
 	void AddTask(RenderPass*&& InRenderPass);
+
+	// TODO
+	// Manage and clear tasks
 };

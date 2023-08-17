@@ -2,14 +2,12 @@
 #include "Global.h"
 #include "Application.h"
 #include "ThreadBase.h"
+#include "TaskGraph.h"
 #include "CommandList.h"
-#include "SceneRendering.h"
 #include "Viewport.h"
+#include "SceneRendering.h"
 #include "D3D12RenderInterface.h"
 #include <dxgidebug.h>
-
-// dummy
-#include "../TestScene.h"
 
 GenericThread* GRenderThread = nullptr;
 Task* GRenderWorker = nullptr;
@@ -28,20 +26,7 @@ public:
 
         // create scene renderer
         Renderer = std::make_unique<SceneRenderer>(rhi);
-        if (Renderer)
-        {
-            if (Renderer->Initialize())
-            {
-                // TODO
-                // Scene has to run on the main thread, not the render thread.
-                
-                TestScene* test = new TestScene();
-                Renderer->AddScene(test);
-                Renderer->SetCurrentScene(test->GetSceneId());
-
-                test->Start();
-            }
-        }
+        Renderer->Initialize();
 
         // TODO
         // Load assets, PSO(on the other thread)
@@ -51,28 +36,37 @@ public:
 
     void Run() override
     {
-        Renderer->BeginRender();
+        while (!bStop)
+        {
+            // TODO
+            // test
+            TaskGraphSystem::Get().Execute(ThreadType::Render);
 
-        ViewportRenderer->BeginDrawWindow(GCommandContext.GetCommandList());
+            Renderer->BeginRender();
 
-        // GCommandContext has to be managed in the render thread, and the thread is the only place we can access it.
-        //ViewportRenderer->Draw(GCommandContext.GetCommandList());
+            ViewportRenderer->BeginDrawWindow(GCommandContext.GetCommandList());
 
-        Renderer->Render(GCommandContext.GetCommandList());
+            // GCommandContext has to be managed in the render thread, and the thread is the only place we can access it.
+            //ViewportRenderer->Draw(GCommandContext.GetCommandList());
 
-        Renderer->EndRender();
-        ViewportRenderer->EndDrawWindow(GCommandContext.GetCommandList());
+            Renderer->Render(GCommandContext.GetCommandList());
+
+            Renderer->EndRender();
+            ViewportRenderer->EndDrawWindow(GCommandContext.GetCommandList());
+        }
     }
 
     void Stop() override
     {
-
+        bStop = true;
     }
 
 private:
     // test
     std::unique_ptr<class SceneRenderer> Renderer; // 3D
     std::unique_ptr<class Viewport> ViewportRenderer; // 2D
+
+    bool bStop = false;
 };
 
 namespace RenderThread
@@ -87,6 +81,8 @@ namespace RenderThread
 
     void StopRenderThread()
     {
+        GRenderThread->Kill();
+
         SafeDelete(GRenderThread);
         GRenderWorker = nullptr;
 

@@ -35,6 +35,7 @@
     <ClCompile Include="Source\D3D12\DDSTextureLoader.cpp" />
     <ClCompile Include="Source\D3D12\FrameResource.cpp" />
     <ClCompile Include="Source\Engine\Application.cpp" />
+    <ClCompile Include="Source\Engine\Core\GameThread.cpp" />
     <ClCompile Include="Source\Engine\Core\TaskGraph.cpp" />
     <ClCompile Include="Source\Engine\Core\WindowsThread.cpp" />
     <ClCompile Include="Source\Engine\Events\InputManager.cpp" />
@@ -45,6 +46,7 @@
     <ClCompile Include="Source\Engine\Object\Entity.cpp" />
     <ClCompile Include="Source\Engine\Object\Scene.cpp" />
     <ClCompile Include="Source\Engine\Renderer\CommandList.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\Commands.cpp" />
     <ClCompile Include="Source\Engine\Renderer\GeometryGenerator.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Light.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Material.cpp" />
@@ -82,6 +84,7 @@
     <ClInclude Include="Source\D3D12\FrameResource.h" />
     <ClInclude Include="Source\D3D12\UploadBuffer.h" />
     <ClInclude Include="Source\Engine\Application.h" />
+    <ClInclude Include="Source\Engine\Core\GameThread.h" />
     <ClInclude Include="Source\Engine\Core\Global.h" />
     <ClInclude Include="Source\Engine\Core\TaskGraph.h" />
     <ClInclude Include="Source\Engine\Core\WindowsThread.h" />
@@ -93,6 +96,7 @@
     <ClInclude Include="Source\Engine\Object\Entity.h" />
     <ClInclude Include="Source\Engine\Object\Scene.h" />
     <ClInclude Include="Source\Engine\Renderer\CommandList.h" />
+    <ClInclude Include="Source\Engine\Renderer\Commands.h" />
     <ClInclude Include="Source\Engine\Renderer\GeometryGenerator.h" />
     <ClInclude Include="Source\Engine\Renderer\Light.h" />
     <ClInclude Include="Source\Engine\Renderer\Material.h" />

@@ -1,6 +1,7 @@
 #pragma once
 #include "Util.h"
 #include <unordered_map>
+#include <queue>
 #include <assert.h>
 
 class TaskGraphBase : public Uncopyable
@@ -11,8 +12,8 @@ public:
 	TaskGraphBase() = default;
 	virtual ~TaskGraphBase() = default;
 
-	virtual void Execute() = 0;
-	virtual bool IsCompleted() = 0;
+	virtual void Execute() {}
+	virtual bool IsCompleted() { return true; }
 
 protected:
 	TaskGraphBase* Prerequisite = nullptr; // prev
@@ -43,18 +44,22 @@ public:
 
 	void Execute()
 	{
-		// TODO
-		// concurrency
-
 		if (Prerequisite && Prerequisite->IsCompleted())
 		{
 			Prerequisite->Execute();
+			return;
 		}
 
-		assert(TaskInternal);
-		TaskInternal->DoTask();
+		if (!IsCompleted())
+		{
+			TaskInternal->DoTask();
+			SafeDelete(TaskInternal);
 
-		bCompleted = true;
+			bCompleted = true;
+
+			// TODO
+			// concurrency switching
+		}
 	}
 
 	FORCEINLINE bool IsCompleted() override
@@ -86,11 +91,11 @@ public:
 		else
 		{
 			TaskGraphBase* task = TaskGraph<TaskType>::CreateGraph(std::forward<Lambda>(InLambda));
-			task->Prerequisite = TaskGraphs[InThreadType];
-			TaskGraphs[InThreadType]->Subsequent = task;
-			TaskGraphs[InThreadType] = task;
+			AddTask(task, InThreadType);
 		}
 	}
+
+	void AddTask(TaskGraphBase* InTaskGraph, enum class ThreadType InThreadType);
 
 	void Execute(enum class ThreadType InThreadType);
 

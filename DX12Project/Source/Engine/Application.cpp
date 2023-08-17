@@ -1,11 +1,11 @@
 #include "Application.h"
 #include "InputManager.h"
-#include "CommandList.h"
-#include "Viewport.h"
-#include "RenderThread.h"
-#include "TaskGraph.h"
 #include "ThreadBase.h"
 #include "GameTimer.h"
+#include "RenderThread.h"
+#include "GameThread.h"
+#include "CommandList.h"
+#include "Viewport.h"
 
 void* Application::MainWindowHandle = nullptr;
 
@@ -19,11 +19,13 @@ Application::Application()
 
 Application::~Application()
 {
-	RenderThread::StopRenderThread();
+    RenderThread::StopRenderThread();
+    GameThread::StopGameThread();
 }
 
 bool Application::Initialize()
 {
+    GameThread::StartGameThread();
     RenderThread::StartRenderThread();
 
 	return true;
@@ -31,8 +33,6 @@ bool Application::Initialize()
 
 int Application::Run()
 {
-	TaskGraphSystem::Get().Execute(ThreadType::Render);
-
 	return 1;
 }
 

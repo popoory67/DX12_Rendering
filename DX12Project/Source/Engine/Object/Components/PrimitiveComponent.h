@@ -9,7 +9,7 @@ public:
 	PrimitiveBuilder() = default;
 	virtual ~PrimitiveBuilder() = default;
 
-	virtual void Build(VertexStream& InVertexStream, class PrimitiveProxy* InProxy);
+	virtual void Build(VertexStream&& InVertexStream, class PrimitiveProxy* InProxy);
 };
 
 class PrimitiveProxy
@@ -26,7 +26,7 @@ public:
 
 private:
 	class PrimitiveComponent* OwnerComponent;
-	VertexStream* PrimitiveData;
+	VertexStream PrimitiveData;
 };
 
 class PrimitiveComponent : public RenderComponent

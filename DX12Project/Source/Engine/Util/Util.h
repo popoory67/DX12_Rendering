@@ -27,6 +27,8 @@ inline std::wstring AnsiToWString(const std::string& str)
 #define SafeDeleteArray(x) { delete[](x); *x = nullptr; }
 #endif
 
+const int INVALID_INDEX = -1;
+
 class Uncopyable
 {
 protected:

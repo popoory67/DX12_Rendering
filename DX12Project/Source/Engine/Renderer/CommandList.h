@@ -1,4 +1,7 @@
 #pragma once
+#include "Util.h"
+
+extern class RHICommandContext GCommandContext;
 
 // This class is for render commands which will be processed in GPU.
 // And it's better to be executed in a render thread, not a main thread.
@@ -13,7 +16,7 @@ public:
 	virtual void EndDrawWindow(class RHIViewport* InViewport) = 0;
 	virtual void BeginRender() = 0;
 	virtual void EndRender() = 0;
-	virtual void AddCommand(struct RHICommand*&& InCommand) = 0;
+	virtual void AddCommand(struct RHICommand*&& InCommand) const = 0;
 };
 
 class RHICommandListExecutor
@@ -38,13 +41,13 @@ private:
 	RHICommandList* CommandList = nullptr;
 };
 
-struct RHICommand
+struct RHICommand : public Uncopyable
 {
 public:
 	RHICommand() = default;
 	virtual ~RHICommand() = default;
 
-	virtual void Execute(RHICommandList& InCmdList) = 0;
+	virtual void Execute(const RHICommandList& InCmdList) = 0;
 };
 
 template<class TCommand>
@@ -54,7 +57,7 @@ public:
 	RHICommandBase() = default;
 	virtual ~RHICommandBase() = default;
 
-	void ExecuteAndDestruct(RHICommandList& InCmdList)
+	void ExecuteAndDestruct(const RHICommandList& InCmdList)
 	{
 		TCommand* pCmd = static_cast<TCommand*>(this);
 		if (pCmd)
@@ -64,5 +67,3 @@ public:
 		}
 	}
 };
-
-extern RHICommandContext GCommandContext;

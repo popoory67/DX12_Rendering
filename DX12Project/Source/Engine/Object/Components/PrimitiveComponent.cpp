@@ -2,14 +2,14 @@
 #include "RenderInterface.h"
 #include "Scene.h"
 
-void PrimitiveBuilder::Build(VertexStream& InVertexStream, PrimitiveProxy* InProxy)
+void PrimitiveBuilder::Build(VertexStream&& InVertexStream, PrimitiveProxy* InProxy)
 {
     if (!InProxy)
     {
 		return;
     }
 
-	InProxy->PrimitiveData = &InVertexStream;
+	InProxy->PrimitiveData = std::move(InVertexStream);
 }
 
 PrimitiveProxy::PrimitiveProxy(PrimitiveComponent* InComponent)
@@ -48,7 +48,7 @@ void PrimitiveComponent::SetMeshModel(const std::string& InPath)
         { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
     };
 
-	Builder->Build(triangleVertices, Proxy);
+	Builder->Build(std::move(triangleVertices), Proxy);
 }
 
 PrimitiveProxy* PrimitiveComponent::CreateProxy()

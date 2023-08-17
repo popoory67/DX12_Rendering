@@ -100,7 +100,6 @@ void D3D12CommandList::SetPipelineState(std::shared_ptr<class D3D12PipelineState
 
 void D3D12CommandList::SetVertexBuffers(D3D12VertexBufferCache& InVertexBufferCache) const
 {
-	// TODO : 이걸 어디서 호출해주지 => 어떤 것을 그리려고 준비하는 시점에 호출, 즉 컨텐츠 구현같은거할때 = 구현하는 사람이 데이터 넣고(사용자) 그리는건 엔진에서 알아서
 	// D3D12VertexBuffer* InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset
 //	StateCache.SetStreamSource(InVertexBuffer, StreamIndex, InStride, InOffset);
 	

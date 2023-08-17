@@ -21,7 +21,7 @@ void WindowsThread::Suspend()
 
 void WindowsThread::Kill()
 {
-
+    Action->Stop();
 }
 
 bool WindowsThread::CreateInternal(Task* InAction, ThreadType InThreadType, ThreadPriority InPriority)

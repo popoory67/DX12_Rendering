@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include <comdef.h>
 #include <optional>
+#include <queue>
 #include "d3dx12.h"
 #include "Util.h"
 #include "CommandList.h"
@@ -71,7 +72,7 @@ public:
 	void EndDrawWindow(RHIViewport* InViewport) final override;
 	void BeginRender() final override;
 	void EndRender() final override;
-	void AddCommand(struct RHICommand*&& InCommand) override;
+	void AddCommand(struct RHICommand*&& InCommand) const override;
 
 	FORCEINLINE bool IsClosed() const { return bClosed; }
 	void Close();
@@ -125,7 +126,7 @@ private:
 
 	std::vector<D3D12_RESOURCE_BARRIER> Barriers;
 
-	std::vector<std::unique_ptr<RHICommand>> Commands;
+	mutable std::queue<std::unique_ptr<RHICommand>> Commands;
 
 	//D3D12PipelineStateCache StateCache;
 };

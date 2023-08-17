@@ -160,6 +160,8 @@
     <ClCompile Include="Source\Engine\Core\RenderThread.cpp" />
     <ClCompile Include="Source\Engine\Core\WindowsThread.cpp" />
     <ClCompile Include="Source\Engine\Core\TaskGraph.cpp" />
+    <ClCompile Include="Source\Engine\Core\GameThread.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\Commands.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3DUtil.h">
@@ -281,6 +283,8 @@
     <ClInclude Include="Source\Engine\Core\RenderThread.h" />
     <ClInclude Include="Source\Engine\Core\TaskGraph.h" />
     <ClInclude Include="Source\Engine\Core\WindowsThread.h" />
+    <ClInclude Include="Source\Engine\Core\GameThread.h" />
+    <ClInclude Include="Source\Engine\Renderer\Commands.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" />

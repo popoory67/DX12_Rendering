@@ -23,4 +23,6 @@ void TestScene::Start()
 
 		AddEntity(Object);
 	}
+
+	Parent::Start();
 }

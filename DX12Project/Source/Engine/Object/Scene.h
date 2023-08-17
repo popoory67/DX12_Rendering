@@ -2,8 +2,9 @@
 #include <bitset>
 #include <memory>
 #include <unordered_map>
+#include "Util.h"
 
-class Scene
+class Scene : public std::enable_shared_from_this<Scene>
 {
 public:
 	Scene();
@@ -13,20 +14,20 @@ public:
 	virtual void Update();
 	virtual void End();
 
-	unsigned GetSceneId() { return Id; }
-	void SetSceneId(unsigned InId) { Id = InId; }
+	int GetSceneId() { return Id; }
+	void SetSceneId(int InId) { Id = InId; }
 
 	void AddEntity(std::shared_ptr<class Entity> InEntity);
 	void AddPrimitive(class PrimitiveComponent* InPrimitiveComponent);
 
 private:
 	void UpdateVisibility();
-	bool IsVisible(unsigned InId);
+	bool IsVisible(int InId);
 
 	void RenderScene();
 
 private:
-	unsigned int Id = 0;
+	int Id = INVALID_INDEX;
 
 	std::unordered_map<size_t, std::bitset<1>> EntityVisibility;
 	std::unordered_map<size_t, std::shared_ptr<class Entity>> Entities;

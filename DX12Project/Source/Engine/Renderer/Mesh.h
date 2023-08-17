@@ -16,7 +16,7 @@ using VertexStream = std::vector<Vertex>;
 
 struct MeshRenderBatchElement
 {
-	VertexStream* Primitive;
+	VertexStream Primitive;
 
 	// TODO
 	// Material, Mesh Options, Proxy
