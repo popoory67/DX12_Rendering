@@ -1,9 +1,7 @@
 ## 프로젝트 설명
 DirectX 12 API를 이용한 Multithreaded rendering 엔진입니다.
-<br><br>
 
-## 프로젝트 상태
-개발 진행 중입니다.<br>Visual studio 솔루션으로 빌드할 수 있으며, 빌드하면 Device, Task graph, Vertex to GPU를 구현한 상태이며, 빌드 시 기본 렌더링 화면을 볼 수 있습니다.
+현재 개발 중인 프로젝트입니다. Visual studio 솔루션으로 빌드할 수 있으며, 빌드하면 Device, Task graph, Vertex to GPU를 구현한 상태이며, 빌드 시 기본 렌더링 화면을 볼 수 있습니다.
 
 ### 개발 목표
 * 크게 RHI, Rendering, Object로 나누어 모듈로 제작하고, 최종적으로 각 모듈을 개별 배포할 수 있도록 합니다.
@@ -47,17 +45,6 @@ DirectX 12 API를 이용한 Multithreaded rendering 엔진입니다.
     6) Thread pooling
 
 그 외에 흥미있는 것 위주로 추가 구현할 수 있습니다.
-<br><br>
-
-## 개발 일정
-ASAP
-<br><br>
 
 ## 개발자 연락처
 popoory.dev@gmail.com
-<br><br>
-
-## 기타
-취미로 개발하는 프로젝트입니다.
-
-하드웨어 가속에 관심이 있었고, DirectX 12를 효율적으로 사용하고 싶어 시작했습니다.
