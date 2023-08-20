@@ -1,7 +1,7 @@
-## Project description
+## Description
 Multithreaded rendering engine with DirectX 12
 
-It's been developing, not finished.<br>When you create this project in Visual Studio, you can test a straightforward rendering scene with a DirectX 12 device by running task graphs and handling vertex data on the GPU.
+It's been developing, not finished.<br>When you create this project in Visual Studio, you can test a basic rendering scene with a DirectX 12 device by running task graphs and handling vertex data on the GPU.
 
 ### Development goals
 * It is generally segmented into RHI, renderer, and object-based components that can then be released separately.
