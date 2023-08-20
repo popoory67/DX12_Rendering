@@ -1,4 +1,5 @@
 #include "CommandList.h"
+#include "RenderInterface.h"
 #include <assert.h>
 
 RHICommandContext GCommandContext;

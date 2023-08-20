@@ -35,26 +35,22 @@ D3D12PipelineStateCache::D3D12PipelineStateCache(D3D12Device* InDevice)
 
 }
 
-void D3D12PipelineStateCache::SetStreamSource(D3D12VertexBuffer* InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset)
+void D3D12PipelineStateCache::SetStreamResource(std::shared_ptr<D3D12Buffer>& InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset)
 {
-	__declspec(align(16)) D3D12_VERTEX_BUFFER_VIEW view;
+	D3D12_VERTEX_BUFFER_VIEW view;
 	view.BufferLocation = InVertexBuffer ? InVertexBuffer->GetGPUVirtualAddress() + InOffset : 0;
 	view.StrideInBytes = InStride;
 	view.SizeInBytes = InVertexBuffer ? InVertexBuffer->GetSize() - InOffset : 0;
 
-	auto& CurrentVertexCache = PipelineStateCache.Graphics.VertexBufferCache.CurrentVertexBufferView[StreamIndex];
+	D3D12_VERTEX_BUFFER_VIEW& CurrentVertexCache = PipelineStateCache.Graphics.VertexBufferCache.CurrentVertexBufferView[StreamIndex];
 
 	if (view.BufferLocation != CurrentVertexCache.BufferLocation)
 	{
-		if (!InVertexBuffer)
+		if (InVertexBuffer)
 		{
 			memcpy_s(&CurrentVertexCache, sizeof(CurrentVertexCache), &view, sizeof(view));
 		}
 	}
-}
-
-void D3D12PipelineStateCache::SetIndexBuffer()
-{
 }
 
 void D3D12PipelineStateCache::CreateAndAddCache(const D3D12GraphicsPipelineState::Desc& InDesc)

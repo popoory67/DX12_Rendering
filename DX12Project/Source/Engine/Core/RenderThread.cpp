@@ -17,20 +17,19 @@ class RenderWorker : public Task
 public:
     bool Init() override
     {
-        std::shared_ptr<D3D12RHI> rhi = std::make_shared<D3D12RHI>();
-        rhi->Initialize();
+        GRHI = RenderInterface::GetPlatformRHI();
+        assert(GRHI);
 
-        // create viewport
-        RHIViewport* viewport = rhi->CreateViewport(Application::GetWindowHandle(), 100, 100/*MainWindowHandle, ClientWidth, ClientHeight*/);
-        ViewportRenderer = std::make_unique<Viewport>(std::move(viewport));
+        GRHI->Initialize();
+        {
+            RHIViewport* viewport = GRHI->CreateViewport(Application::GetWindowHandle(), 100, 100/*MainWindowHandle, ClientWidth, ClientHeight*/);
+            ViewportRenderer = std::make_unique<Viewport>(std::move(viewport));
+        }
 
-        // create scene renderer
-        Renderer = std::make_unique<SceneRenderer>(rhi);
-        Renderer->Initialize();
-
-        // TODO
-        // Load assets, PSO(on the other thread)
-
+        {
+            Renderer = std::make_unique<SceneRenderer>();
+            Renderer->Initialize();
+        }
         return true;
     }
 
@@ -44,24 +43,22 @@ public:
 
             Renderer->BeginRender();
 
-            ViewportRenderer->BeginDrawWindow(GCommandContext.GetCommandList());
-
-            // GCommandContext has to be managed in the render thread, and the thread is the only place we can access it.
-            //ViewportRenderer->Draw(GCommandContext.GetCommandList());
+            ViewportRenderer->Draw(GCommandContext.GetCommandList());
 
             Renderer->Render(GCommandContext.GetCommandList());
-
             Renderer->EndRender();
-            ViewportRenderer->EndDrawWindow(GCommandContext.GetCommandList());
         }
     }
 
     void Stop() override
     {
         bStop = true;
+
+        SafeDelete(GRHI);
     }
 
 private:
+    // TODO
     // test
     std::unique_ptr<class SceneRenderer> Renderer; // 3D
     std::unique_ptr<class Viewport> ViewportRenderer; // 2D

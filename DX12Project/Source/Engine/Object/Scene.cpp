@@ -93,7 +93,17 @@ void Scene::RenderScene()
                 continue;
             }
 
-			batch.Elements.emplace_back(std::move(it.first->PrimitiveData));
+			VertexStream& vertices = it.first->PrimitiveData;
+			if (vertices.empty())
+			{
+				continue;
+			}
+
+			MeshRenderBatchElement element;
+			element.Primitive = std::move(vertices);
+            element.Stride = sizeof(vertices[0]);
+
+			batch.AddElement(std::move(element));
         }
 
         MeshRenderPass* meshPass = new MeshRenderPass();

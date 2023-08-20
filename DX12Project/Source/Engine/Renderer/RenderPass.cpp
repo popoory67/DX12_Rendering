@@ -24,7 +24,7 @@ void RenderGraph::AddTask(RenderPass*&& InRenderPass)
     // TODO
     // Render pass has a priority, and we need to compare it.
 
-    TaskInternal = InRenderPass;
+    TaskInternal = std::move(InRenderPass);
 
     //TaskGraphSystem::Get().AddTask(this, ThreadType::Render);
 }

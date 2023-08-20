@@ -17,6 +17,8 @@ void Viewport::Draw(RHICommandList& InCommandList)
 {
 	InCommandList.BeginDrawWindow(ViewportInterface);
 
+	InCommandList.BeginRender();
+
 	InCommandList.EndDrawWindow(ViewportInterface);
 }
 

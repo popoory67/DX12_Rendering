@@ -80,8 +80,7 @@ public:
 	explicit D3D12PipelineStateCache(class D3D12Device* InDevice);
 	virtual ~D3D12PipelineStateCache() = default;
 	
-	void SetStreamSource(class D3D12VertexBuffer* InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset = 0);
-	void SetIndexBuffer();
+	void SetStreamResource(std::shared_ptr<class D3D12Buffer>& InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset = 0);
 	
 	void CreateAndAddCache(const D3D12GraphicsPipelineState::Desc& InDesc);
 	std::weak_ptr<D3D12PipelineState> FindCache(const D3D12GraphicsPipelineState::Desc& InDesc);

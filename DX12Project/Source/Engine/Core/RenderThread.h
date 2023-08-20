@@ -1,6 +1,8 @@
 #pragma once
 #include <functional>
 
+// TODO
+// It has to be modified to a module.
 namespace RenderThread
 {
 	void StartRenderThread();

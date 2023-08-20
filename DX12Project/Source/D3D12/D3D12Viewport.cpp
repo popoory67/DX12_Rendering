@@ -223,7 +223,7 @@ void D3D12Viewport::CreateSwapChainBuffer()
 			ComPtr<ID3D12Resource> backBufferResource;
 			ThrowIfFailed(SwapChain->GetBuffer(i, IID_PPV_ARGS(backBufferResource.GetAddressOf())));
 
-			SwapChainBuffer[i] = std::make_shared<D3D12Resource>(GetParent(), backBufferResource.Get());
+			SwapChainBuffer[i] = std::make_shared<D3D12Resource>(backBufferResource.Get());
 
 			SwapChainBuffer[i]->SetResourceState(D3D12_RESOURCE_STATE_PRESENT);
 

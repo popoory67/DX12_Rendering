@@ -3,16 +3,47 @@
 #include "Commands.h"
 #include "RenderThread.h"
 
-
-MeshRenderBatch::MeshRenderBatch(std::vector<MeshRenderBatchElement>&& InMeshStream)
-    : Elements(std::forward<std::vector<MeshRenderBatchElement>>(InMeshStream))
+MeshRenderBatch::MeshRenderBatch()
+    : Count(0)
 {
 
 }
 
+MeshRenderBatch::MeshRenderBatch(std::vector<MeshRenderBatchElement>&& InMeshStream, unsigned int InCount)
+    : Elements(std::forward<std::vector<MeshRenderBatchElement>>(InMeshStream))
+    , Count(InCount)
+{
+    
+}
+
+void MeshRenderBatch::AddElements(std::vector<MeshRenderBatchElement>&& InMeshStream)
+{
+    for (const auto& element : InMeshStream)
+    {
+        Count += element.Primitive.size();
+    }
+    Elements.insert(Elements.end(), std::make_move_iterator(InMeshStream.begin()), std::make_move_iterator(InMeshStream.end()));
+}
+
+void MeshRenderBatch::AddElement(MeshRenderBatchElement&& InMeshElement)
+{
+    Count += InMeshElement.Primitive.size();
+    Elements.emplace_back(std::move(InMeshElement));
+}
+
+unsigned int MeshRenderBatch::GetStride() const
+{
+    if (Elements.empty())
+    {
+        return 0;
+    }
+
+    return Elements[0].Stride;
+}
+
 MeshRenderPass::MeshRenderPass()
 {
-    Priority = 5; // test
+    Priority = 5; // TODO : test
 }
 
 void MeshRenderPass::AddMeshBatch(MeshRenderBatch&& InBatch)
@@ -22,7 +53,27 @@ void MeshRenderPass::AddMeshBatch(MeshRenderBatch&& InBatch)
 
 void MeshRenderPass::DoTask()
 {
-    RHICommand_Primitive* primitiveCommand = new RHICommand_Primitive(std::move(Batches));
+    if (Batches.empty())
+    {
+        return;
+    }
+
+    unsigned int stride = Batches[0].GetStride();
+    unsigned int count = 0;
+
+    VertexStream stream{};
+
+    for (const auto& batch : Batches)
+    {
+        for (const auto& element : batch.Elements)
+        {
+            stream.insert(stream.end(), std::make_move_iterator(element.Primitive.begin()), std::make_move_iterator(element.Primitive.end()));
+        }
+        count += batch.Count;
+    }
+
+    RHICommand_Primitive* primitiveCommand = new RHICommand_Primitive(std::move(stream), stride * count, stride);
+
     TaskGraphSystem::Get().AddTask<RenderCommand>([command = std::move(primitiveCommand)](const RHICommandList& InCommandList)
     {
         InCommandList.AddCommand(std::move(command));

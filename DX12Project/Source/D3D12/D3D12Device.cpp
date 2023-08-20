@@ -153,16 +153,6 @@ void D3D12Device::Initialize()
             { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 		};
 
-        // triangle
-        //VertexStream triangleVertices =
-        //{
-        //    { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-        //    { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-        //    { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
-        //};
-
-		//const UINT size = triangleVertices.size();
-
         // we need PSO cache
         ComPtr<ID3DBlob> byteCode = nullptr;
         ComPtr<ID3DBlob> byteCode2 = nullptr;

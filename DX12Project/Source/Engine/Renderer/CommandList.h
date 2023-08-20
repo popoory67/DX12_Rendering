@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "Util.h"
 
 extern class RHICommandContext GCommandContext;
@@ -17,6 +18,8 @@ public:
 	virtual void BeginRender() = 0;
 	virtual void EndRender() = 0;
 	virtual void AddCommand(struct RHICommand*&& InCommand) const = 0;
+	virtual void SetStreamResource(std::shared_ptr<class RHIResource> InVertexBuffer) const = 0;
+	virtual void DrawIndexedInstanced(std::shared_ptr<class RHIResource> InVertexBuffer, unsigned int InIndexCount, unsigned int InInstanceCount, unsigned int InStartIndex, int InBaseVertexIndex, unsigned int InStartInstance) const = 0;
 };
 
 class RHICommandListExecutor

@@ -1,5 +1,6 @@
 #include "D3D12Commands.h"
 #include "D3D12Device.h"
+#include "D3D12Fence.h"
 #include "D3D12Descriptor.h"
 #include "D3D12Resource.h"
 #include "D3D12PipelineState.h"
@@ -53,6 +54,29 @@ void D3D12CommandList::Initialize()
 	CreateCommandList(GetParent());
 }
 
+void D3D12CommandList::SetStreamResource(std::shared_ptr<RHIResource> InVertexBuffer) const
+{
+    std::shared_ptr<D3D12Buffer> vertexBuffer = std::static_pointer_cast<D3D12Buffer>(InVertexBuffer);
+    GetParent()->GetPSOCache().SetStreamResource(vertexBuffer, 0, vertexBuffer->GetStride(), 0); // TODO : test data
+}
+
+void D3D12CommandList::DrawIndexedInstanced(std::shared_ptr<class RHIResource> InVertexBuffer, unsigned int InIndexCount, unsigned int InInstanceCount, unsigned int InStartIndex, int InBaseVertexIndex, unsigned int InStartInstance) const
+{
+	// TODO : test
+	{
+        std::shared_ptr<D3D12Buffer> vertexBuffer = std::static_pointer_cast<D3D12Buffer>(InVertexBuffer);
+
+        D3D12_VERTEX_BUFFER_VIEW view;
+        view.BufferLocation = vertexBuffer ? vertexBuffer->GetGPUVirtualAddress() : 0;
+        view.StrideInBytes = 28;
+        view.SizeInBytes = vertexBuffer ? vertexBuffer->GetSize() : 0;
+
+        CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        CommandList->IASetVertexBuffers(0, 1, &view);
+    }
+    CommandList->DrawIndexedInstanced(InIndexCount, InInstanceCount, InStartIndex, InBaseVertexIndex, InStartInstance);
+}
+
 void D3D12CommandList::AddTransition(std::shared_ptr<D3D12Resource> InResource, const D3D12_RESOURCE_STATES& InAfterState)
 {
 	assert(InResource);
@@ -93,34 +117,6 @@ void D3D12CommandList::SetRenderTargets(UINT InNumRenderTargetDescriptors, std::
 	}
 }
 
-void D3D12CommandList::SetPipelineState(std::shared_ptr<class D3D12PipelineState> InPipelineState) const
-{
-	CommandList->SetPipelineState(InPipelineState->GetInterface());
-}
-
-void D3D12CommandList::SetVertexBuffers(D3D12VertexBufferCache& InVertexBufferCache) const
-{
-	// D3D12VertexBuffer* InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset
-//	StateCache.SetStreamSource(InVertexBuffer, StreamIndex, InStride, InOffset);
-	
-	CommandList->IASetVertexBuffers(0, InVertexBufferCache.MaxVertexIndex + 1, InVertexBufferCache.CurrentVertexBufferView);
-}
-
-void D3D12CommandList::SetIndexBuffer(std::optional<D3D12_INDEX_BUFFER_VIEW> InView/* = {}*/) const
-{
-	CommandList->IASetIndexBuffer(&InView.value());
-}
-
-void D3D12CommandList::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY InPrimitiveTopology) const
-{
-	CommandList->IASetPrimitiveTopology(InPrimitiveTopology);
-}
-
-void D3D12CommandList::DrawIndexedInstanced(UINT InIndexCountPerInstance, UINT InInstanceCount, UINT InStartIndexLocation, INT InBaseVertexLocation, UINT InStartInstanceLocation) const
-{
-	CommandList->DrawIndexedInstanced(InIndexCountPerInstance, InInstanceCount, InStartIndexLocation, InBaseVertexLocation, InStartInstanceLocation);
-}
-
 void D3D12CommandList::AddDescriptorHeap(D3D12Descriptor* InDescriptor)
 {
 	assert(InDescriptor);
@@ -137,41 +133,6 @@ void D3D12CommandList::ExecuteHeaps()
 void D3D12CommandList::FlushHeaps()
 {
 	Heaps.clear();
-}
-
-void D3D12CommandList::SetRootSignature(D3D12RootSignature* InRootSignature)
-{
-	assert(InRootSignature);
-
-	CommandList->SetGraphicsRootSignature(InRootSignature->GetInterface());
-}
-
-void D3D12CommandList::BindTable(RenderType InRenderType, CD3DX12_GPU_DESCRIPTOR_HANDLE InDescriptorHandle)
-{
-/*	InDescriptorHandle.Offset(mSkyTexHeapIndex, mCbvSrvUavDescriptorSize);*/
-	CommandList->SetGraphicsRootDescriptorTable((UINT)InRenderType, InDescriptorHandle);
-}
-
-void D3D12CommandList::BindConstBuffer(RenderType InRenderType, std::vector<D3D12_GPU_VIRTUAL_ADDRESS>& InAddresses)
-{
-	for (D3D12_GPU_VIRTUAL_ADDRESS address : InAddresses)
-		CommandList->SetGraphicsRootConstantBufferView((UINT)InRenderType, address);
-}
-
-void D3D12CommandList::BindConstBuffer(RenderType InRenderType, D3D12_GPU_VIRTUAL_ADDRESS& InAddress)
-{
-	CommandList->SetGraphicsRootConstantBufferView((UINT)InRenderType, InAddress);
-}
-
-void D3D12CommandList::BindShaderResource(RenderType InRenderType, std::vector<D3D12_GPU_VIRTUAL_ADDRESS>& InAddresses)
-{
-	for (D3D12_GPU_VIRTUAL_ADDRESS address : InAddresses)
-		CommandList->SetGraphicsRootShaderResourceView((UINT)InRenderType, address);
-}
-
-void D3D12CommandList::BindShaderResource(RenderType InRenderType, D3D12_GPU_VIRTUAL_ADDRESS& InAddress)
-{
-	CommandList->SetGraphicsRootShaderResourceView((UINT)InRenderType, InAddress);
 }
 
 void D3D12CommandList::CreateCommandList(D3D12Device* InDevice)

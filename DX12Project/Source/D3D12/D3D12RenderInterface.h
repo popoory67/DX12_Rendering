@@ -11,15 +11,13 @@
 #include "d3dx12.h"
 #include "D3DUtil.h"
 #include "GameTimer.h"
-#include "FrameResource.h"
-//#include "MathHelper.h"
 #include "D3D12Viewport.h"
 #include "RenderInterface.h"
 
 class D3D12Device;
 class D3D12Resource;
-class D3D12DefaultResource;
 class D3D12ShaderResource;
+class D3D12Buffer;
 class D3D12Descriptor;
 
 class D3D12RHI : public RHI
@@ -28,7 +26,7 @@ public:
 	D3D12RHI();
 	virtual ~D3D12RHI();
 
-	constexpr FORCEINLINE D3D12Device* GetCurrentDevice()
+	FORCEINLINE D3D12Device* GetCurrentDevice()
 	{
 		return CurrentDevice;
 	}
@@ -44,19 +42,20 @@ public:
 
 	RHIViewport* CreateViewport(void* InHWnd, unsigned int InWidth, unsigned int InHeight) override;
 	void ResizeViewport(RHIViewport* InViewportRHI) override;
+	std::shared_ptr<RHIResource> CreateVertexBuffer(unsigned int InSize, unsigned int InStride) override;
+	void* LockBuffer(std::shared_ptr<RHIResource> InBuffer) override;
+	void UnlockBuffer(std::shared_ptr<RHIResource> InBuffer) override;
 
-	void FlushCommandQueue() const;
 	void ResetCommandList();
 
-	void CreateResource(D3D12Resource* InResource, D3D12_RESOURCE_DESC& InDesc, D3D12_CLEAR_VALUE& InValue);
-	void CreateResource(D3D12Resource* InResource, UINT64 InByteSize, D3D12_CLEAR_VALUE& InValue);
-	void CreateDefaultBuffer(D3D12DefaultResource* InResource, const void* InInitData, UINT64 InByteSize);
+private:
+	std::shared_ptr<D3D12Buffer> CreateBuffer(unsigned int InSize, unsigned int InStride);
+	ComPtr<ID3D12Resource> CreateResource(unsigned int InByteSize, const D3D12_HEAP_TYPE InHeapType, const D3D12_RESOURCE_STATES InResourceState, const D3D12_CLEAR_VALUE* InValue);
 	void CreateRenderTarget(D3D12Resource* InResource, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize);
-	void CreateShaderResource(D3D12ShaderResource* InResource, class D3D12Descriptor* InDescriptor, std::string InName = nullptr, std::wstring InFilePath = nullptr);
+	//void CreateShaderResource(D3D12ShaderResource* InResource, class D3D12Descriptor* InDescriptor, std::string InName = nullptr, std::wstring InFilePath = nullptr);
 	
 	void LoadTexture(D3D12ShaderResource* InResource, std::string InName = nullptr, std::wstring InFilePath = nullptr);
 
-	// Resource interfaces
 	void CreateDepthStencilView(D3D12Resource* InResource, D3D12Descriptor* InDescriptor, D3D12_DEPTH_STENCIL_VIEW_DESC& InDepthStencilDesc);
 
 private:

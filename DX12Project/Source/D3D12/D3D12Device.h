@@ -64,7 +64,7 @@ public:
 	ID3D12Device* GetDevice() const;
 
 protected:
-	inline D3D12Device* GetParent() const noexcept
+	FORCEINLINE D3D12Device* GetParent() const noexcept
 	{
 		return Parent;
 	}

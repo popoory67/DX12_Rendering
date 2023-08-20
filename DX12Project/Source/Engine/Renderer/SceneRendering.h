@@ -5,8 +5,7 @@
 class SceneRenderer
 {
 public:
-	SceneRenderer() = delete;
-	SceneRenderer(std::shared_ptr<class RHI> InRenderInterface);
+	SceneRenderer() = default;
 	SceneRenderer(const SceneRenderer& rhs) = delete;
 	SceneRenderer& operator=(const SceneRenderer& rhs) = delete;
 
@@ -16,8 +15,4 @@ public:
 	void BeginRender();
 	void Render(class RHICommandList& InCommandList);
 	void EndRender();
-
-private:
-	std::shared_ptr<class D3D12RHI> RenderInterface;
-	//std::unique_ptr<D3D12Viewport> Viewport; // TODO : change unique param to array
 };

@@ -1,11 +1,10 @@
 #pragma once
+#include "Util.h"
+#include <memory>
 
 class RHIViewport;
+class RHIResource;
 
-// RHI is processed in the main thread
-// for the reason that the role of this interface is to process what we have to execute in CPU.
-// If you wanna know how to handle any render commands,
-// you need to see the command list interface. (CommandList.h)
 class RHI
 {
 public:
@@ -14,17 +13,42 @@ public:
 
 	virtual void Initialize() = 0;
 	virtual void Destroy() = 0;
+	virtual void ResetCommandList() = 0;
 
 	virtual RHIViewport* CreateViewport(void* InHWnd, unsigned int InWidth, unsigned int InHeight) = 0;
 	virtual void ResizeViewport(RHIViewport* InViewportRHI) = 0;
+	virtual std::shared_ptr<RHIResource> CreateVertexBuffer(unsigned int InSize, unsigned int InStride) = 0;
+	virtual void* LockBuffer(std::shared_ptr<RHIResource> InVertexBuffer) = 0;
+	virtual void UnlockBuffer(std::shared_ptr<RHIResource> InVertexBuffer) = 0;
 };
 
-class RHIViewport
+class RHIViewport : public Uncopyable
 {
 public:
 	RHIViewport() = default;
 	virtual ~RHIViewport() = default;
+};
 
-	RHIViewport(const RHIViewport&) = delete;
-	const RHIViewport& operator=(const RHIViewport&) = delete;
+class RHIResource
+{
+public:
+	RHIResource() = default;
+	virtual ~RHIResource() = default;
+
+	virtual void* Lock() = 0;
+	virtual void Unlock() = 0;
+
+	FORCEINLINE unsigned int GetSize() const noexcept { return Size; }
+	FORCEINLINE unsigned int GetStride() const noexcept { return Stride; }
+
+protected:
+	unsigned int Size = 0;
+	unsigned int Stride = 0;
+};
+
+extern RHI* GRHI;
+
+namespace RenderInterface
+{
+	RHI* GetPlatformRHI();
 };

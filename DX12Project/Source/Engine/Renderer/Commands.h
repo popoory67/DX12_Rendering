@@ -2,17 +2,18 @@
 #include "CommandList.h"
 #include <vector>
 
+using VertexStream = std::vector<struct Vertex>;
+
 struct RHICommand_Primitive : public RHICommandBase<RHICommand_Primitive>
 {
 	RHICommand_Primitive() = delete;
-	RHICommand_Primitive(std::vector<struct MeshRenderBatch>&& InBatch);
+	RHICommand_Primitive(VertexStream&& InStream, unsigned int InSize, unsigned int InStride);
 	virtual ~RHICommand_Primitive();
 
-	void Execute(const RHICommandList& InCmdList) override
-	{
-
-	}
+	void Execute(const RHICommandList& InCommandList) override;
 
 private:
-	std::vector<struct MeshRenderBatch> Batches;
+	VertexStream StreamResource;
+	unsigned int Size;
+	unsigned int Stride;
 };

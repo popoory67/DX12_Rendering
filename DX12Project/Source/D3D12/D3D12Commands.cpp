@@ -3,6 +3,7 @@
 #include "D3D12Viewport.h"
 #include "D3D12Resource.h"
 #include "D3D12Fence.h"
+#include "D3D12PipelineState.h"
 #include "DirectXColors.h"
 
 void D3D12CommandList::BeginDrawWindow(RHIViewport* InViewport)
@@ -40,7 +41,15 @@ void D3D12CommandList::EndDrawWindow(RHIViewport* InViewport)
 
 void D3D12CommandList::BeginRender()
 {
+	// TODO
+	// Processing commands on a concurrency task with a priority
+	while (!Commands.empty())
+	{
+		std::unique_ptr<RHICommand>&& command = std::move(Commands.front());
+		command->Execute(*this);
 
+		Commands.pop();
+	}
 }
 
 void D3D12CommandList::EndRender()

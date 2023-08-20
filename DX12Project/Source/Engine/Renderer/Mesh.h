@@ -12,11 +12,14 @@ struct Vertex
 	XMFLOAT4 Color;
 };
 
+// TODO
+// VertexStream should be flexible, not just apply the struct Vertex.
 using VertexStream = std::vector<Vertex>;
 
 struct MeshRenderBatchElement
 {
 	VertexStream Primitive;
+	unsigned int Stride;
 
 	// TODO
 	// Material, Mesh Options, Proxy
@@ -27,10 +30,15 @@ struct MeshRenderBatchElement
 // The meshes that have the same options will be processed.
 struct MeshRenderBatch : public RenderBatch
 {
-	MeshRenderBatch() = default;
-	MeshRenderBatch(std::vector<MeshRenderBatchElement>&& InMeshStream);
+	MeshRenderBatch();
+	MeshRenderBatch(std::vector<MeshRenderBatchElement>&& InMeshStream, unsigned int InCount);
 	virtual ~MeshRenderBatch() = default;
 
+	void AddElements(std::vector<MeshRenderBatchElement>&& InMeshStream);
+	void AddElement(MeshRenderBatchElement&& InMeshElement);
+	unsigned int GetStride() const;
+
+	unsigned int Count;
 	std::vector<MeshRenderBatchElement> Elements;
 };
 
