@@ -1,6 +1,8 @@
 #include "Mesh.h"
 #include "ThreadBase.h"
 #include "Commands.h"
+#include "CommandContext.h"
+#include "CommandList.h"
 #include "RenderThread.h"
 
 MeshRenderBatch::MeshRenderBatch()
@@ -72,11 +74,11 @@ void MeshRenderPass::DoTask()
         count += batch.Count;
     }
 
-    RHICommand_Primitive* primitiveCommand = new RHICommand_Primitive(std::move(stream), stride * count, stride);
+    RHICommand_SetPrimitive* primitiveCommand = new RHICommand_SetPrimitive(std::move(stream), stride * count, stride);
 
-    TaskGraphSystem::Get().AddTask<RenderCommand>([command = std::move(primitiveCommand)](const RHICommandList& InCommandList)
+    TaskGraphSystem::Get().AddTask<RenderCommand>([command = std::move(primitiveCommand)](const RHICommandContext& InContext)
     {
-        InCommandList.AddCommand(std::move(command));
+        InContext.AddCommand(std::move(command));
 
     }, ThreadType::Render);
 }

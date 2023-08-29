@@ -1,9 +1,10 @@
 #pragma once
+#include "D3D12Resource.h"
+#include "D3D12View.h"
+#include "D3D12Descriptor.h"
 #include <type_traits>
 #include <d3d12.h>
 #include <unordered_map>
-
-#include "D3D12Resource.h"
 
 class D3D12PipelineState : public D3D12Api
 {
@@ -29,9 +30,8 @@ private:
 
 struct D3D12VertexBufferCache
 {
-	// Vertex
 	D3D12_VERTEX_BUFFER_VIEW CurrentVertexBufferView[MAX_VERTEX_SLOT_COUNT];
-	D3D12ResourceLocation* ResourceLocation[MAX_VERTEX_SLOT_COUNT];
+	//D3D12ResourceLocation* ResourceLocation[MAX_VERTEX_SLOT_COUNT];
 	int32_t MaxVertexIndex = -1;
 };
 
@@ -79,30 +79,33 @@ public:
 	D3D12PipelineStateCache() = delete;
 	explicit D3D12PipelineStateCache(class D3D12Device* InDevice);
 	virtual ~D3D12PipelineStateCache() = default;
-	
+
+	// Process
+	void IssueCachedResources();
+
+	// Cache resources
+	void SetRenderTargets(D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, D3D12DepthStencilView* InDepthStencil);
 	void SetStreamResource(std::shared_ptr<class D3D12Buffer>& InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset = 0);
-	
+
 	void CreateAndAddCache(const D3D12GraphicsPipelineState::Desc& InDesc);
 	std::weak_ptr<D3D12PipelineState> FindCache(const D3D12GraphicsPipelineState::Desc& InDesc);
 
 private:
 	
+	std::shared_ptr<D3D12DescriptorCache> DescriptorCache;
+
 	struct
 	{
-		struct
-		{
-			std::unique_ptr<D3D12PipelineState> CurrentPSO;
+		std::shared_ptr<D3D12PipelineState> CurrentPipelineState;
 
-			D3D12VertexBufferCache VertexBufferCache;
-		} Graphics;
+		D3D12RenderTargetView* RenderTargets[MAX_RENDER_TARGETS];
+		unsigned int NumActivatedRenderTargets;
 
-		struct
-		{
-			std::unique_ptr<D3D12PipelineState> CurrentPSO;
+		D3D12DepthStencilView* DepthStencil;
 
-		} Common;
+		D3D12VertexBufferCache VertexBufferCache;
 
-	} PipelineStateCache;
+	} StateCache;
 
 	std::unordered_map<D3D12GraphicsPipelineState::Desc, std::shared_ptr<D3D12PipelineState>, D3D12GraphicsPipelineState::Hash, D3D12GraphicsPipelineState::HashCompare> PipelineStateCaches;
 };

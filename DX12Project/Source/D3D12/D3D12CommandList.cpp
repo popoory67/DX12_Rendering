@@ -1,5 +1,6 @@
 #include "D3D12Commands.h"
 #include "D3D12Device.h"
+#include "D3D12RenderInterface.h"
 #include "D3D12Fence.h"
 #include "D3D12Descriptor.h"
 #include "D3D12Resource.h"
@@ -10,6 +11,7 @@
 
 D3D12CommandList::D3D12CommandList(D3D12Device* InDevice)
 	: D3D12Api(InDevice)
+	, StateCache(InDevice)
 {
 
 }
@@ -22,10 +24,8 @@ D3D12CommandList::~D3D12CommandList()
 
 void D3D12CommandList::Reset()
 {
-	// GPU가 command list의 명령을 모두 처리한 후에 리셋
 	CommandListAllocator->Reset();
 
-	// 이전에 Excute하여 Queue에 command list를 추가했으니 list를 재설정해도 된다.
 	ThrowIfFailed(CommandList->Reset(CommandListAllocator->Get(),/* OpaquePipelineStateObject.Get()*/ nullptr));
 
 	bClosed = false;
@@ -49,35 +49,43 @@ ID3D12CommandList* D3D12CommandList::GetCommandLists()
 	return CommandList.Get();
 }
 
+D3D12PipelineStateCache& D3D12CommandList::GetStateCache()
+{
+    return StateCache;
+}
+
 void D3D12CommandList::Initialize()
 {
 	CreateCommandList(GetParent());
 }
 
-void D3D12CommandList::SetStreamResource(std::shared_ptr<RHIResource> InVertexBuffer) const
+void D3D12CommandList::SetRenderTargets(RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, RHIResource* InDepthStencil)
+{
+    D3D12RenderTargetView* renderTargetView = D3D12RHI::Cast(InRenderTargets);
+    //D3D12DepthStencilView* depthStencilView = static_cast<D3D12DepthStencilView*>(InDepthStencil);
+
+	GetStateCache().SetRenderTargets(&renderTargetView, InNumRenderTarget, nullptr/*depthStencilView*/);
+}
+
+void D3D12CommandList::SetStreamResource(std::shared_ptr<RHIResource> InVertexBuffer)
 {
     std::shared_ptr<D3D12Buffer> vertexBuffer = std::static_pointer_cast<D3D12Buffer>(InVertexBuffer);
-    GetParent()->GetPSOCache().SetStreamResource(vertexBuffer, 0, vertexBuffer->GetStride(), 0); // TODO : test data
+    GetStateCache().SetStreamResource(vertexBuffer, 0, vertexBuffer->GetStride(), 0); // TODO : test data
 }
 
-void D3D12CommandList::DrawIndexedInstanced(std::shared_ptr<class RHIResource> InVertexBuffer, unsigned int InIndexCount, unsigned int InInstanceCount, unsigned int InStartIndex, int InBaseVertexIndex, unsigned int InStartInstance) const
+void D3D12CommandList::DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance)
 {
-	// TODO : test
-	{
-        std::shared_ptr<D3D12Buffer> vertexBuffer = std::static_pointer_cast<D3D12Buffer>(InVertexBuffer);
-
-        D3D12_VERTEX_BUFFER_VIEW view;
-        view.BufferLocation = vertexBuffer ? vertexBuffer->GetGPUVirtualAddress() : 0;
-        view.StrideInBytes = 28;
-        view.SizeInBytes = vertexBuffer ? vertexBuffer->GetSize() : 0;
-
-        CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        CommandList->IASetVertexBuffers(0, 1, &view);
-    }
-    CommandList->DrawIndexedInstanced(InIndexCount, InInstanceCount, InStartIndex, InBaseVertexIndex, InStartInstance);
+	GetStateCache().IssueCachedResources();
+    CommandList->DrawInstanced(InNumVertices, InNumInstances, InStartIndex, InStartInstance);
 }
 
-void D3D12CommandList::AddTransition(std::shared_ptr<D3D12Resource> InResource, const D3D12_RESOURCE_STATES& InAfterState)
+void D3D12CommandList::DrawIndexedInstanced(std::shared_ptr<class RHIResource> InVertexBuffer, unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance)
+{
+	GetStateCache().IssueCachedResources();
+    CommandList->DrawIndexedInstanced(InNumIndices, InNumInstances, InStartIndex, InStartVertex, InStartInstance);
+}
+
+void D3D12CommandList::AddTransition(D3D12Resource* InResource, const D3D12_RESOURCE_STATES& InAfterState)
 {
 	assert(InResource);
 	
@@ -93,28 +101,9 @@ void D3D12CommandList::FlushTransitions()
 	Barriers.clear();
 }
 
-void D3D12CommandList::ClearRenderTargetView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, XMVECTORF32 InBackColor, UINT InNumRects, const D3D12_RECT* InRect/* = nullptr*/)
-{
-	CommandList->ClearRenderTargetView(InDescriptorHandle.value(), InBackColor, InNumRects, InRect);
-}
-
 void D3D12CommandList::ClearDepthStencilView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect/* = nullptr*/)
 {
 	CommandList->ClearDepthStencilView(InDescriptorHandle.value(), ClearFlags, InDepthValue, InStencil, InNumRects, InRect);
-}
-
-void D3D12CommandList::SetRenderTargets(UINT InNumRenderTargetDescriptors, std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InRenderTargetDescriptorHandle, bool InSingleHandleToDescriptorRange, std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDepthStencilDescriptorHandle)
-{
-	if (InDepthStencilDescriptorHandle.has_value())
-	{
-		CommandList->OMSetRenderTargets(InNumRenderTargetDescriptors, &InRenderTargetDescriptorHandle.value(),
-			InSingleHandleToDescriptorRange, &InDepthStencilDescriptorHandle.value());
-	}
-	else
-	{
-		CommandList->OMSetRenderTargets(InNumRenderTargetDescriptors, &InRenderTargetDescriptorHandle.value(),
-			InSingleHandleToDescriptorRange, nullptr);
-	}
 }
 
 void D3D12CommandList::AddDescriptorHeap(D3D12Descriptor* InDescriptor)

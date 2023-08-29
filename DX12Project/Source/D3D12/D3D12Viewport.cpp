@@ -1,13 +1,12 @@
-
+#include "D3D12Viewport.h"
 #include <DirectXColors.h>
 #include "d3dx12.h"
-#include "D3D12Viewport.h"
 #include "D3D12Resource.h"
+#include "D3D12View.h"
 #include "D3D12Descriptor.h"
 #include "D3D12Commands.h"
 #include "D3D12RenderInterface.h"
 #include "D3D12Fence.h"
-
 #include "D3DUtil.h"
 
 bool D3D12Viewport::IsMsaa4xState = false;
@@ -22,13 +21,8 @@ D3D12Viewport::D3D12Viewport(D3D12Device* InDevice, HWND InHandle, unsigned int 
 	ScreenViewport.Width = static_cast<float>(InWidth);
 	ScreenViewport.Height = static_cast<float>(InHeight);
 
-	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
-	rtvHeapDesc.NumDescriptors = GetSwapChainBufferCount();
-	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	rtvHeapDesc.NodeMask = 0;
 
-	SwapChainBufferDescriptor = std::make_shared<D3D12Descriptor>(GetParent(), rtvHeapDesc);
+	//SwapChainBufferDescriptor = std::make_shared<D3D12Descriptor>(GetParent(), rtvHeapDesc);
 
 	//D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
 	//dsvHeapDesc.NumDescriptors = 1;
@@ -37,16 +31,16 @@ D3D12Viewport::D3D12Viewport(D3D12Device* InDevice, HWND InHandle, unsigned int 
 	//dsvHeapDesc.NodeMask = 0;
 
 	//DepthStencilBufferDescriptor = std::make_shared<D3D12Descriptor>(GetParent(), dsvHeapDesc);
+        
+	// TODO
+    // It has to be modified to pooling codes.
+    for (int i = 0; i < SwapChainBufferCount; ++i)
+    {
+        Fence[i] = new D3D12Fence(InDevice);
+        Fence[i]->Signal();
+    }
 
 	CreateSwapChain();
-
-	// TODO
-	// It has to be modified to pooling codes.
-	for (int i = 0; i < SwapChainBufferCount; ++i)
-	{
-		Fence[i] = new D3D12Fence(InDevice);
-		Fence[i]->Signal();
-	}
 }
 
 D3D12Viewport::~D3D12Viewport()
@@ -59,26 +53,19 @@ D3D12Viewport::~D3D12Viewport()
     }
 }
 
-std::shared_ptr<D3D12Resource> D3D12Viewport::GetCurrentBackBuffer() const
+D3D12Resource* D3D12Viewport::GetCurrentBackBuffer()
 {
 	if (SwapChainBuffer[CurBackBufferIndex])
 	{
-		return SwapChainBuffer[CurBackBufferIndex];
+		return D3D12RHI::Cast(SwapChainBuffer[CurBackBufferIndex]->GetTexture());
 	}
 	return nullptr;
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE D3D12Viewport::GetCurrentBackBufferView() const
+void D3D12Viewport::GetRenderTargetView(D3D12RenderTargetView*& OutRenderTargets) const
 {
-	return CD3DX12_CPU_DESCRIPTOR_HANDLE(
-		SwapChainBufferDescriptor->GetCpuHandle(0),
-		CurBackBufferIndex,
-		(UINT)SwapChainBufferDescriptor->GetSize());
-}
-
-constexpr unsigned int D3D12Viewport::GetSwapChainBufferCount()
-{
-	return SwapChainBufferCount; 
+    OutRenderTargets = SwapChainBuffer[CurBackBufferIndex];
+    //memcpy_s(OutRenderTargets, sizeof(D3D12RenderTargetView*), SwapChainBuffer, sizeof(D3D12RenderTargetView*));
 }
 
 constexpr float D3D12Viewport::GetAspectRatio()
@@ -88,7 +75,7 @@ constexpr float D3D12Viewport::GetAspectRatio()
 
 void D3D12Viewport::Present()
 {
-	const auto& backBuffer = GetCurrentBackBuffer();
+	D3D12Resource* backBuffer = GetCurrentBackBuffer();
 	if (backBuffer)
 	{
 		if (D3D12Device* device = GetParent())
@@ -214,24 +201,27 @@ void D3D12Viewport::CreateSwapChain()
 
 void D3D12Viewport::CreateSwapChainBuffer()
 {
-	if (SwapChainBufferDescriptor)
-	{
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(SwapChainBufferDescriptor->GetCpuHandle(0));
+    for (int i = 0; i < SwapChainBufferCount; ++i)
+    {
+        ComPtr<ID3D12Resource> backBufferResource;
+        ThrowIfFailed(SwapChain->GetBuffer(i, IID_PPV_ARGS(backBufferResource.GetAddressOf())));
 
-		for (int i = 0; i < SwapChainBufferCount; ++i)
-		{
-			ComPtr<ID3D12Resource> backBufferResource;
-			ThrowIfFailed(SwapChain->GetBuffer(i, IID_PPV_ARGS(backBufferResource.GetAddressOf())));
+        D3D12Resource* resource = new D3D12Resource(backBufferResource.Get());
+        resource->SetResourceState(D3D12_RESOURCE_STATE_PRESENT);
 
-			SwapChainBuffer[i] = std::make_shared<D3D12Resource>(backBufferResource.Get());
+        D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
+        rtvHeapDesc.NumDescriptors = GetSwapChainBufferCount();
+        rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+        rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+        rtvHeapDesc.NodeMask = 0;
 
-			SwapChainBuffer[i]->SetResourceState(D3D12_RESOURCE_STATE_PRESENT);
+        D3D12Descriptor* descriptor = new D3D12Descriptor(GetParent(), rtvHeapDesc);
 
-			GetDevice()->CreateRenderTargetView(SwapChainBuffer[i]->GetResource(), nullptr, rtvHeapHandle);
-			rtvHeapHandle.Offset(1, (UINT)SwapChainBufferDescriptor->GetSize());
+        SwapChainBuffer[i] = new D3D12RenderTargetView(resource, descriptor);
 
-		}
-	}
+        CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(SwapChainBuffer[i]->GetHandle());
+        GetDevice()->CreateRenderTargetView(resource->GetResource(), nullptr, rtvHandle);
+    }
 }
 
 void D3D12Viewport::WaitForFrameCompletion()

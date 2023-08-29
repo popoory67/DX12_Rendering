@@ -32,19 +32,41 @@ void D3D12PipelineState::SetPixelShader(const D3D12_SHADER_BYTECODE& InShaderByt
 D3D12PipelineStateCache::D3D12PipelineStateCache(D3D12Device* InDevice)
 	: D3D12Api(InDevice)
 {
+	DescriptorCache = std::make_shared<D3D12DescriptorCache>(InDevice);
+}
 
+void D3D12PipelineStateCache::IssueCachedResources()
+{
+	DescriptorCache->SetRenderTargets(StateCache.RenderTargets, StateCache.NumActivatedRenderTargets, StateCache.DepthStencil);
+	DescriptorCache->SetVertexBuffers(StateCache.VertexBufferCache);
+}
+
+void D3D12PipelineStateCache::SetRenderTargets(D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, D3D12DepthStencilView* InDepthStencil)
+{
+    // Render targets
+    {
+        ZeroMemory(StateCache.RenderTargets, sizeof(StateCache.RenderTargets));
+        memcpy_s(StateCache.RenderTargets, sizeof(D3D12RenderTargetView*) * InNumRenderTargets, InRenderTargets, sizeof(D3D12RenderTargetView*) * InNumRenderTargets);
+        StateCache.NumActivatedRenderTargets = InNumRenderTargets;
+    }
+    // Depth-stencil
+    {
+		StateCache.DepthStencil = InDepthStencil;
+    }
 }
 
 void D3D12PipelineStateCache::SetStreamResource(std::shared_ptr<D3D12Buffer>& InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset)
 {
 	D3D12_VERTEX_BUFFER_VIEW view;
-	view.BufferLocation = InVertexBuffer ? InVertexBuffer->GetGPUVirtualAddress() + InOffset : 0;
+	view.BufferLocation = InVertexBuffer ? InVertexBuffer->Get()->GetGPUVirtualAddress() + InOffset : 0;
 	view.StrideInBytes = InStride;
 	view.SizeInBytes = InVertexBuffer ? InVertexBuffer->GetSize() - InOffset : 0;
 
-	D3D12_VERTEX_BUFFER_VIEW& CurrentVertexCache = PipelineStateCache.Graphics.VertexBufferCache.CurrentVertexBufferView[StreamIndex];
+	D3D12_VERTEX_BUFFER_VIEW& CurrentVertexCache = StateCache.VertexBufferCache.CurrentVertexBufferView[StreamIndex];
 
-	if (view.BufferLocation != CurrentVertexCache.BufferLocation)
+	if (view.BufferLocation != CurrentVertexCache.BufferLocation || 
+		view.StrideInBytes != CurrentVertexCache.StrideInBytes ||
+		view.SizeInBytes != CurrentVertexCache.SizeInBytes)
 	{
 		if (InVertexBuffer)
 		{

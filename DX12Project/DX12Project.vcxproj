@@ -30,6 +30,7 @@
     <ClCompile Include="Source\D3D12\D3D12RenderInterface.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Resource.cpp" />
     <ClCompile Include="Source\D3D12\D3D12RootSignature.cpp" />
+    <ClCompile Include="Source\D3D12\D3D12View.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Viewport.cpp" />
     <ClCompile Include="Source\D3D12\D3DUtil.cpp" />
     <ClCompile Include="Source\D3D12\DDSTextureLoader.cpp" />
@@ -45,6 +46,7 @@
     <ClCompile Include="Source\Engine\Object\Components\RenderComponent.cpp" />
     <ClCompile Include="Source\Engine\Object\Entity.cpp" />
     <ClCompile Include="Source\Engine\Object\Scene.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\CommandContext.cpp" />
     <ClCompile Include="Source\Engine\Renderer\CommandList.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Commands.cpp" />
     <ClCompile Include="Source\Engine\Renderer\GeometryGenerator.cpp" />
@@ -77,6 +79,7 @@
     <ClInclude Include="Source\D3D12\D3D12Resource.h" />
     <ClInclude Include="Source\D3D12\D3D12RootSignature.h" />
     <ClInclude Include="Source\D3D12\D3D12Types.h" />
+    <ClInclude Include="Source\D3D12\D3D12View.h" />
     <ClInclude Include="Source\D3D12\D3D12Viewport.h" />
     <ClInclude Include="Source\D3D12\D3DUtil.h" />
     <ClInclude Include="Source\D3D12\d3dx12.h" />
@@ -95,6 +98,7 @@
     <ClInclude Include="Source\Engine\Object\Components\RenderComponent.h" />
     <ClInclude Include="Source\Engine\Object\Entity.h" />
     <ClInclude Include="Source\Engine\Object\Scene.h" />
+    <ClInclude Include="Source\Engine\Renderer\CommandContext.h" />
     <ClInclude Include="Source\Engine\Renderer\CommandList.h" />
     <ClInclude Include="Source\Engine\Renderer\Commands.h" />
     <ClInclude Include="Source\Engine\Renderer\GeometryGenerator.h" />

@@ -1,5 +1,6 @@
 #include "Util.h"
 #include "Viewport.h"
+#include "CommandContext.h"
 #include "CommandList.h"
 
 Viewport::Viewport(RHIViewport*&& InViewportRHI)
@@ -13,24 +14,19 @@ Viewport::~Viewport()
 	SafeDelete(ViewportInterface);
 }
 
-void Viewport::Draw(RHICommandList& InCommandList)
+void Viewport::Draw(RHICommandContext& InContext)
 {
-	InCommandList.BeginDrawWindow(ViewportInterface);
+	{
+        RHICommand_BeginDrawWindow* viewportCommand = new RHICommand_BeginDrawWindow(ViewportInterface);
 
-	InCommandList.BeginRender();
+        InContext.AddCommand(std::move(viewportCommand));
+	}
 
-	InCommandList.EndDrawWindow(ViewportInterface);
-}
+	InContext.GetCommandList().BeginRender();
 
-// TODO
-// The test codes that split Viewport::Draw to verify the order of that function are listed below.
-// These need to be rearranged like Viewport::Draw.
-void Viewport::BeginDrawWindow(RHICommandList& InCommandList)
-{
-	InCommandList.BeginDrawWindow(ViewportInterface);
-}
+    {
+		RHICommand_EndDrawWindow* viewportCommand = new RHICommand_EndDrawWindow(ViewportInterface);
 
-void Viewport::EndDrawWindow(RHICommandList& InCommandList)
-{
-	InCommandList.EndDrawWindow(ViewportInterface);
+        InContext.AddCommand(std::move(viewportCommand));
+    }
 }

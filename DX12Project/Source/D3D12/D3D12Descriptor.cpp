@@ -1,5 +1,8 @@
 #include <stdexcept>
 #include "D3D12Descriptor.h"
+#include "D3D12PipelineState.h"
+#include "D3D12Commands.h"
+#include "D3D12View.h"
 #include "D3DUtil.h"
 
 D3D12Descriptor::D3D12Descriptor(D3D12Device* InDeivce, D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc)
@@ -52,4 +55,38 @@ D3D12_CPU_DESCRIPTOR_HANDLE D3D12Descriptor::GetCpuHandle(UINT64 InIndex) const
 	D3D12_CPU_DESCRIPTOR_HANDLE handle;
 	handle.ptr = static_cast<SIZE_T>(CPUHandle.ptr + InIndex * Size);
 	return handle;
+}
+
+D3D12DescriptorCache::D3D12DescriptorCache(D3D12Device* InDeivce)
+	: D3D12Api(InDeivce)
+{
+
+}
+
+void D3D12DescriptorCache::SetVertexBuffers(D3D12VertexBufferCache& InCache)
+{
+    GetParent()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	GetParent()->GetCommandList()->IASetVertexBuffers(0, 1, InCache.CurrentVertexBufferView);
+}
+
+void D3D12DescriptorCache::SetRenderTargets(D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, D3D12DepthStencilView* InDepthStencil)
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE renderTargetHandles[MAX_RENDER_TARGETS];
+
+	for (int i = 0; i < InNumRenderTargets; ++i)
+	{
+		renderTargetHandles[i] = InRenderTargets[i]->GetHandle();
+	}
+
+    if (InDepthStencil)
+    {
+		const D3D12_CPU_DESCRIPTOR_HANDLE& depthStencilHandle = InDepthStencil->GetHandle();
+        GetParent()->GetCommandList()->OMSetRenderTargets(InNumRenderTargets, renderTargetHandles,
+            0, &depthStencilHandle);
+    }
+    else
+    {
+        GetParent()->GetCommandList()->OMSetRenderTargets(InNumRenderTargets, renderTargetHandles,
+            0, nullptr);
+    }
 }

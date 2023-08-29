@@ -3,12 +3,12 @@
 #include <DirectXMath.h>
 #include <comdef.h>
 #include <optional>
-#include <queue>
 #include "d3dx12.h"
 #include "Util.h"
 #include "CommandList.h"
 #include "D3D12Device.h"
 #include "D3D12Types.h"
+#include "D3D12PipelineState.h"
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
@@ -61,28 +61,28 @@ public:
 
 	ID3D12CommandList* GetCommandLists();
 
+	D3D12PipelineStateCache& GetStateCache();
+
 	void Initialize();
 
 	void BeginDrawWindow(RHIViewport* InViewport) final override;
 	void EndDrawWindow(RHIViewport* InViewport) final override;
 	void BeginRender() final override;
 	void EndRender() final override;
-	void AddCommand(struct RHICommand*&& InCommand) const override;
-	void SetStreamResource(std::shared_ptr<class RHIResource> InVertexBuffer) const override;
-	void DrawIndexedInstanced(std::shared_ptr<class RHIResource> InVertexBuffer, unsigned int InIndexCount, unsigned int InInstanceCount, unsigned int InStartIndex, int InBaseVertexIndex, unsigned int InStartInstance) const override;
-
+	void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, RHIResource* InDepthStencil) override;
+	void SetStreamResource(std::shared_ptr<class RHIResource> InVertexBuffer) override;
+	void DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance) override;
+	void DrawIndexedInstanced(std::shared_ptr<class RHIResource> InVertexBuffer, unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance) override;
 
 	FORCEINLINE bool IsClosed() const { return bClosed; }
 	void Close();
 	void Reset();
 
 	// Indicate a state transition on the resource usage.
-	void AddTransition(std::shared_ptr<D3D12Resource> InResource, const D3D12_RESOURCE_STATES& InAfterState);
+	void AddTransition(D3D12Resource* InResource, const D3D12_RESOURCE_STATES& InAfterState);
 	void FlushTransitions();
 
-	void ClearRenderTargetView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, XMVECTORF32 InBackColor, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
 	void ClearDepthStencilView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
-	void SetRenderTargets(UINT InNumRenderTargetDescriptors, std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InRenderTargetDescriptorHandle, bool InSingleHandleToDescriptorRange, std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDepthStencilDescriptorHandle);
 
 	// Descriptor heap
 	void AddDescriptorHeap(class D3D12Descriptor* InDescriptor);
@@ -101,7 +101,8 @@ private:
 private:
 	bool bClosed = false;
 
-	mutable std::queue<std::unique_ptr<RHICommand>> Commands;
+	D3D12PipelineStateCache StateCache;
+
 	ComPtr<ID3D12GraphicsCommandList> CommandList = nullptr; 
 	D3D12CommandAllocator* CommandListAllocator = nullptr;
 	D3D12Fence* Fence = nullptr;

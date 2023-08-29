@@ -13,6 +13,6 @@ public:
 
 	bool Initialize();
 	void BeginRender();
-	void Render(class RHICommandList& InCommandList);
+	void Render(class RHICommandContext& InContext);
 	void EndRender();
 };

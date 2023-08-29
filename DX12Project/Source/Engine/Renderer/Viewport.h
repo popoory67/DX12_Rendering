@@ -1,7 +1,7 @@
 #pragma once
 #include "RenderInterface.h"
 
-class RHICommandList;
+class RHICommandContext;
 
 class Viewport
 {
@@ -10,9 +10,7 @@ public:
 	explicit Viewport(RHIViewport*&& InViewportRHI);
 	virtual ~Viewport();
 
-	void Draw(RHICommandList& InCommandList);
-	void BeginDrawWindow(RHICommandList& InCommandList);
-	void EndDrawWindow(RHICommandList& InCommandList);
+	void Draw(RHICommandContext& InContext);
 
 private:
 	RHIViewport* ViewportInterface;

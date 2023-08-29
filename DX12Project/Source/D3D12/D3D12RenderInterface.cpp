@@ -45,12 +45,6 @@ void D3D12RHI::UnlockBuffer(std::shared_ptr<RHIResource> InBuffer)
 	InBuffer->Unlock();
 }
 
-void D3D12RHI::ResetCommandList()
-{
-	D3D12CommandList& commandList = CurrentDevice->GetCommandList();
-	commandList.Reset();
-}
-
 std::shared_ptr<D3D12Buffer> D3D12RHI::CreateBuffer(unsigned int InSize, unsigned int InStride)
 {
 	ComPtr<ID3D12Resource> resource = CreateResource(InSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr);
@@ -109,16 +103,16 @@ void D3D12RHI::CreateRenderTarget(D3D12Resource* InResource, CD3DX12_CPU_DESCRIP
 //	GetCurrentDevice()->GetDevice()->CreateShaderResourceView(InResource->GetResource()->GetResource(), &srvDesc, InDescriptor->GetCpuHandle(0));
 //}
 
-void D3D12RHI::LoadTexture(D3D12ShaderResource* InResource, std::string InName, std::wstring InFilePath)
-{
-	if (InResource)
-	{
-		//InTexture->Name = InName; // "woodCrateTex";
-		//InTexture->Filename = InFilePath;// L"../../Textures/WoodCrate01.dds";
-
-		//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(GetParent()->GetDeviceInterface(), GetCommnadList()->GetGraphicsInterface(), InFilePath.c_str(), InResource->Get(), InResource->GetTextureResource()->Get()));
-	}
-}
+//void D3D12RHI::LoadTexture(D3D12ShaderResource* InResource, std::string InName, std::wstring InFilePath)
+//{
+//	if (InResource)
+//	{
+//		//InTexture->Name = InName; // "woodCrateTex";
+//		//InTexture->Filename = InFilePath;// L"../../Textures/WoodCrate01.dds";
+//
+//		//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(GetParent()->GetDeviceInterface(), GetCommnadList()->GetGraphicsInterface(), InFilePath.c_str(), InResource->Get(), InResource->GetTextureResource()->Get()));
+//	}
+//}
 
 void D3D12RHI::CreateDepthStencilView(D3D12Resource* InResource, class D3D12Descriptor* InDescriptor, D3D12_DEPTH_STENCIL_VIEW_DESC& InDepthStencilDesc)
 {

@@ -3,6 +3,7 @@
 #include "Application.h"
 #include "ThreadBase.h"
 #include "TaskGraph.h"
+#include "CommandContext.h"
 #include "CommandList.h"
 #include "Viewport.h"
 #include "SceneRendering.h"
@@ -43,9 +44,9 @@ public:
 
             Renderer->BeginRender();
 
-            ViewportRenderer->Draw(GCommandContext.GetCommandList());
+            ViewportRenderer->Draw(GCommandContext);
 
-            Renderer->Render(GCommandContext.GetCommandList());
+            Renderer->Render(GCommandContext);
             Renderer->EndRender();
         }
     }
@@ -98,5 +99,5 @@ namespace RenderThread
 
 void RenderCommand::DoTask()
 {
-    Func(GCommandContext.GetCommandList());
+    Func(GCommandContext);
 }

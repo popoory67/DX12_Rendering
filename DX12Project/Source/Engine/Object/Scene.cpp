@@ -19,7 +19,7 @@ void Scene::Start()
 {
 	std::shared_ptr<Scene> thisPtr = shared_from_this();
 
-	TaskGraphSystem::Get().AddTask<RenderCommand>([ThisPtr = std::weak_ptr<Scene>{ thisPtr }](const RHICommandList& InCommandList)
+	TaskGraphSystem::Get().AddTask<RenderCommand>([ThisPtr = std::weak_ptr<Scene>{ thisPtr }](const RHICommandContext& InCommandList)
     {
 		if (auto shared = ThisPtr.lock())
 		{

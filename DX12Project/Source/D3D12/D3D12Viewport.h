@@ -38,9 +38,9 @@ public:
 
 	DXGI_FORMAT GetBackBufferFormat() { return BackBufferFormat; }
 
-	std::shared_ptr<D3D12Resource> GetCurrentBackBuffer() const;
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferView() const;
-	constexpr unsigned int GetSwapChainBufferCount();
+	void GetRenderTargetView(class D3D12RenderTargetView*& OutRenderTargets) const;
+
+	FORCEINLINE unsigned int GetSwapChainBufferCount() const { return SwapChainBufferCount; }
 	//D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilBufferView() const;
 	//DXGI_FORMAT GetDepthStencilFormat() const;
 
@@ -52,6 +52,8 @@ public:
 	void SetViewport(D3DViewportResource& InViewResource);
 
 private:
+	D3D12Resource* GetCurrentBackBuffer();
+
 	void CreateSwapChain();
 	void CreateSwapChainBuffer();
 	//void CreateDepthStencilBuffer();
@@ -76,8 +78,7 @@ private:
 	static const unsigned int SwapChainBufferCount = 2;
 	int CurBackBufferIndex = 0;
 
-	std::shared_ptr<D3D12Resource> SwapChainBuffer[SwapChainBufferCount];
-	std::shared_ptr<D3D12Descriptor> SwapChainBufferDescriptor;
+	class D3D12RenderTargetView* SwapChainBuffer[SwapChainBufferCount];
 
 	// Depth/Stencil
 	//DXGI_FORMAT DepthStencilFormat;

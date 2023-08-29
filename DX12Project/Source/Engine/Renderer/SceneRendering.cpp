@@ -2,6 +2,7 @@
 #include "Mesh.h"
 #include "Scene.h"
 #include "PrimitiveComponent.h"
+#include "CommandContext.h"
 #include "RenderInterface.h"
 #include "D3D12RenderInterface.h"
 
@@ -12,14 +13,14 @@ bool SceneRenderer::Initialize()
 
 void SceneRenderer::BeginRender()
 {
-	GRHI->ResetCommandList();
+	//GRHI->ResetCommandList();
 
     RenderGraph::Get().Execute();
 }
 
-void SceneRenderer::Render(RHICommandList& InCommandList)
+void SceneRenderer::Render(RHICommandContext& InContext)
 {
-    // Draw call
+	InContext.ExecuteCommands();
 }
 
 void SceneRenderer::EndRender()

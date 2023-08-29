@@ -12,7 +12,7 @@ namespace RenderThread
 // Command is a simple and running once.
 struct RenderCommand
 {
-	using Lambda = std::function<void(const class RHICommandList&)>;
+	using Lambda = std::function<void(const class RHICommandContext&)>;
 
 	RenderCommand() = delete;
 	RenderCommand(Lambda&& InLambda)

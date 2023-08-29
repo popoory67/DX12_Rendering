@@ -1,8 +1,6 @@
 #pragma once
+#include "Commands.h"
 #include <memory>
-#include "Util.h"
-
-extern class RHICommandContext GCommandContext;
 
 // This class is for render commands which will be processed in GPU.
 // And it's better to be executed in a render thread, not a main thread.
@@ -12,14 +10,15 @@ class RHICommandList
 public:
 	RHICommandList() = default;
 	virtual ~RHICommandList() = default;
-
+	
 	virtual void BeginDrawWindow(class RHIViewport* InViewport) = 0;
 	virtual void EndDrawWindow(class RHIViewport* InViewport) = 0;
 	virtual void BeginRender() = 0;
 	virtual void EndRender() = 0;
-	virtual void AddCommand(struct RHICommand*&& InCommand) const = 0;
-	virtual void SetStreamResource(std::shared_ptr<class RHIResource> InVertexBuffer) const = 0;
-	virtual void DrawIndexedInstanced(std::shared_ptr<class RHIResource> InVertexBuffer, unsigned int InIndexCount, unsigned int InInstanceCount, unsigned int InStartIndex, int InBaseVertexIndex, unsigned int InStartInstance) const = 0;
+	virtual void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, RHIResource* InDepthStencil) = 0;
+	virtual void SetStreamResource(std::shared_ptr<class RHIResource> InVertexBuffer) = 0;
+	virtual void DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance) = 0;
+	virtual void DrawIndexedInstanced(std::shared_ptr<class RHIResource> InVertexBuffer, unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance) = 0;
 };
 
 class RHICommandListExecutor
@@ -30,43 +29,4 @@ public:
 
 	virtual void ExecuteCommandLists(RHICommandList* InCommandList) = 0;
 	virtual void FlushCommandLists() = 0;
-};
-
-class RHICommandContext
-{
-public:
-	void SetCommandList(RHICommandList* InCommandList);
-
-	// This must make sure that it never return nullptr in run-time.
-	RHICommandList& GetCommandList() const;
-
-private:
-	RHICommandList* CommandList = nullptr;
-};
-
-struct RHICommand : public Uncopyable
-{
-public:
-	RHICommand() = default;
-	virtual ~RHICommand() = default;
-
-	virtual void Execute(const RHICommandList& InCmdList) = 0;
-};
-
-template<class TCommand>
-struct RHICommandBase : public RHICommand
-{
-public:
-	RHICommandBase() = default;
-	virtual ~RHICommandBase() = default;
-
-	void ExecuteAndDestruct(const RHICommandList& InCmdList)
-	{
-		TCommand* pCmd = static_cast<TCommand*>(this);
-		if (pCmd)
-		{
-			pCmd->Execute(InCmdList);
-			pCmd->~TCommand();
-		}
-	}
 };

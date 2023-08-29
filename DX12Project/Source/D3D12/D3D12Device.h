@@ -29,7 +29,6 @@ public:
 	ID3D12CommandQueue* GetCommandQueue() const;
 	D3D12CommandList& GetCommandList() const;
 	D3D12CommandListExecutor& GetCommandListExecutor() const;
-	D3D12PipelineStateCache& GetPSOCache() const;
 	D3D_ROOT_SIGNATURE_VERSION GetRootSignatureVersion() const;
 
 	void Initialize();
@@ -43,8 +42,6 @@ protected:
 
 	D3D12CommandListExecutor* CommandListExecutor = nullptr;
 	D3D12CommandList* CommandList = nullptr;
-
-	D3D12PipelineStateCache* PipelineStateCache = nullptr;
 
 	D3D_ROOT_SIGNATURE_VERSION RootSignatureVersion;
 	D3D12ResourceManager* ResourceManager = nullptr;
