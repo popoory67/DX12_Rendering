@@ -6,7 +6,7 @@ D3D12RootSignature::D3D12RootSignature(D3D12Device* InDevice, const D3D12_VERSIO
 	: D3D12Api(InDevice)
 {
     ComPtr<ID3DBlob> error;
-	const D3D_ROOT_SIGNATURE_VERSION version = GetParent()->GetRootSignatureVersion();
+	const D3D_ROOT_SIGNATURE_VERSION version = InDevice->GetRootSignatureVersion();
 
     HRESULT serializeHR = D3DX12SerializeVersionedRootSignature(&InDesc, version, &RootSignatureBlob, &error);
     if (error)

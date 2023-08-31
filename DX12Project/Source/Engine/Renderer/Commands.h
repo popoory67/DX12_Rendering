@@ -3,6 +3,12 @@
 #include "CommandContext.h"
 #include <vector>
 
+enum class CommandPriority
+{
+	First = 0,
+	Last = 2,
+};
+
 struct RHICommand : public Uncopyable
 {
 public:
@@ -10,6 +16,11 @@ public:
 	virtual ~RHICommand() = default;
 
 	virtual void Execute(const RHICommandContext& InContext) = 0;
+
+	CommandPriority GetPriority() const { return Priority; }
+
+protected:
+	CommandPriority Priority = CommandPriority::Last;
 };
 
 template<class TCommand>
@@ -87,12 +98,12 @@ private:
 struct RHICommand_DrawPrimitive : public RHICommandBase<RHICommand_DrawPrimitive>
 {
 	RHICommand_DrawPrimitive() = delete;
-	RHICommand_DrawPrimitive(unsigned int InSize); // test parameter
+	RHICommand_DrawPrimitive(unsigned int InCount); // test parameter
 	virtual ~RHICommand_DrawPrimitive() = default;
 
 	void Execute(const RHICommandContext& InContext) override;
 
 private:
-	unsigned int Size;
+	unsigned int Count;
 	unsigned int Stride;
 };

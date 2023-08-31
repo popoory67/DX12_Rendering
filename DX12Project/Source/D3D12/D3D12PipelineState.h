@@ -16,14 +16,12 @@ public:
 	ComPtr<ID3D12PipelineState> Get() { return PipelineState; }
 	ID3D12PipelineState* GetInterface() { return PipelineState.Get(); }
 
-	void SetVertexShader(const D3D12_SHADER_BYTECODE& InShaderByte);
-	void SetPixelShader(const D3D12_SHADER_BYTECODE& InShaderByte);
+	const D3D12_GRAPHICS_PIPELINE_STATE_DESC& GetDesc() const;
 
 private:
 	ComPtr<ID3D12PipelineState> PipelineState = nullptr;
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC PipelineStateDesc;
-	std::vector<D3D12_INPUT_ELEMENT_DESC> InputLayout;
 };
 
 #define MAX_VERTEX_SLOT_COUNT D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT
@@ -84,11 +82,13 @@ public:
 	void IssueCachedResources();
 
 	// Cache resources
+	void SetViewport(const D3D12_VIEWPORT& InViewport, const D3D12_RECT& InRect);
 	void SetRenderTargets(D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, D3D12DepthStencilView* InDepthStencil);
 	void SetStreamResource(std::shared_ptr<class D3D12Buffer>& InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset = 0);
 
 	void CreateAndAddCache(const D3D12GraphicsPipelineState::Desc& InDesc);
 	std::weak_ptr<D3D12PipelineState> FindCache(const D3D12GraphicsPipelineState::Desc& InDesc);
+	std::weak_ptr<D3D12PipelineState> GetCurrentStateCache() const;
 
 private:
 	
@@ -97,6 +97,11 @@ private:
 	struct
 	{
 		std::shared_ptr<D3D12PipelineState> CurrentPipelineState;
+
+		D3D12_VIEWPORT Viewport;
+		D3D12_RECT ScissorRect;
+
+		class D3D12RootSignature* RootSignature;
 
 		D3D12RenderTargetView* RenderTargets[MAX_RENDER_TARGETS];
 		unsigned int NumActivatedRenderTargets;

@@ -15,6 +15,7 @@ public:
 	virtual void EndDrawWindow(class RHIViewport* InViewport) = 0;
 	virtual void BeginRender() = 0;
 	virtual void EndRender() = 0;
+	virtual void ResizeViewport(class RHIViewport* InViewport) = 0;
 	virtual void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, RHIResource* InDepthStencil) = 0;
 	virtual void SetStreamResource(std::shared_ptr<class RHIResource> InVertexBuffer) = 0;
 	virtual void DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance) = 0;

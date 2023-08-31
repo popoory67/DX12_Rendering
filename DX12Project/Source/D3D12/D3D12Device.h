@@ -29,6 +29,7 @@ public:
 	ID3D12CommandQueue* GetCommandQueue() const;
 	D3D12CommandList& GetCommandList() const;
 	D3D12CommandListExecutor& GetCommandListExecutor() const;
+	D3D12ResourceManager& GetResourceManager() const;
 	D3D_ROOT_SIGNATURE_VERSION GetRootSignatureVersion() const;
 
 	void Initialize();

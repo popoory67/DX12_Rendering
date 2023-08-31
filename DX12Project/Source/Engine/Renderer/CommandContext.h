@@ -3,6 +3,7 @@
 #include <memory>
 #include <queue>
 #include <vector>
+#include <list>
 
 extern class RHICommandContext GCommandContext;
 
@@ -40,10 +41,15 @@ public:
 		ResourceManager.AddResource(std::move(InResource));
 	}
 
+	// test
+	void Close() const { bClose = true; }
+
 private:
 	RHICommandList* CommandList = nullptr;
 
-	mutable std::queue<std::unique_ptr<struct RHICommand>> Commands;
+	mutable std::list<std::unique_ptr<struct RHICommand>> Commands;
 
 	mutable RHIResourceManager ResourceManager;
+
+	mutable bool bClose = false;
 };

@@ -20,18 +20,27 @@ RHICommandList& RHICommandContext::GetCommandList() const
 void RHICommandContext::AddCommand(struct RHICommand*&& InCommand) const
 {
     std::unique_ptr<RHICommand> command(std::move(InCommand));
-    Commands.push(std::move(command));
+    if (command->GetPriority() == CommandPriority::First)
+    {
+        Commands.push_front(std::move(command));
+    }
+    else
+    {
+        Commands.push_back(std::move(command));
+    }
 }
 
 void RHICommandContext::ExecuteCommands() const
 {
     // TODO
     // Processing commands on a concurrency task with a priority
-    while (!Commands.empty())
+    bClose = false;
+
+    while (!Commands.empty() && !bClose)
     {
-        std::unique_ptr<RHICommand>&& command = std::move(Commands.front());
+        std::unique_ptr<RHICommand> command= std::move(Commands.front());
         command->Execute(*this);
 
-        Commands.pop();
+        Commands.pop_front();
     }
 }

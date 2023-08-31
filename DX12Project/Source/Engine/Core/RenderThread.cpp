@@ -25,6 +25,7 @@ public:
         {
             RHIViewport* viewport = GRHI->CreateViewport(Application::GetWindowHandle(), 100, 100/*MainWindowHandle, ClientWidth, ClientHeight*/);
             ViewportRenderer = std::make_unique<Viewport>(std::move(viewport));
+            ViewportRenderer->Initialize(GCommandContext);
         }
 
         {

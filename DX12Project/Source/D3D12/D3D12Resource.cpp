@@ -28,9 +28,7 @@ void* D3D12Resource::Lock()
 	void* resultBuffer;
     CD3DX12_RANGE readRange(0, 0);
 
-    ThrowIfFailed(Resource->Map(0, &readRange, reinterpret_cast<void**>(&resultBuffer)));
-
-	resultBuffer = new char(Size);
+    ThrowIfFailed(Resource->Map(0, &readRange, &resultBuffer));
 
 	return resultBuffer;
 }

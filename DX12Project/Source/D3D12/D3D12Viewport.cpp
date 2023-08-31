@@ -308,9 +308,9 @@ void D3D12Viewport::SetViewport(D3DViewportResource& InViewResource)
 	viewport.MinDepth = InViewResource.MinDepth;
 	viewport.MaxDepth = InViewResource.MaxDepth;
 
-	D3D12_RECT& ScissorRect = GetRect();
+	D3D12_RECT& scissorRect = GetRect();
 
-	ScissorRect = { 0, 0, (LONG)viewport.Width, (LONG)viewport.Height };
+	scissorRect = { 0, 0, (LONG)viewport.Width, (LONG)viewport.Height };
 }
 
 RHIViewport* D3D12RHI::CreateViewport(void* InHWnd, unsigned int InWidth, unsigned int InHeight)

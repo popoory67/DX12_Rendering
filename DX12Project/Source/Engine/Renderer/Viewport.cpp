@@ -14,6 +14,11 @@ Viewport::~Viewport()
 	SafeDelete(ViewportInterface);
 }
 
+void Viewport::Initialize(RHICommandContext& InContext)
+{
+	InContext.GetCommandList().ResizeViewport(ViewportInterface);
+}
+
 void Viewport::Draw(RHICommandContext& InContext)
 {
 	{
@@ -22,7 +27,7 @@ void Viewport::Draw(RHICommandContext& InContext)
         InContext.AddCommand(std::move(viewportCommand));
 	}
 
-	InContext.GetCommandList().BeginRender();
+	//InContext.GetCommandList().BeginRender();
 
     {
 		RHICommand_EndDrawWindow* viewportCommand = new RHICommand_EndDrawWindow(ViewportInterface);

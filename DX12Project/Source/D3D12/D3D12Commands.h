@@ -69,6 +69,7 @@ public:
 	void EndDrawWindow(RHIViewport* InViewport) final override;
 	void BeginRender() final override;
 	void EndRender() final override;
+	void ResizeViewport(RHIViewport* InViewport) override;
 	void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, RHIResource* InDepthStencil) override;
 	void SetStreamResource(std::shared_ptr<class RHIResource> InVertexBuffer) override;
 	void DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance) override;
@@ -101,7 +102,7 @@ private:
 private:
 	bool bClosed = false;
 
-	D3D12PipelineStateCache StateCache;
+	D3D12PipelineStateCache PipelineStateCache;
 
 	ComPtr<ID3D12GraphicsCommandList> CommandList = nullptr; 
 	D3D12CommandAllocator* CommandListAllocator = nullptr;

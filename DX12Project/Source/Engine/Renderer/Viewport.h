@@ -10,6 +10,7 @@ public:
 	explicit Viewport(RHIViewport*&& InViewportRHI);
 	virtual ~Viewport();
 
+	void Initialize(RHICommandContext& InContext);
 	void Draw(RHICommandContext& InContext);
 
 private:

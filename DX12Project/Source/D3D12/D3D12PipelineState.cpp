@@ -19,14 +19,9 @@ D3D12PipelineState::~D3D12PipelineState()
 {
 }
 
-void D3D12PipelineState::SetVertexShader(const D3D12_SHADER_BYTECODE& InShaderByte)
+const D3D12_GRAPHICS_PIPELINE_STATE_DESC& D3D12PipelineState::GetDesc() const
 {
-	memcpy_s(&PipelineStateDesc.VS, sizeof(PipelineStateDesc.VS) , &InShaderByte, sizeof(InShaderByte));
-}
-
-void D3D12PipelineState::SetPixelShader(const D3D12_SHADER_BYTECODE& InShaderByte)
-{
-	memcpy_s(&PipelineStateDesc.PS, sizeof(PipelineStateDesc.PS), &InShaderByte, sizeof(InShaderByte));
+	return PipelineStateDesc;
 }
 
 D3D12PipelineStateCache::D3D12PipelineStateCache(D3D12Device* InDevice)
@@ -37,8 +32,17 @@ D3D12PipelineStateCache::D3D12PipelineStateCache(D3D12Device* InDevice)
 
 void D3D12PipelineStateCache::IssueCachedResources()
 {
+    GetParent()->GetCommandList()->RSSetViewports(1, &StateCache.Viewport);
+	GetParent()->GetCommandList()->RSSetScissorRects(1, &StateCache.ScissorRect);
+
 	DescriptorCache->SetRenderTargets(StateCache.RenderTargets, StateCache.NumActivatedRenderTargets, StateCache.DepthStencil);
 	DescriptorCache->SetVertexBuffers(StateCache.VertexBufferCache);
+}
+
+void D3D12PipelineStateCache::SetViewport(const D3D12_VIEWPORT& InViewport, const D3D12_RECT& InRect)
+{
+	StateCache.Viewport = InViewport;
+    StateCache.ScissorRect = InRect;
 }
 
 void D3D12PipelineStateCache::SetRenderTargets(D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, D3D12DepthStencilView* InDepthStencil)
@@ -82,6 +86,9 @@ void D3D12PipelineStateCache::CreateAndAddCache(const D3D12GraphicsPipelineState
 	{
 		PipelineStateCaches.emplace(InDesc, pipelineState);
 	}
+
+	// test
+	StateCache.CurrentPipelineState = pipelineState;
 }
 
 std::weak_ptr<D3D12PipelineState> D3D12PipelineStateCache::FindCache(const D3D12GraphicsPipelineState::Desc& InDesc)
@@ -92,4 +99,9 @@ std::weak_ptr<D3D12PipelineState> D3D12PipelineStateCache::FindCache(const D3D12
 		return it->second;
 	}
 	return {};
+}
+
+std::weak_ptr<D3D12PipelineState> D3D12PipelineStateCache::GetCurrentStateCache() const
+{
+	return StateCache.CurrentPipelineState;
 }

@@ -7,7 +7,7 @@
 RHICommand_BeginDrawWindow::RHICommand_BeginDrawWindow(RHIViewport* InViewport)
     : Viewport(InViewport)
 {
-
+    Priority = CommandPriority::First;
 }
 
 void RHICommand_BeginDrawWindow::Execute(const RHICommandContext& InContext)
@@ -18,12 +18,13 @@ void RHICommand_BeginDrawWindow::Execute(const RHICommandContext& InContext)
 RHICommand_EndDrawWindow::RHICommand_EndDrawWindow(class RHIViewport* InViewport)
     : Viewport(InViewport)
 {
-
+    Priority = CommandPriority::Last;
 }
 
 void RHICommand_EndDrawWindow::Execute(const RHICommandContext& InContext)
 {
     InContext.GetCommandList().EndDrawWindow(Viewport);
+    InContext.Close();
 }
 
 RHICommand_SetRenderTargets::RHICommand_SetRenderTargets(RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTargets, RHIResource* InDepthStencil)
@@ -54,22 +55,23 @@ RHICommand_SetPrimitive::~RHICommand_SetPrimitive()
 
 void RHICommand_SetPrimitive::Execute(const RHICommandContext& InContext)
 {
-    std::shared_ptr<RHIResource> vertices = GRHI->CreateVertexBuffer(Size, Stride);
-    void* voidPtr = GRHI->LockBuffer(vertices);
+    std::shared_ptr<RHIResource> vertexBuffer = GRHI->CreateVertexBuffer(Size, Stride);
+    void* voidPtr = GRHI->LockBuffer(vertexBuffer);
     {
-        memcpy(voidPtr, StreamResource.data(), sizeof(StreamResource));
+        memcpy(voidPtr, StreamResource.data(), Size);
     }
-    GRHI->UnlockBuffer(vertices);
+    GRHI->UnlockBuffer(vertexBuffer);
 
-    //InContext.GetCommandList().SetStreamResource(vertices);
-    //InContext.AddResource(std::move(vertices));
+    InContext.GetCommandList().SetStreamResource(vertexBuffer);
+    InContext.AddResource(std::move(vertexBuffer));
 
-    //RHICommand_DrawPrimitive* drawPrimitive = new RHICommand_DrawPrimitive(Size);
-    //InContext.AddCommand(std::move(drawPrimitive));
+    unsigned int count = Size / Stride;
+    RHICommand_DrawPrimitive* drawPrimitive = new RHICommand_DrawPrimitive(count);
+    InContext.AddCommand(std::move(drawPrimitive));
 }
 
-RHICommand_DrawPrimitive::RHICommand_DrawPrimitive(unsigned int InSize)
-    : Size(InSize)
+RHICommand_DrawPrimitive::RHICommand_DrawPrimitive(unsigned int InCount)
+    : Count(InCount)
 {
 
 }
@@ -77,5 +79,9 @@ RHICommand_DrawPrimitive::RHICommand_DrawPrimitive(unsigned int InSize)
 void RHICommand_DrawPrimitive::Execute(const RHICommandContext& InContext)
 {
     // test
-    InContext.GetCommandList().DrawPrimitive(Size, 1, 0, 0);
+    InContext.GetCommandList().DrawPrimitive(Count, 1, 0, 0);
+
+
+    RHICommand_DrawPrimitive* drawPrimitive = new RHICommand_DrawPrimitive(Count);
+    InContext.AddCommand(std::move(drawPrimitive));
 }
