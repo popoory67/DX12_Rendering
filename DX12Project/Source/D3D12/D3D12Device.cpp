@@ -3,10 +3,6 @@
 #include "D3DUtil.h"
 #include "Util.h"
 
-// test
-#include "D3D12RootSignature.h"
-#include "D3D12Viewport.h"
-
 D3D12Device::D3D12Device()
 {
 }
@@ -14,18 +10,17 @@ D3D12Device::D3D12Device()
 D3D12Device::~D3D12Device()
 {
 	SafeDelete(CommandListExecutor);
-    SafeDelete(CommandList);
     SafeDelete(ResourceManager);
 }
 
 Microsoft::WRL::ComPtr<ID3D12Device> D3D12Device::GetDevice() const
 {
-    ReturnCheckAssert(Device);
+    return Device;
 }
 
 Microsoft::WRL::ComPtr<IDXGIFactory4> D3D12Device::GetDxgi() const
 {
-    ReturnCheckAssert(DxgiFactory);
+	return DxgiFactory;
 }
 
 void D3D12Device::CreateDevice()
@@ -44,7 +39,7 @@ void D3D12Device::CreateDevice()
 	// Try to create hardware device.
 	HRESULT hardwareResult = D3D12CreateDevice(
 		nullptr,             // default adapter
-		D3D_FEATURE_LEVEL_11_0,
+		D3D_FEATURE_LEVEL_12_1,
 		IID_PPV_ARGS(&Device));
 
 	// Fallback to WARP device.
@@ -55,7 +50,7 @@ void D3D12Device::CreateDevice()
 
 		ThrowIfFailed(D3D12CreateDevice(
 			pWarpAdapter.Get(),
-			D3D_FEATURE_LEVEL_11_0,
+			D3D_FEATURE_LEVEL_12_1,
 			IID_PPV_ARGS(&Device)));
 	}
 }
@@ -63,11 +58,6 @@ void D3D12Device::CreateDevice()
 ID3D12CommandQueue* D3D12Device::GetCommandQueue() const
 {
 	return CommandListExecutor->GetCommandQueue();
-}
-
-D3D12CommandList& D3D12Device::GetCommandList() const
-{
-	return *CommandList;
 }
 
 D3D12CommandListExecutor& D3D12Device::GetCommandListExecutor() const
@@ -89,12 +79,11 @@ void D3D12Device::Initialize()
 {
 	CreateDevice();
 
-    CommandList = new D3D12CommandList(this);
     CommandListExecutor = new D3D12CommandListExecutor(this);
+	{
+        CommandListExecutor->Initialize();
+	}
     ResourceManager = new D3D12ResourceManager();
-
-    GCommandContext.SetCommandList(CommandList);
-
 	{
         D3D12_FEATURE_DATA_ROOT_SIGNATURE rootSignatureCaps = {};
         rootSignatureCaps.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
@@ -104,10 +93,16 @@ void D3D12Device::Initialize()
             rootSignatureCaps.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
         }
         RootSignatureVersion = rootSignatureCaps.HighestVersion;
-
-        CommandList->Initialize();
-        CommandListExecutor->Initialize();
 	}
+
+    // test
+    for (int i = 0; i < 2; ++i)
+    {
+		D3D12CommandList* commandList = new D3D12CommandList(this);
+        commandList->Initialize();
+
+        GCommandContext.AddCommandList(std::move(commandList));
+    }
 }
 
 D3D12Api::D3D12Api(D3D12Device* InParent)
@@ -124,7 +119,7 @@ D3D12Api::~D3D12Api()
 ID3D12Device* D3D12Api::GetDevice() const
 {
     assert(Parent->GetDevice());
-    ReturnCheckAssert(Parent->GetDevice().Get());
+	return Parent->GetDevice().Get();
 }
 
 void D3D12ResourceManager::AddRootSignature(int InKey, const std::shared_ptr<D3D12RootSignature>& InSignature)

@@ -13,17 +13,21 @@ D3D12CommandList::D3D12CommandList(D3D12Device* InDevice)
 	: D3D12Api(InDevice)
 	, PipelineStateCache(InDevice)
 {
-   
+
 }
 
 D3D12CommandList::~D3D12CommandList()
 {
-    SafeDelete(CommandListAllocator);
+    Close();
+
     SafeDelete(Fence);
+    SafeDelete(CommandListAllocator);
 }
 
 void D3D12CommandList::Reset()
 {
+    ResourceManager.CleanUp();
+
 	CommandListAllocator->Reset();
 
     std::shared_ptr<D3D12PipelineState> cache = GetStateCache().GetCurrentStateCache().lock();
@@ -58,11 +62,14 @@ D3D12PipelineStateCache& D3D12CommandList::GetStateCache()
 void D3D12CommandList::Initialize()
 {
 	CreateCommandList(GetParent());
+    
+    Fence = new D3D12Fence(GetParent());
+    Fence->Signal();
 
     // TODO
-   // The test code that I write down below has to be separated other classes and stored as a CSV file.
-   // What I need to do is to create a reader/writer for an Excel file.
-   // Additionally, pipeline state object will read the file on the step of loading resources.
+    // The test code that I write down below has to be separated other classes and stored as a CSV file.
+    // What I need to do is to create a reader/writer for an Excel file.
+    // Additionally, pipeline state object will read the file on the step of loading resources.
     {
         // root signature
         CD3DX12_DESCRIPTOR_RANGE1 ranges[3];
@@ -153,9 +160,9 @@ void D3D12CommandList::SetRenderTargets(RHIRenderTargetInfo* InRenderTargets, un
 	GetStateCache().SetRenderTargets(&renderTargetView, InNumRenderTarget, nullptr/*depthStencilView*/);
 }
 
-void D3D12CommandList::SetStreamResource(std::shared_ptr<RHIResource> InVertexBuffer)
+void D3D12CommandList::SetStreamResource(RHIResource* InVertexBuffer)
 {
-    std::shared_ptr<D3D12Buffer> vertexBuffer = std::static_pointer_cast<D3D12Buffer>(InVertexBuffer);
+    D3D12Buffer* vertexBuffer = static_cast<D3D12Buffer*>(InVertexBuffer);
     GetStateCache().SetStreamResource(vertexBuffer, 0, vertexBuffer->GetStride(), 0);
 }
 
@@ -165,13 +172,13 @@ void D3D12CommandList::DrawPrimitive(unsigned int InNumVertices, unsigned int In
     const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc = GetStateCache().GetCurrentStateCache().lock()->GetDesc();
     CommandList->SetGraphicsRootSignature(desc.pRootSignature);
 
-	GetStateCache().IssueCachedResources();
+	GetStateCache().IssueCachedResources(*this);
     CommandList->DrawInstanced(InNumVertices, InNumInstances, InStartIndex, InStartInstance);
 }
 
-void D3D12CommandList::DrawIndexedInstanced(std::shared_ptr<class RHIResource> InVertexBuffer, unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance)
+void D3D12CommandList::DrawIndexedInstanced(RHIResource* InVertexBuffer, unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance)
 {
-	GetStateCache().IssueCachedResources();
+	GetStateCache().IssueCachedResources(*this);
     CommandList->DrawIndexedInstanced(InNumIndices, InNumInstances, InStartIndex, InStartVertex, InStartInstance);
 }
 
@@ -189,6 +196,11 @@ void D3D12CommandList::FlushTransitions()
 	CommandList->ResourceBarrier(Barriers.size(), Barriers.data());
 	
 	Barriers.clear();
+}
+
+void D3D12CommandList::AddResource(RHIResource*&& InResource)
+{
+    ResourceManager.AddResource(std::move(InResource));
 }
 
 void D3D12CommandList::ClearDepthStencilView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect/* = nullptr*/)
@@ -229,4 +241,14 @@ void D3D12CommandList::CreateCommandList(D3D12Device* InDevice)
 	// to the command list we will Reset it, and it needs to be closed before
 	// calling Reset.
 	CommandList->Close();
+}
+
+void D3D12CommandList::WaitForFrameCompletion()
+{
+    Fence->CpuWait(CurrentFence);
+}
+
+void D3D12CommandList::EndFrame()
+{
+    CurrentFence = Fence->Signal();
 }

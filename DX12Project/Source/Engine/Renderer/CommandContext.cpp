@@ -3,23 +3,20 @@
 #include "RenderInterface.h"
 #include <assert.h>
 
-RHICommandContext GCommandContext;
-
-void RHICommandContext::SetCommandList(RHICommandList* InCommandList)
+void RHICommandContext::AddCommandList(RHICommandList*&& InCommandList)
 {
-    CommandList = InCommandList;
+    CommandLists.emplace_back(std::move(InCommandList));
 }
-
 
 RHICommandList& RHICommandContext::GetCommandList() const
 {
-    assert(CommandList);
-    return *CommandList;
+    return *CommandLists[CurrentCommandListHandle];
 }
 
-void RHICommandContext::AddCommand(struct RHICommand*&& InCommand) const
+void RHICommandContext::AddCommand(RHICommand* InCommand) const
 {
-    std::unique_ptr<RHICommand> command(std::move(InCommand));
+    std::unique_ptr<RHICommand> command(InCommand);
+
     if (command->GetPriority() == CommandPriority::First)
     {
         Commands.push_front(std::move(command));
@@ -38,9 +35,26 @@ void RHICommandContext::ExecuteCommands() const
 
     while (!Commands.empty() && !bClose)
     {
-        std::unique_ptr<RHICommand> command= std::move(Commands.front());
+        std::unique_ptr<RHICommand> command = std::move(Commands.front());
         command->Execute(*this);
 
         Commands.pop_front();
     }
+}
+
+void RHICommandContext::Close() const
+{
+    bClose = true;
+
+    CurrentCommandListHandle = (CurrentCommandListHandle + 1) % CommandLists.size();
+}
+
+void RHICommandContext::AddResource(RHIResource*&& InResource) const
+{
+    GetCommandList().AddResource(std::move(InResource));
+}
+
+void RHICommandContext::CleanUp()
+{
+    SafeDeleteVector(CommandLists);
 }

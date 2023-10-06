@@ -1,11 +1,14 @@
 #pragma once
 #include <functional>
+#include <memory>
+#include <mutex>
+#include <condition_variable>
 
 // TODO
 // It has to be modified to a module.
 namespace RenderThread
 {
-	void StartRenderThread();
+	void StartRenderThread(std::shared_ptr<std::mutex> InMutex, std::shared_ptr<std::condition_variable> InCondition);
 	void StopRenderThread();
 };
 

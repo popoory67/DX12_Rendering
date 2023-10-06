@@ -15,16 +15,22 @@ inline std::wstring AnsiToWString(const std::string& str)
 #include <crtdbg.h>
 #endif
 
-#ifndef ReturnCheckAssert
-#define ReturnCheckAssert(x) { assert(x); return x; }
-#endif
-
 #ifndef SafeDelete
 #define SafeDelete(x) { if (x) { delete(x); x = nullptr; } }
 #endif
 
 #ifndef SafeDeleteArray
 #define SafeDeleteArray(x) { delete[](x); *x = nullptr; }
+#endif
+
+#ifndef SafeDeleteVector
+#define SafeDeleteVector(vec) { \
+		for (auto it : vec) \
+		{ \
+			SafeDelete(it); \
+		} \
+		vec.clear(); \
+	}
 #endif
 
 const int INVALID_INDEX = -1;

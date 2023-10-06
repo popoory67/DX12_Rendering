@@ -17,20 +17,22 @@ Scene::~Scene()
 
 void Scene::Start()
 {
-	std::shared_ptr<Scene> thisPtr = shared_from_this();
 
-	TaskGraphSystem::Get().AddTask<RenderCommand>([ThisPtr = std::weak_ptr<Scene>{ thisPtr }](const RHICommandContext& InCommandList)
-    {
-		if (auto shared = ThisPtr.lock())
-		{
-			shared->RenderScene();
-		}
-    }, ThreadType::Render);
 }
 
 void Scene::Update()
 {
+	RenderScene();
 
+   // std::shared_ptr<Scene> thisPtr = shared_from_this();
+
+   // TaskGraphSystem::Get().AddTask<RenderCommand>([ThisPtr = std::shared_ptr<Scene>{ thisPtr }](const RHICommandContext& InCommandList)
+   // {
+   //     if (ThisPtr.use_count() > 0)
+   //     {
+			//ThisPtr->RenderScene();
+   //     }
+   // }, ThreadType::Render);
 }
 
 void Scene::End()
@@ -100,7 +102,7 @@ void Scene::RenderScene()
 			}
 
 			MeshRenderBatchElement element;
-			element.Primitive = std::move(vertices);
+			element.Primitive = vertices;
             element.Stride = sizeof(vertices[0]);
 
 			batch.AddElement(std::move(element));

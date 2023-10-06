@@ -6,11 +6,16 @@
 #include "../TestScene.h" // dummy
 
 GenericThread* GGameThread = nullptr;
-Task* GGameWorker = nullptr;
 
 class GameWorker : public Task
 {
 public:
+    GameWorker(std::shared_ptr<std::mutex> InMutex, std::shared_ptr<std::condition_variable> InCondition)
+        : Mutex(InMutex)
+        , Condition(InCondition)
+    {
+    }
+
     bool Init() override
     {
         std::shared_ptr<TestScene> test = std::make_shared<TestScene>();
@@ -24,18 +29,32 @@ public:
 
     void Run() override
     {
-        // TODO
-        // test
-        TaskGraphSystem::Get().Execute(ThreadType::Main);
+        while (!bStop)
+        {
+            std::unique_lock<std::mutex> lock(*Mutex);
+            Condition->wait(lock, []()
+                {
+                    return TaskGraphSystem::Get().GetThreadState() == ThreadType::Main;
+                });
+
+            TaskGraphSystem::Get().Execute(ThreadType::Main);
+
+            CurrentScene->Update();
+
+            Condition->notify_all();
+        }
     }
 
     void Stop() override
     {
+        bStop = true;
+        CurrentScene->End();
 
+        TaskGraphSystem::Get().SetThreadState(ThreadType::Main); // test
+
+        Condition->notify_all();
     }
 
-    // TODO
-    // Scene management
 private:
     std::shared_ptr<Scene> GetCurrentScene()
     {
@@ -68,14 +87,19 @@ private:
     int CurrentSceneIndex = INVALID_INDEX;
 
     std::shared_ptr<class Scene> CurrentScene;
+
+    bool bStop = false;
+
+    std::shared_ptr<std::mutex> Mutex;
+    std::shared_ptr<std::condition_variable> Condition;
 };
 
 namespace GameThread
 {
-    void StartGameThread()
+    void StartGameThread(std::shared_ptr<std::mutex> InMutex, std::shared_ptr<std::condition_variable> InCondition)
     {
-        GGameWorker = new GameWorker();
-        GGameThread = GenericThread::Create(GGameWorker, ThreadType::Main);
+        GameWorker* gameWorker = new GameWorker(InMutex, InCondition);
+        GGameThread = GenericThread::Create(gameWorker, ThreadType::Main);
     }
 
     void StopGameThread()
@@ -83,6 +107,5 @@ namespace GameThread
         GGameThread->Kill();
 
         SafeDelete(GGameThread);
-        GGameWorker = nullptr;
     }
 };

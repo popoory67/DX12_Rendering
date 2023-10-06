@@ -41,12 +41,11 @@ public:
 
 	RHIViewport* CreateViewport(void* InHWnd, unsigned int InWidth, unsigned int InHeight) override;
 	void ResizeViewport(RHIViewport* InViewportRHI) override;
-	std::shared_ptr<RHIResource> CreateVertexBuffer(unsigned int InSize, unsigned int InStride) override;
-	void* LockBuffer(std::shared_ptr<RHIResource> InBuffer) override;
-	void UnlockBuffer(std::shared_ptr<RHIResource> InBuffer) override;
+	RHIResource* CreateVertexBuffer(unsigned int InSize, unsigned int InStride) override;
+	void* LockBuffer(RHIResource* InBuffer) override;
+	void UnlockBuffer(RHIResource* InBuffer) override;
 
 private:
-	std::shared_ptr<D3D12Buffer> CreateBuffer(unsigned int InSize, unsigned int InStride);
 	ComPtr<ID3D12Resource> CreateResource(unsigned int InByteSize, const D3D12_HEAP_TYPE InHeapType, const D3D12_RESOURCE_STATES InResourceState, const D3D12_CLEAR_VALUE* InValue);
 	void CreateRenderTarget(D3D12Resource* InResource, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize);
 	//void CreateShaderResource(D3D12ShaderResource* InResource, class D3D12Descriptor* InDescriptor, std::string InName = nullptr, std::wstring InFilePath = nullptr);

@@ -14,10 +14,12 @@ struct RHICommand : public Uncopyable
 public:
 	RHICommand() = default;
 	virtual ~RHICommand() = default;
-
-	virtual void Execute(const RHICommandContext& InContext) = 0;
+	RHICommand(RHICommand&&) = default;
+	RHICommand& operator=(RHICommand&&) = default;
 
 	CommandPriority GetPriority() const { return Priority; }
+
+	virtual void Execute(const RHICommandContext& InContext) = 0;
 
 protected:
 	CommandPriority Priority = CommandPriority::Last;
@@ -29,15 +31,13 @@ struct RHICommandBase : public RHICommand
 public:
 	RHICommandBase() = default;
 	virtual ~RHICommandBase() = default;
+	RHICommandBase(RHICommandBase&&) = default;
+	RHICommandBase& operator=(RHICommandBase&&) = default;
 
-	void ExecuteAndDestruct(const RHICommandContext& InContext)
+	template<typename... Args>
+	static TCommand* Create(Args&&... args)
 	{
-		TCommand* pCmd = static_cast<TCommand*>(this);
-		if (pCmd)
-		{
-			pCmd->Execute(InContext);
-			pCmd->~TCommand();
-		}
+		return new TCommand(std::forward<Args>(args)...);
 	}
 };
 
@@ -69,7 +69,7 @@ struct RHICommand_SetRenderTargets : public RHICommandBase<RHICommand_SetRenderT
 {
 	RHICommand_SetRenderTargets() = delete;
 	RHICommand_SetRenderTargets(class RHIRenderTargetInfo* InRenderTargetViews, unsigned int InNumRenderTargets, class RHIResource* InRenderTargetView);
-	virtual ~RHICommand_SetRenderTargets() = default;
+	virtual ~RHICommand_SetRenderTargets();
 
 	void Execute(const RHICommandContext& InContext) override;
 
@@ -79,18 +79,16 @@ private:
 	RHIResource* DepthStencil;
 };
 
-using VertexStream = std::vector<struct Vertex>;
-
 struct RHICommand_SetPrimitive : public RHICommandBase<RHICommand_SetPrimitive>
 {
 	RHICommand_SetPrimitive() = delete;
-	RHICommand_SetPrimitive(VertexStream&& InStream, unsigned int InSize, unsigned int InStride);
+	RHICommand_SetPrimitive(std::vector<struct Vertex>&& InStream, unsigned int InSize, unsigned int InStride);
 	virtual ~RHICommand_SetPrimitive();
 
 	void Execute(const RHICommandContext& InContext) override;
 
 private:
-	VertexStream StreamResource;
+	std::vector<struct Vertex> StreamResource;
 	unsigned int Size;
 	unsigned int Stride;
 };

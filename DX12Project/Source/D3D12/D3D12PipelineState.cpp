@@ -17,6 +17,7 @@ D3D12PipelineState::D3D12PipelineState(D3D12Device* InDevice, const D3D12_GRAPHI
 
 D3D12PipelineState::~D3D12PipelineState()
 {
+	PipelineState.Reset();
 }
 
 const D3D12_GRAPHICS_PIPELINE_STATE_DESC& D3D12PipelineState::GetDesc() const
@@ -30,13 +31,24 @@ D3D12PipelineStateCache::D3D12PipelineStateCache(D3D12Device* InDevice)
 	DescriptorCache = std::make_shared<D3D12DescriptorCache>(InDevice);
 }
 
-void D3D12PipelineStateCache::IssueCachedResources()
+D3D12PipelineStateCache::~D3D12PipelineStateCache()
 {
-    GetParent()->GetCommandList()->RSSetViewports(1, &StateCache.Viewport);
-	GetParent()->GetCommandList()->RSSetScissorRects(1, &StateCache.ScissorRect);
+    SafeDelete(StateCache.RootSignature);
+    SafeDelete(StateCache.DepthStencil);
 
-	DescriptorCache->SetRenderTargets(StateCache.RenderTargets, StateCache.NumActivatedRenderTargets, StateCache.DepthStencil);
-	DescriptorCache->SetVertexBuffers(StateCache.VertexBufferCache);
+    //for (int i = 0; i < _countof(StateCache.RenderTargets); ++i)
+    //{
+    //    SafeDelete(StateCache.RenderTargets[i]);
+    //}
+}
+
+void D3D12PipelineStateCache::IssueCachedResources(D3D12CommandList& InCommandList)
+{
+	InCommandList->RSSetViewports(1, &StateCache.Viewport);
+	InCommandList->RSSetScissorRects(1, &StateCache.ScissorRect);
+
+	DescriptorCache->SetRenderTargets(InCommandList, StateCache.RenderTargets, StateCache.NumActivatedRenderTargets, StateCache.DepthStencil);
+	DescriptorCache->SetVertexBuffers(InCommandList, StateCache.VertexBufferCache);
 }
 
 void D3D12PipelineStateCache::SetViewport(const D3D12_VIEWPORT& InViewport, const D3D12_RECT& InRect)
@@ -59,7 +71,7 @@ void D3D12PipelineStateCache::SetRenderTargets(D3D12RenderTargetView** InRenderT
     }
 }
 
-void D3D12PipelineStateCache::SetStreamResource(std::shared_ptr<D3D12Buffer>& InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset)
+void D3D12PipelineStateCache::SetStreamResource(D3D12Buffer* InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset)
 {
 	D3D12_VERTEX_BUFFER_VIEW view;
 	view.BufferLocation = InVertexBuffer ? InVertexBuffer->Get()->GetGPUVirtualAddress() + InOffset : 0;

@@ -9,7 +9,7 @@ public:
 	D3D12Descriptor() = delete;
 	D3D12Descriptor(D3D12Device* InDeivce, D3D12_DESCRIPTOR_HEAP_DESC& InHeapDesc);
 	D3D12Descriptor(D3D12Device* InDeivce, D3D12_DESCRIPTOR_HEAP_TYPE InType, D3D12_DESCRIPTOR_HEAP_FLAGS InFlags, UINT64 InCount);
-	virtual ~D3D12Descriptor() {}
+	virtual ~D3D12Descriptor();
 
 	FORCEINLINE UINT64 GetSize() const { return Size; }
 	FORCEINLINE void SetSize(UINT64 InSize) { Size = InSize; }
@@ -38,6 +38,6 @@ public:
 	D3D12DescriptorCache(D3D12Device* InDeivce);
 	virtual ~D3D12DescriptorCache() = default;
 
-	void SetVertexBuffers(struct D3D12VertexBufferCache& InCache);
-	void SetRenderTargets(class D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, class D3D12DepthStencilView* InDepthStencil);
+	void SetVertexBuffers(class D3D12CommandList& InCommandList, struct D3D12VertexBufferCache& InCache);
+	void SetRenderTargets(class D3D12CommandList& InCommandList, class D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, class D3D12DepthStencilView* InDepthStencil);
 };

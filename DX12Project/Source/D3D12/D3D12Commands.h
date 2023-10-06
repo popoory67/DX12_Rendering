@@ -30,6 +30,34 @@ class D3D12Resource;
 class D3D12Fence;
 class RHIViewport;
 
+class RHIResourceManager : public Uncopyable
+{
+public:
+	RHIResourceManager() = default;
+	~RHIResourceManager()
+	{
+		CleanUp();
+	}
+
+	void AddResource(RHIResource*&& InResource)
+	{
+		GpuResources.emplace_back(std::move(InResource));
+	}
+
+	void CleanUp()
+	{
+		for (auto resource : GpuResources)
+		{
+			resource->Reset();
+			SafeDelete(resource);
+		}
+		GpuResources.clear();
+	}
+
+private:
+	std::vector<class RHIResource*> GpuResources;
+};
+
 class D3D12CommandAllocator
 {
 public:
@@ -45,7 +73,6 @@ public:
 private:
 	ComPtr<ID3D12CommandAllocator> CommandAllocator = nullptr;
 };
-
 
 class D3D12CommandList : public RHICommandList, public D3D12Api
 {
@@ -70,10 +97,11 @@ public:
 	void BeginRender() final override;
 	void EndRender() final override;
 	void ResizeViewport(RHIViewport* InViewport) override;
-	void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, RHIResource* InDepthStencil) override;
-	void SetStreamResource(std::shared_ptr<class RHIResource> InVertexBuffer) override;
-	void DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance) override;
-	void DrawIndexedInstanced(std::shared_ptr<class RHIResource> InVertexBuffer, unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance) override;
+	void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, class RHIResource* InDepthStencil) override;
+	void AddResource(RHIResource*&& InResource) final override;
+	void SetStreamResource(class RHIResource* InVertexBuffer) final override;
+	void DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance) final override;
+	void DrawIndexedInstanced(class RHIResource* InVertexBuffer, unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance) final override;
 
 	FORCEINLINE bool IsClosed() const { return bClosed; }
 	void Close();
@@ -82,6 +110,7 @@ public:
 	// Indicate a state transition on the resource usage.
 	void AddTransition(D3D12Resource* InResource, const D3D12_RESOURCE_STATES& InAfterState);
 	void FlushTransitions();
+
 
 	void ClearDepthStencilView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
 
@@ -99,6 +128,9 @@ public:
 private:
 	void CreateCommandList(D3D12Device* InDevice);
 
+	void WaitForFrameCompletion();
+	void EndFrame();
+
 private:
 	bool bClosed = false;
 
@@ -106,10 +138,14 @@ private:
 
 	ComPtr<ID3D12GraphicsCommandList> CommandList = nullptr; 
 	D3D12CommandAllocator* CommandListAllocator = nullptr;
-	D3D12Fence* Fence = nullptr;
 
 	std::vector<ID3D12DescriptorHeap*> Heaps;
 	std::vector<D3D12_RESOURCE_BARRIER> Barriers;
+
+	D3D12Fence* Fence;
+	UINT64 CurrentFence;
+
+	RHIResourceManager ResourceManager;
 };
 
 class D3D12CommandListExecutor : public RHICommandListExecutor, public D3D12Api
@@ -124,7 +160,7 @@ public:
 	void ExecuteCommandLists(RHICommandList* InCommandList) override;
 	void FlushCommandLists() override;
 
-	ID3D12CommandQueue* GetCommandQueue() { ReturnCheckAssert(CommandQueue.Get()); }
+	ID3D12CommandQueue* GetCommandQueue() { return CommandQueue.Get();}
 
 private:
 	void CreateCommandQueue(D3D12Device* InDevice);

@@ -11,11 +11,18 @@
 #include <dxgidebug.h>
 
 GenericThread* GRenderThread = nullptr;
-Task* GRenderWorker = nullptr;
+RHICommandContext GCommandContext;
 
 class RenderWorker : public Task
 {
 public:
+    RenderWorker(std::shared_ptr<std::mutex> InMutex, std::shared_ptr<std::condition_variable> InCondition)
+        : Mutex(InMutex)
+        , Condition(InCondition)
+    {
+
+    }
+
     bool Init() override
     {
         GRHI = RenderInterface::GetPlatformRHI();
@@ -23,13 +30,13 @@ public:
 
         GRHI->Initialize();
         {
-            RHIViewport* viewport = GRHI->CreateViewport(Application::GetWindowHandle(), 100, 100/*MainWindowHandle, ClientWidth, ClientHeight*/);
+            RHIViewport* viewport = GRHI->CreateViewport(Application::GetWindowHandle(), 100, 100/*ClientWidth, ClientHeight*/);
             ViewportRenderer = std::make_unique<Viewport>(std::move(viewport));
             ViewportRenderer->Initialize(GCommandContext);
         }
 
+        Renderer = std::make_unique<SceneRenderer>();
         {
-            Renderer = std::make_unique<SceneRenderer>();
             Renderer->Initialize();
         }
         return true;
@@ -39,8 +46,12 @@ public:
     {
         while (!bStop)
         {
-            // TODO
-            // test
+            std::unique_lock<std::mutex> lock(*Mutex);
+            Condition->wait(lock, []()
+            {
+                return TaskGraphSystem::Get().GetThreadState() == ThreadType::Render;
+            });
+
             TaskGraphSystem::Get().Execute(ThreadType::Render);
 
             Renderer->BeginRender();
@@ -49,41 +60,49 @@ public:
 
             Renderer->Render(GCommandContext);
             Renderer->EndRender();
+
+            Condition->notify_all();
         }
     }
 
     void Stop() override
     {
         bStop = true;
+        Condition->notify_all();
 
         SafeDelete(GRHI);
     }
 
 private:
-    // TODO
-    // test
-    std::unique_ptr<class SceneRenderer> Renderer; // 3D
-    std::unique_ptr<class Viewport> ViewportRenderer; // 2D
+    std::unique_ptr<SceneRenderer> Renderer; // 3D
+    std::unique_ptr<Viewport> ViewportRenderer; // 2D
 
     bool bStop = false;
+
+    std::shared_ptr<std::mutex> Mutex;
+    std::shared_ptr<std::condition_variable> Condition;
 };
 
 namespace RenderThread
 {
-    void StartRenderThread()
+    void StartRenderThread(std::shared_ptr<std::mutex> InMutex, std::shared_ptr<std::condition_variable> InCondition)
     {
-        GRenderWorker = new RenderWorker();
-
-        GRenderThread = GenericThread::Create(GRenderWorker, ThreadType::Render);
-
+        RenderWorker* renderWorker = new RenderWorker(InMutex, InCondition);
+        GRenderThread = GenericThread::Create(renderWorker, ThreadType::Render);
     }
 
     void StopRenderThread()
     {
-        GRenderThread->Kill();
+        // End rendering thread
+        {
+            GRenderThread->Kill();
+            SafeDelete(GRenderThread);
+        }
 
-        SafeDelete(GRenderThread);
-        GRenderWorker = nullptr;
+        // RHI resources must be cleaned after the rendering thread is done.
+        {
+            GCommandContext.CleanUp();
+        }
 
 #if _DEBUG
         ComPtr<IDXGIDebug1> dxgiDebug;

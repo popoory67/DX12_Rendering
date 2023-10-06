@@ -40,8 +40,13 @@ void RHICommand_SetRenderTargets::Execute(const RHICommandContext& InContext)
     InContext.GetCommandList().SetRenderTargets(RenderTargets, NumRenderTargets, DepthStencil);
 }
 
-RHICommand_SetPrimitive::RHICommand_SetPrimitive(VertexStream&& InStream, unsigned int InSize, unsigned int InStride)
-    : StreamResource(std::forward<VertexStream>(InStream))
+RHICommand_SetRenderTargets::~RHICommand_SetRenderTargets()
+{
+
+}
+
+RHICommand_SetPrimitive::RHICommand_SetPrimitive(std::vector<Vertex>&& InStream, unsigned int InSize, unsigned int InStride)
+    : StreamResource(std::forward< std::vector<Vertex>>(InStream))
     , Size(InSize)
     , Stride(InStride)
 {
@@ -55,7 +60,7 @@ RHICommand_SetPrimitive::~RHICommand_SetPrimitive()
 
 void RHICommand_SetPrimitive::Execute(const RHICommandContext& InContext)
 {
-    std::shared_ptr<RHIResource> vertexBuffer = GRHI->CreateVertexBuffer(Size, Stride);
+    RHIResource* vertexBuffer = GRHI->CreateVertexBuffer(Size, Stride);
     void* voidPtr = GRHI->LockBuffer(vertexBuffer);
     {
         memcpy(voidPtr, StreamResource.data(), Size);
@@ -64,10 +69,6 @@ void RHICommand_SetPrimitive::Execute(const RHICommandContext& InContext)
 
     InContext.GetCommandList().SetStreamResource(vertexBuffer);
     InContext.AddResource(std::move(vertexBuffer));
-
-    unsigned int count = Size / Stride;
-    RHICommand_DrawPrimitive* drawPrimitive = new RHICommand_DrawPrimitive(count);
-    InContext.AddCommand(std::move(drawPrimitive));
 }
 
 RHICommand_DrawPrimitive::RHICommand_DrawPrimitive(unsigned int InCount)
@@ -80,8 +81,4 @@ void RHICommand_DrawPrimitive::Execute(const RHICommandContext& InContext)
 {
     // test
     InContext.GetCommandList().DrawPrimitive(Count, 1, 0, 0);
-
-
-    RHICommand_DrawPrimitive* drawPrimitive = new RHICommand_DrawPrimitive(Count);
-    InContext.AddCommand(std::move(drawPrimitive));
 }

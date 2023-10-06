@@ -47,7 +47,7 @@ public:
 	constexpr float GetAspectRatio();
 
 	void Resize();
-	void Present();
+	void Present(D3D12CommandList& InCommandList);
 
 	void SetViewport(D3DViewportResource& InViewResource);
 
@@ -57,9 +57,6 @@ private:
 	void CreateSwapChain();
 	void CreateSwapChainBuffer();
 	//void CreateDepthStencilBuffer();
-
-	void WaitForFrameCompletion();
-	void EndFrame();
 
 private:
 	HWND WindowHandle = nullptr;
@@ -85,9 +82,6 @@ private:
 
 	//std::shared_ptr<D3D12Resource> DepthStencilBuffer;
 	//std::shared_ptr<D3D12Descriptor> DepthStencilBufferDescriptor;
-
-	D3D12Fence* Fence[SwapChainBufferCount];
-	UINT64 CurrentFence;
 };
 
 template<>

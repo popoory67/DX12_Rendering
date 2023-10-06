@@ -21,7 +21,8 @@ D3D12RootSignature::D3D12RootSignature(D3D12Device* InDevice, const D3D12_VERSIO
 
 D3D12RootSignature::~D3D12RootSignature()
 {
-
+	RootSignature.Reset();
+	RootSignatureBlob.Reset();
 }
 
 ID3D12RootSignature** D3D12RootSignature::GetAddressOf()

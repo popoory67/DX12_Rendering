@@ -76,15 +76,15 @@ class D3D12PipelineStateCache : public D3D12Api
 public:
 	D3D12PipelineStateCache() = delete;
 	explicit D3D12PipelineStateCache(class D3D12Device* InDevice);
-	virtual ~D3D12PipelineStateCache() = default;
+	virtual ~D3D12PipelineStateCache();
 
 	// Process
-	void IssueCachedResources();
+	void IssueCachedResources(class D3D12CommandList& InCommandList);
 
 	// Cache resources
 	void SetViewport(const D3D12_VIEWPORT& InViewport, const D3D12_RECT& InRect);
 	void SetRenderTargets(D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, D3D12DepthStencilView* InDepthStencil);
-	void SetStreamResource(std::shared_ptr<class D3D12Buffer>& InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset = 0);
+	void SetStreamResource(D3D12Buffer* InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset = 0);
 
 	void CreateAndAddCache(const D3D12GraphicsPipelineState::Desc& InDesc);
 	std::weak_ptr<D3D12PipelineState> FindCache(const D3D12GraphicsPipelineState::Desc& InDesc);

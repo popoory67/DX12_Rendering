@@ -20,11 +20,11 @@ struct D3D12ResourceDesc : public D3D12_RESOURCE_DESC
 
 };
 
-class D3D12Resource : public RHIResource, std::enable_shared_from_this<D3D12Resource>
+class D3D12Resource : public RHIResource
 {
 public:
 	D3D12Resource() = delete;
-	D3D12Resource(ID3D12Resource* InResource, unsigned int InSize = 0, unsigned int InStride = 0);
+	D3D12Resource(ComPtr<ID3D12Resource>&& InResource, unsigned int InSize = 0, unsigned int InStride = 0);
 	virtual ~D3D12Resource();
 
 	ComPtr<ID3D12Resource>& Get() noexcept { return Resource; }
@@ -38,7 +38,7 @@ public:
 		ResourceState = InNewState; 
 	}
 
-	void Reset();
+	void Reset() override;
 
 	void* Lock() override;
 	void Unlock() override;
@@ -61,8 +61,8 @@ class D3D12Buffer : public D3D12Resource
 
 public:
 	D3D12Buffer() = delete;
-	explicit D3D12Buffer(ID3D12Resource* InResource, unsigned int InSize, unsigned int InStride);
-	virtual ~D3D12Buffer() = default;
+	explicit D3D12Buffer(ComPtr<ID3D12Resource>&& InResource, unsigned int InSize, unsigned int InStride);
+	virtual ~D3D12Buffer();
 };
 
 template<>

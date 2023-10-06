@@ -27,33 +27,28 @@ void D3D12RHI::Initialize()
 
 void D3D12RHI::Destroy()
 {
-
+	SafeDelete(CurrentDevice);
 }
 
-std::shared_ptr<RHIResource> D3D12RHI::CreateVertexBuffer(unsigned int InSize, unsigned int InStride)
+RHIResource* D3D12RHI::CreateVertexBuffer(unsigned int InSize, unsigned int InStride)
 {
-	return CreateBuffer(InSize, InStride);
+	ComPtr<ID3D12Resource> resource = CreateResource(InSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr);
+    return new D3D12Buffer(std::move(resource), InSize, InStride);
 }
 
-void* D3D12RHI::LockBuffer(std::shared_ptr<RHIResource> InBuffer)
+void* D3D12RHI::LockBuffer(RHIResource* InBuffer)
 {
 	return InBuffer->Lock();
 }
 
-void D3D12RHI::UnlockBuffer(std::shared_ptr<RHIResource> InBuffer)
+void D3D12RHI::UnlockBuffer(RHIResource* InBuffer)
 {
 	InBuffer->Unlock();
 }
 
-std::shared_ptr<D3D12Buffer> D3D12RHI::CreateBuffer(unsigned int InSize, unsigned int InStride)
-{
-	ComPtr<ID3D12Resource> resource = CreateResource(InSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr);
-	return std::make_shared<D3D12Buffer>(resource.Get(), InSize, InStride);
-}
-
 ComPtr<ID3D12Resource> D3D12RHI::CreateResource(unsigned int InByteSize, const D3D12_HEAP_TYPE InHeapType, const D3D12_RESOURCE_STATES InResourceState, const D3D12_CLEAR_VALUE* InValue)
 {
-    ComPtr<ID3D12Resource> newResource;
+	ComPtr<ID3D12Resource> newResource;
     D3D12_HEAP_PROPERTIES properties = CD3DX12_HEAP_PROPERTIES(InHeapType);
 	D3D12_RESOURCE_DESC desc{ CD3DX12_RESOURCE_DESC::Buffer(InByteSize) };
 

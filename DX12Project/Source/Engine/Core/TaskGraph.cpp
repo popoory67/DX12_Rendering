@@ -3,7 +3,6 @@
 
 TaskGraphSystem::TaskGraphSystem()
 {
-
 }
 
 TaskGraphSystem& TaskGraphSystem::Get()
@@ -19,10 +18,21 @@ TaskGraphSystem::~TaskGraphSystem()
 
 void TaskGraphSystem::Destroy()
 {
-    //for (const auto& it : TaskGraphs)
-    //{
-    //    it->second;
-    //}
+    for (const auto& it : TaskGraphs)
+    {
+        if (TaskGraphBase* graph = it.second)
+        {
+            while (graph)
+            {
+                TaskGraphBase* temporary = graph;
+                graph = graph->Prerequisite;
+
+                //temporary->Execute();
+
+                SafeDelete(temporary);
+            }
+        }
+    }
 }
 
 void TaskGraphSystem::AddTask(TaskGraphBase* InTaskGraph, ThreadType InThreadType)
@@ -36,10 +46,12 @@ void TaskGraphSystem::AddTask(TaskGraphBase* InTaskGraph, ThreadType InThreadTyp
     else
     {
         // New task
+        assert(InThreadType < ThreadType::Foreground);
         TaskGraphs[InThreadType] = InTaskGraph;
     }
 
     InTaskGraph->Subsequent = nullptr;
+    TaskGraphs[InThreadType] = InTaskGraph;
 }
 
 void TaskGraphSystem::Execute(ThreadType InThreadType)
@@ -70,4 +82,7 @@ void TaskGraphSystem::Execute(ThreadType InThreadType)
             }
         }
     }
+
+    int state = (static_cast<int>(ThreadState) + 1) % static_cast<int>(ThreadType::Foreground);
+    ThreadState = static_cast<ThreadType>(state);
 }

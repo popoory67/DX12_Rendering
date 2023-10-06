@@ -27,7 +27,6 @@ public:
 	ComPtr<IDXGIFactory4> GetDxgi() const;
 
 	ID3D12CommandQueue* GetCommandQueue() const;
-	D3D12CommandList& GetCommandList() const;
 	D3D12CommandListExecutor& GetCommandListExecutor() const;
 	D3D12ResourceManager& GetResourceManager() const;
 	D3D_ROOT_SIGNATURE_VERSION GetRootSignatureVersion() const;
@@ -42,7 +41,6 @@ protected:
 	ComPtr<IDXGIFactory4> DxgiFactory = nullptr;
 
 	D3D12CommandListExecutor* CommandListExecutor = nullptr;
-	D3D12CommandList* CommandList = nullptr;
 
 	D3D_ROOT_SIGNATURE_VERSION RootSignatureVersion;
 	D3D12ResourceManager* ResourceManager = nullptr;
@@ -78,8 +76,6 @@ public:
 	~D3D12ResourceManager() = default;
 
 	void AddRootSignature(int InKey, const std::shared_ptr<class D3D12RootSignature>& InSignature);
-
-private:
 
 private:
 	std::unordered_map<int, std::shared_ptr<class D3D12RootSignature>> RootSignatures;

@@ -1,11 +1,16 @@
 #pragma once
 #include "Util.h"
+#include <condition_variable>
+#include <mutex>
+#include <queue>
 
 enum class ThreadType : int
 {
 	Main = 0,
 	Render,
-	Worker,
+	Foreground,
+
+	Worker, // background
 };
 
 enum class ThreadPriority : unsigned
@@ -47,4 +52,28 @@ protected:
 	ThreadType Type;
 };
 
-// thread pool
+class ThreadPool : public Uncopyable
+{
+public:
+	ThreadPool();
+	virtual ~ThreadPool();
+
+	static ThreadPool& Get();
+
+	void Enqueue(Task*&& InTask, ThreadType InType = ThreadType::Worker);
+
+private:
+	void Run();
+	void StopAll();
+
+private:
+	std::vector<std::thread> Backgrounds; // Worker threads
+	std::queue<Task*> Tasks;
+
+	std::condition_variable Condition;
+	std::mutex Mutex;
+
+	bool bStopAll = false;
+
+	const int PoolSize = 2;
+};

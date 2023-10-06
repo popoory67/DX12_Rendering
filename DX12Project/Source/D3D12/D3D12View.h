@@ -25,7 +25,7 @@ class D3D12RenderTargetView : public RHIRenderTargetInfo, public D3D12View
 public:
 	D3D12RenderTargetView() = delete;
 	D3D12RenderTargetView(D3D12Resource* InResource, class D3D12Descriptor* InDescriptor);
-	virtual ~D3D12RenderTargetView() = default;
+	virtual ~D3D12RenderTargetView();
 
 	void Reset() override;
 };

@@ -4,11 +4,11 @@
 #include "DDSTextureLoader.h"
 #include "Texture.h"
 
-D3D12Resource::D3D12Resource(ID3D12Resource* InResource, unsigned int InSize/* = 0*/, unsigned int InStride/* = 0*/)
-	: Resource(InResource)
+D3D12Resource::D3D12Resource(ComPtr<ID3D12Resource>&& InResource, unsigned int InSize/* = 0*/, unsigned int InStride/* = 0*/)
+	: Resource(std::move(InResource))
 	, ResourceState(static_cast<D3D12_RESOURCE_STATES>(-1))
 {
-	Desc = InResource->GetDesc();
+	Desc = Resource->GetDesc();
 	Size = InSize;
 	Stride = InStride;
 }
@@ -38,8 +38,13 @@ void D3D12Resource::Unlock()
 	Resource->Unmap(0, nullptr);
 }
 
-D3D12Buffer::D3D12Buffer(ID3D12Resource* InResource, unsigned int InSize, unsigned int InStride)
-    : Parent(InResource, InSize, InStride)
+D3D12Buffer::D3D12Buffer(ComPtr<ID3D12Resource>&& InResource, unsigned int InSize, unsigned int InStride)
+    : Parent(std::move(InResource), InSize, InStride)
+{
+
+}
+
+D3D12Buffer::~D3D12Buffer()
 {
 
 }

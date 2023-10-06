@@ -12,6 +12,7 @@ D3D12CommandListExecutor::D3D12CommandListExecutor(D3D12Device* InDevice)
 
 D3D12CommandListExecutor::~D3D12CommandListExecutor()
 {
+	CommandQueue.Reset();
 	SafeDelete(Fence);
 }
 

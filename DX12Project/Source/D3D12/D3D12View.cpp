@@ -25,6 +25,11 @@ D3D12RenderTargetView::D3D12RenderTargetView(D3D12Resource* InResource, D3D12Des
 
 }
 
+D3D12RenderTargetView::~D3D12RenderTargetView()
+{
+    
+}
+
 void D3D12RenderTargetView::Reset()
 {
     D3D12Resource* resource = D3D12RHI::Cast(TargetResource);

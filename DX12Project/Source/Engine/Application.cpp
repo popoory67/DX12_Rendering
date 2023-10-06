@@ -6,6 +6,8 @@
 #include "GameThread.h"
 #include "CommandList.h"
 #include "Viewport.h"
+#include <condition_variable>
+#include <mutex>
 
 void* Application::MainWindowHandle = nullptr;
 
@@ -25,8 +27,11 @@ Application::~Application()
 
 bool Application::Initialize()
 {
-    GameThread::StartGameThread();
-    RenderThread::StartRenderThread();
+    std::shared_ptr<std::mutex> mutex = std::make_shared<std::mutex>();
+    std::shared_ptr<std::condition_variable> condition = std::make_shared<std::condition_variable>();
+
+    GameThread::StartGameThread(mutex, condition);
+    RenderThread::StartRenderThread(mutex, condition);
 
 	return true;
 }

@@ -44,7 +44,7 @@ public:
 
 	void Execute()
 	{
-		if (Prerequisite && Prerequisite->IsCompleted())
+		if (Prerequisite && !Prerequisite->IsCompleted())
 		{
 			Prerequisite->Execute();
 			return;
@@ -79,6 +79,10 @@ public:
 	virtual ~TaskGraphSystem();
 
 	static TaskGraphSystem& Get();
+	
+	// test
+	enum class ThreadType GetThreadState() const { return ThreadState; }
+	void SetThreadState(enum class ThreadType InThreadState) { ThreadState = InThreadState; }
 
 	template<class TaskType, class Lambda>
 	void AddTask(Lambda&& InLambda, enum class ThreadType InThreadType)
@@ -105,5 +109,7 @@ private:
 	void Destroy();
 
 private:
-	std::unordered_map<enum class ThreadType, TaskGraphBase*> TaskGraphs;
+	enum class ThreadType ThreadState;
+
+	std::unordered_map<ThreadType, TaskGraphBase*> TaskGraphs;
 };

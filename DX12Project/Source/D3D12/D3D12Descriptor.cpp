@@ -29,6 +29,11 @@ D3D12Descriptor::D3D12Descriptor(D3D12Device* InDeivce, D3D12_DESCRIPTOR_HEAP_TY
 	D3D12Descriptor(InDeivce, desc);
 }
 
+D3D12Descriptor::~D3D12Descriptor()
+{
+	Heap.Reset();
+}
+
 D3D12_GPU_DESCRIPTOR_HANDLE D3D12Descriptor::GetGpuHandle(UINT64 InIndex) const
 {
 	assert(Heap);
@@ -63,13 +68,13 @@ D3D12DescriptorCache::D3D12DescriptorCache(D3D12Device* InDeivce)
 
 }
 
-void D3D12DescriptorCache::SetVertexBuffers(D3D12VertexBufferCache& InCache)
+void D3D12DescriptorCache::SetVertexBuffers(D3D12CommandList& InCommandList, D3D12VertexBufferCache& InCache)
 {
-    GetParent()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	GetParent()->GetCommandList()->IASetVertexBuffers(0, 1, InCache.CurrentVertexBufferView);
+	InCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	InCommandList->IASetVertexBuffers(0, 1, InCache.CurrentVertexBufferView);
 }
 
-void D3D12DescriptorCache::SetRenderTargets(D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, D3D12DepthStencilView* InDepthStencil)
+void D3D12DescriptorCache::SetRenderTargets(D3D12CommandList& InCommandList, D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, D3D12DepthStencilView* InDepthStencil)
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE renderTargetHandles[MAX_RENDER_TARGETS];
 
@@ -81,12 +86,12 @@ void D3D12DescriptorCache::SetRenderTargets(D3D12RenderTargetView** InRenderTarg
     if (InDepthStencil)
     {
 		const D3D12_CPU_DESCRIPTOR_HANDLE& depthStencilHandle = InDepthStencil->GetHandle();
-        GetParent()->GetCommandList()->OMSetRenderTargets(InNumRenderTargets, renderTargetHandles,
+		InCommandList->OMSetRenderTargets(InNumRenderTargets, renderTargetHandles,
             0, &depthStencilHandle);
     }
     else
     {
-        GetParent()->GetCommandList()->OMSetRenderTargets(InNumRenderTargets, renderTargetHandles,
+		InCommandList->OMSetRenderTargets(InNumRenderTargets, renderTargetHandles,
             0, nullptr);
     }
 }

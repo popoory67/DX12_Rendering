@@ -31,14 +31,6 @@ D3D12Viewport::D3D12Viewport(D3D12Device* InDevice, HWND InHandle, unsigned int 
 	//dsvHeapDesc.NodeMask = 0;
 
 	//DepthStencilBufferDescriptor = std::make_shared<D3D12Descriptor>(GetParent(), dsvHeapDesc);
-        
-	// TODO
-    // It has to be modified to pooling codes.
-    for (int i = 0; i < SwapChainBufferCount; ++i)
-    {
-        Fence[i] = new D3D12Fence(InDevice);
-        Fence[i]->Signal();
-    }
 
 	CreateSwapChain();
 }
@@ -47,10 +39,10 @@ D3D12Viewport::~D3D12Viewport()
 {
 	WindowHandle = nullptr;
 
-    for (int i = 0; i < SwapChainBufferCount; ++i)
-    {
-        SafeDelete(Fence[i]);
-    }
+	for (int i = 0; i < SwapChainBufferCount; ++i)
+	{
+		SafeDelete(SwapChainBuffer[i]);
+	}
 }
 
 D3D12Resource* D3D12Viewport::GetCurrentBackBuffer()
@@ -73,36 +65,23 @@ constexpr float D3D12Viewport::GetAspectRatio()
 	return static_cast<float>(ScreenViewport.Width) / ScreenViewport.Height;
 }
 
-void D3D12Viewport::Present()
+void D3D12Viewport::Present(D3D12CommandList& InCommandList)
 {
-	D3D12Resource* backBuffer = GetCurrentBackBuffer();
-	if (backBuffer)
+	if (D3D12Resource* backBuffer = GetCurrentBackBuffer())
 	{
-		if (D3D12Device* device = GetParent())
-		{			
-			// TODO
-			// I only use one command list now, but it must be changed to several lists.
-			D3D12CommandList& commandList = device->GetCommandList();
+		InCommandList.AddTransition(backBuffer, D3D12_RESOURCE_STATE_PRESENT);
 
-			commandList.AddTransition(backBuffer, D3D12_RESOURCE_STATE_PRESENT);
+		// Before a command queue executes command lists,
+		// that lists have to be closed. (EXECUTECOMMANDLISTS_OPENCOMMANDLIST)
+		InCommandList.Close();
 
-			// Before a command queue executes command lists,
-			// that lists have to be closed. (EXECUTECOMMANDLISTS_OPENCOMMANDLIST)
-			commandList.Close();
-			device->GetCommandListExecutor().ExecuteCommandLists(&commandList);
-		}
+		GetParent()->GetCommandListExecutor().ExecuteCommandLists(&InCommandList);
+
+		// Swap the back and front buffers
+		ThrowIfFailed(SwapChain->Present(1, 0));
 	}
 
-	// Swap the back and front buffers
-	ThrowIfFailed(SwapChain->Present(1, 0));
-
-	// TODO
-	// The moment the GPU Signal is called must be separately invoked when the CPU thread stalls with the WaitForSingleObject.
-	// An available scenario is that the GPU Signal have to be called in the render thread, while the main (game) thread is managing the CPU stall.
-	EndFrame();
-	WaitForFrameCompletion();
-
-	CurBackBufferIndex = (CurBackBufferIndex + 1) % SwapChainBufferCount;
+    CurBackBufferIndex = (CurBackBufferIndex + 1) % SwapChainBufferCount;
 }
 
 //DXGI_FORMAT D3D12Viewport::GetDepthStencilFormat() const
@@ -206,7 +185,7 @@ void D3D12Viewport::CreateSwapChainBuffer()
         ComPtr<ID3D12Resource> backBufferResource;
         ThrowIfFailed(SwapChain->GetBuffer(i, IID_PPV_ARGS(backBufferResource.GetAddressOf())));
 
-        D3D12Resource* resource = new D3D12Resource(backBufferResource.Get());
+        D3D12Resource* resource = new D3D12Resource(std::move(backBufferResource));
         resource->SetResourceState(D3D12_RESOURCE_STATE_PRESENT);
 
         D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
@@ -222,16 +201,6 @@ void D3D12Viewport::CreateSwapChainBuffer()
         CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(SwapChainBuffer[i]->GetHandle());
         GetDevice()->CreateRenderTargetView(resource->GetResource(), nullptr, rtvHandle);
     }
-}
-
-void D3D12Viewport::WaitForFrameCompletion()
-{
-	Fence[CurBackBufferIndex]->CpuWait(CurrentFence);
-}
-
-void D3D12Viewport::EndFrame()
-{
-	CurrentFence = Fence[CurBackBufferIndex]->Signal();
 }
 
 //void D3D12Viewport::CreateDepthStencilBuffer()

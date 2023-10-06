@@ -18,7 +18,7 @@ void D3D12CommandList::BeginDrawWindow(RHIViewport* InViewport)
 
 	if (renderTarget)
 	{
-		Reset();
+        Reset();
 
 		// Indicate a state transition on the resource usage.
 		D3D12Resource* resource = D3D12RHI::Cast(renderTarget->GetTexture());
@@ -41,7 +41,10 @@ void D3D12CommandList::EndDrawWindow(RHIViewport* InViewport)
 	D3D12Viewport* viewport = D3D12RHI::Cast(InViewport);
 	assert(viewport);
 
-	viewport->Present();
+	viewport->Present(*this);
+
+    EndFrame();
+    WaitForFrameCompletion();
 }
 
 void D3D12CommandList::BeginRender()
