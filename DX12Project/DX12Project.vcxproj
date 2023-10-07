@@ -222,7 +222,7 @@
       <AdditionalLibraryDirectories>DX12Project\ThirdParty\Visual Leak Detector\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>robocopy "$(ProjectDir)ThirdParty/Visual Leak Detector/bin/Win64" "$(OutDir)" *.*</Command>
+      <Command>xcopy /y /d "$(ProjectDir)ThirdParty\Visual Leak Detector\bin\Win64\*.*" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
