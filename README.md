@@ -5,3 +5,11 @@ The multithreaded rendering engine with DirectX 12
 
 * [English](./README/README_EN.md)
 * [한국어](./README/README_KR.md)
+
+## Dependencies
+This project utilizes the following **third-party** libraries:
+
+### Visual Leak Detector (VLD)
+* **Description**<br>Visual Leak Detector is a free, robust, open-source memory leak detection system for Visual C++.
+* **License**<br>[GNU Lesser General Public License v2.1 (LGPL v2.1)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
+* **Source & Documentation**<br>[GitHub Repository](https://github.com/oneiric/vld)
