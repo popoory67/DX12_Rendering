@@ -48,7 +48,7 @@ void D3D12CommandList::Close()
 	}
 }
 
-ID3D12CommandList* D3D12CommandList::GetCommandLists()
+ID3D12GraphicsCommandList* D3D12CommandList::GetCommandList()
 {
 	assert(CommandList || CommandList.Get());
 	return CommandList.Get();

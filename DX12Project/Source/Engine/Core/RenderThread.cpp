@@ -8,7 +8,9 @@
 #include "Viewport.h"
 #include "SceneRendering.h"
 #include "D3D12RenderInterface.h"
+#if defined(DEBUG) | defined(_DEBUG)
 #include <dxgidebug.h>
+#endif
 
 GenericThread* GRenderThread = nullptr;
 RHICommandContext GCommandContext;
@@ -102,7 +104,7 @@ namespace RenderThread
             GCommandContext.CleanUp();
         }
 
-#if _DEBUG
+#if defined(DEBUG) | defined(_DEBUG)
         ComPtr<IDXGIDebug1> dxgiDebug;
         HRESULT hr = DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug));
         if (SUCCEEDED(hr))

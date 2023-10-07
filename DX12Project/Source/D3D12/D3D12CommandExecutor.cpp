@@ -29,7 +29,7 @@ void D3D12CommandListExecutor::ExecuteCommandLists(RHICommandList* InCommandList
 	
 	// TODO
 	// Instead of managing one command list, the command list must be managed as an array.
-	ID3D12CommandList* cmdsLists[] = { commandList->GetCommandLists() };
+	ID3D12CommandList* cmdsLists[] = { commandList->GetCommandList() };
 	CommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 }
 

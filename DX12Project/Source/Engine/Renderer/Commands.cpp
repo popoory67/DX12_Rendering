@@ -68,7 +68,7 @@ void RHICommand_SetPrimitive::Execute(const RHICommandContext& InContext)
     GRHI->UnlockBuffer(vertexBuffer);
 
     InContext.GetCommandList().SetStreamResource(vertexBuffer);
-    InContext.AddResource(std::move(vertexBuffer));
+    InContext.GetCommandList().AddResource(std::move(vertexBuffer));
 }
 
 RHICommand_DrawPrimitive::RHICommand_DrawPrimitive(unsigned int InCount)

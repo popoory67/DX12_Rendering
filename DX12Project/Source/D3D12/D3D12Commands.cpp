@@ -6,9 +6,14 @@
 #include "D3D12PipelineState.h"
 #include "Commands.h"
 #include "DirectXColors.h"
+#if defined(DEBUG) | defined(_DEBUG)
+#include <pix3.h>
+#endif
 
 void D3D12CommandList::BeginDrawWindow(RHIViewport* InViewport)
 {
+	PIXBeginEvent(GetCommandList(), PIX_COLOR(0, 255, 0), "Render");
+
 	D3D12Viewport* viewport = D3D12RHI::Cast(InViewport);
 	assert(viewport);
 
@@ -45,6 +50,8 @@ void D3D12CommandList::EndDrawWindow(RHIViewport* InViewport)
 
     EndFrame();
     WaitForFrameCompletion();
+
+	PIXEndEvent(GetCommandList());
 }
 
 void D3D12CommandList::BeginRender()

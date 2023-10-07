@@ -49,11 +49,6 @@ void RHICommandContext::Close() const
     CurrentCommandListHandle = (CurrentCommandListHandle + 1) % CommandLists.size();
 }
 
-void RHICommandContext::AddResource(RHIResource*&& InResource) const
-{
-    GetCommandList().AddResource(std::move(InResource));
-}
-
 void RHICommandContext::CleanUp()
 {
     SafeDeleteVector(CommandLists);

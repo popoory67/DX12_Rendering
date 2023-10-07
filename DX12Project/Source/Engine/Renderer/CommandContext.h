@@ -21,8 +21,6 @@ public:
 	void ExecuteCommands() const;
 	void Close() const;
 
-	void AddResource(class RHIResource*&& InResource) const;
-
 	void CleanUp();
 
 private:

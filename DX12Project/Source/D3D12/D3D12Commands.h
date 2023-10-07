@@ -86,7 +86,7 @@ public:
 		return CommandList;
 	}
 
-	ID3D12CommandList* GetCommandLists();
+	ID3D12GraphicsCommandList* GetCommandList();
 
 	D3D12PipelineStateCache& GetStateCache();
 
@@ -98,7 +98,7 @@ public:
 	void EndRender() final override;
 	void ResizeViewport(RHIViewport* InViewport) override;
 	void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, class RHIResource* InDepthStencil) override;
-	void AddResource(RHIResource*&& InResource) final override;
+	void AddResource(class RHIResource*&& InResource) final override;
 	void SetStreamResource(class RHIResource* InVertexBuffer) final override;
 	void DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance) final override;
 	void DrawIndexedInstanced(class RHIResource* InVertexBuffer, unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance) final override;
