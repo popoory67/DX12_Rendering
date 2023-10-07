@@ -11,5 +11,5 @@ This project utilizes the following **third-party** libraries:
 
 ### Visual Leak Detector (VLD)
 * **Description**<br>Visual Leak Detector is a free, robust, open-source memory leak detection system for Visual C++.
-* **License**<br>GNU Lesser General Public License v2.1 (LGPL v2.1)
+* **License**<br>[GNU Lesser General Public License v2.1 (LGPL v2.1)](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
 * **Source & Documentation**<br>[GitHub Repository](https://github.com/oneiric/vld)
