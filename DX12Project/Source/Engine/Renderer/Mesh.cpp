@@ -18,6 +18,11 @@ MeshRenderBatch::MeshRenderBatch(std::vector<MeshRenderBatchElement>&& InMeshStr
     
 }
 
+MeshRenderBatch::~MeshRenderBatch()
+{
+    Elements.clear();
+}
+
 void MeshRenderBatch::AddElements(std::vector<MeshRenderBatchElement>&& InMeshStream)
 {
     for (const auto& element : InMeshStream)
@@ -46,6 +51,11 @@ unsigned int MeshRenderBatch::GetStride() const
 MeshRenderPass::MeshRenderPass()
 {
     Priority = 5; // TODO : test
+}
+
+MeshRenderPass::~MeshRenderPass()
+{
+    Batches.clear();
 }
 
 void MeshRenderPass::AddMeshBatch(MeshRenderBatch&& InBatch)

@@ -8,18 +8,13 @@ RenderPass::RenderPass()
 
 }
 
-RenderGraph::RenderGraph()
-{
-
-}
-
 RenderGraph& RenderGraph::Get()
 {
     static RenderGraph graphInterface;
     return graphInterface;
 }
 
-void RenderGraph::AddTask(RenderPass*&& InRenderPass)
+void RenderGraph::AddTask(std::unique_ptr<RenderPass> InRenderPass)
 {
     // TODO
     // Render pass has a priority, and we need to compare it.

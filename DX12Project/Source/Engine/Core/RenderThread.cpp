@@ -35,10 +35,10 @@ public:
             ViewportRenderer->Initialize(GCommandContext);
         }
 
-        Renderer = std::make_unique<SceneRenderer>();
-        {
-            Renderer->Initialize();
-        }
+        //Renderer = std::make_unique<SceneRenderer>();
+        //{
+        //    Renderer->Initialize();
+        //}
         return true;
     }
 
@@ -69,8 +69,6 @@ public:
     {
         bStop = true;
         Condition->notify_all();
-
-        SafeDelete(GRHI);
     }
 
 private:
@@ -114,8 +112,15 @@ namespace RenderThread
             dxgiDebug = nullptr;
         }
 #endif
+
+        SafeDelete(GRHI);
     }
 };
+
+RenderCommand::~RenderCommand()
+{
+
+}
 
 void RenderCommand::DoTask()
 {

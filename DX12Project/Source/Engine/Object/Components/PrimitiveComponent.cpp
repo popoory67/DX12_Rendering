@@ -18,7 +18,7 @@ PrimitiveProxy::PrimitiveProxy(PrimitiveComponent* InComponent)
 
 }
 
-PrimitiveBuilder* PrimitiveComponent::Builder = nullptr;
+std::unique_ptr<PrimitiveBuilder> PrimitiveComponent::Builder;
 
 PrimitiveComponent::PrimitiveComponent(Scene* InScene, Component* InParent)
 	: Parent(InScene, InParent)
@@ -28,13 +28,14 @@ PrimitiveComponent::PrimitiveComponent(Scene* InScene, Component* InParent)
 
 PrimitiveComponent::~PrimitiveComponent()
 {
+	SafeDelete(Proxy);
 }
 
 void PrimitiveComponent::SetMeshModel(const std::string& InPath)
 {
 	if (!Builder)
 	{
-		Builder = new PrimitiveBuilder();
+		Builder = std::make_unique<PrimitiveBuilder>();
 	}
 
 	CreateResource();
@@ -55,6 +56,8 @@ PrimitiveProxy* PrimitiveComponent::CreateProxy()
 {
 	PrimitiveProxy* proxy = new PrimitiveProxy(this);
 	assert(proxy);
+
+	Proxy = proxy;
 
 	return proxy;
 }

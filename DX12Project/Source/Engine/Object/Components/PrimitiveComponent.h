@@ -52,10 +52,10 @@ protected:
 public:
 	D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	
-	PrimitiveProxy* Proxy = nullptr;
-
 protected:
-	static PrimitiveBuilder* Builder;
+	static std::unique_ptr<PrimitiveBuilder> Builder;
+
+	PrimitiveProxy* Proxy = nullptr;
 
 private:
 	UINT Index = 0;

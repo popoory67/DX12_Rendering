@@ -23,7 +23,7 @@ struct RenderCommand
 	{
 
 	}
-	virtual ~RenderCommand() = default;
+	virtual ~RenderCommand();
 
 	void DoTask();
 

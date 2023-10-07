@@ -12,7 +12,13 @@ enum class RenderPassType : unsigned
 struct RenderBatch
 {
 public:
+	RenderBatch() = default;
 	virtual ~RenderBatch() = default;
+
+	RenderBatch(RenderBatch&& InBatch)
+	{
+		PipelineStateId = InBatch.PipelineStateId;
+	}
 
 protected:
 	int PipelineStateId = -1;
@@ -28,8 +34,9 @@ class RenderPass
 public:
 	RenderPass();
 	virtual ~RenderPass() = default;
+	RenderPass(RenderPass&&) = default;
+	RenderPass& operator=(RenderPass&&) = default;
 
-public:
 	virtual void DoTask() {}
 	constexpr int GetPriority() { return Priority; }
 
@@ -41,12 +48,12 @@ protected:
 class RenderGraph : public TaskGraph<RenderPass>
 {
 public:
-	RenderGraph();
+	RenderGraph() = default;
 	virtual ~RenderGraph() = default;
 
 	static RenderGraph& Get();
 
-	void AddTask(RenderPass*&& InRenderPass);
+	void AddTask(std::unique_ptr<RenderPass> InRenderPass);
 
 	// TODO
 	// Manage and clear tasks

@@ -1,6 +1,9 @@
 #pragma once
 #include "WindowMain.h"
 #include "D3DUtil.h"
+#if defined(DEBUG) | defined(_DEBUG)
+#include <vld.h>
+#endif
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd)
 {

@@ -1,5 +1,6 @@
 #pragma once
 #include "Util.h"
+#include <memory>
 #include <unordered_map>
 #include <queue>
 #include <assert.h>
@@ -39,7 +40,7 @@ public:
 	template<class Lambda>
 	void AddTask(Lambda&& InLambda)
 	{
-		TaskInternal = new TaskType(std::forward<Lambda>(InLambda));
+		TaskInternal = std::make_unique<TaskType>(std::forward<Lambda>(InLambda));
 	}
 
 	void Execute()
@@ -53,7 +54,6 @@ public:
 		if (!IsCompleted())
 		{
 			TaskInternal->DoTask();
-			SafeDelete(TaskInternal);
 
 			bCompleted = true;
 
@@ -68,7 +68,7 @@ public:
 	}
 
 protected:
-	TaskType* TaskInternal = nullptr;
+	std::unique_ptr<TaskType> TaskInternal;
 
 	bool bCompleted = false;
 };

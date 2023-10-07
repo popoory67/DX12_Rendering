@@ -55,8 +55,6 @@ void Scene::AddPrimitive(PrimitiveComponent* InPrimitiveComponent)
 		return;
 	}
 
-	InPrimitiveComponent->Proxy = proxy;
-
 	Primitives.emplace(proxy, 1);
 }
 
@@ -86,7 +84,7 @@ void Scene::RenderScene()
     {
         // Create mesh batches
         // Send to render thread with the primitive info
-		MeshRenderBatch batch;
+		MeshRenderBatch batch{};
         for (const auto& it : Primitives)
         {
             // If the primitive is invisible, this scope is skipped.
@@ -101,16 +99,20 @@ void Scene::RenderScene()
 				continue;
 			}
 
-			MeshRenderBatchElement element;
-			element.Primitive = vertices;
-            element.Stride = sizeof(vertices[0]);
+			MeshRenderBatchElement element{};
+			{
+				element.Primitive = vertices;
+				element.Stride = sizeof(vertices[0]);
 
-			batch.AddElement(std::move(element));
+				batch.AddElement(std::move(element));
+			}
         }
 
-        MeshRenderPass* meshPass = new MeshRenderPass();
-        meshPass->AddMeshBatch(std::move(batch));
+		std::unique_ptr<MeshRenderPass> meshPass = std::make_unique<MeshRenderPass>();
+        {
+            meshPass->AddMeshBatch(std::move(batch));
 
-        RenderGraph::Get().AddTask(std::move(meshPass));
+            RenderGraph::Get().AddTask(std::move(meshPass));
+        }
     }
 }

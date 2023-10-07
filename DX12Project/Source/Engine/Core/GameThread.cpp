@@ -33,9 +33,9 @@ public:
         {
             std::unique_lock<std::mutex> lock(*Mutex);
             Condition->wait(lock, []()
-                {
-                    return TaskGraphSystem::Get().GetThreadState() == ThreadType::Main;
-                });
+            {
+                return TaskGraphSystem::Get().GetThreadState() == ThreadType::Main;
+            });
 
             TaskGraphSystem::Get().Execute(ThreadType::Main);
 

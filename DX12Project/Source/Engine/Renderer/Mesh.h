@@ -23,6 +23,27 @@ struct MeshRenderBatchElement
 
 	// TODO
 	// Material, Mesh Options, Proxy
+
+	MeshRenderBatchElement() = default;
+	MeshRenderBatchElement& operator=(const MeshRenderBatchElement&) = default;
+
+	MeshRenderBatchElement(MeshRenderBatchElement&& InElement)
+	{
+		Primitive = std::move(InElement.Primitive);
+		Stride = InElement.Stride;
+	}
+
+	MeshRenderBatchElement& operator=(MeshRenderBatchElement&& InElement)
+	{
+		Primitive = std::move(InElement.Primitive);
+		Stride = InElement.Stride;
+		return *this;
+	}
+
+	~MeshRenderBatchElement()
+	{
+		Primitive.clear();
+	}
 };
 
 // Mesh batching is a technique used to reduce the number of draw calls.
@@ -32,7 +53,21 @@ struct MeshRenderBatch : public RenderBatch
 {
 	MeshRenderBatch();
 	MeshRenderBatch(std::vector<MeshRenderBatchElement>&& InMeshStream, unsigned int InCount);
-	virtual ~MeshRenderBatch() = default;
+
+	MeshRenderBatch(MeshRenderBatch&& InBatch)
+		: RenderBatch(std::move(InBatch))
+	{
+		Count = InBatch.Count;
+		Elements = std::move(InBatch.Elements);
+	}
+
+	MeshRenderBatch& operator=(MeshRenderBatch&& InBatch)
+	{
+		Count = InBatch.Count;
+		Elements = std::move(InBatch.Elements);
+	}
+
+	virtual ~MeshRenderBatch();
 
 	void AddElements(std::vector<MeshRenderBatchElement>&& InMeshStream);
 	void AddElement(MeshRenderBatchElement&& InMeshElement);
@@ -47,7 +82,16 @@ class MeshRenderPass : public RenderPass
 {
 public:
 	MeshRenderPass();
-	virtual ~MeshRenderPass() = default;
+	virtual ~MeshRenderPass();
+	MeshRenderPass(MeshRenderPass&& InPass)
+	{
+		Batches = std::move(InPass.Batches);
+	}
+
+	MeshRenderPass& operator=(MeshRenderPass&& InPass)
+	{
+		Batches = std::move(InPass.Batches);
+	}
 
 	void AddMeshBatch(MeshRenderBatch&& InBatch);
 	void DoTask() override;
