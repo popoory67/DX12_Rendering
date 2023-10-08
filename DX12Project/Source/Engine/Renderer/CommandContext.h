@@ -12,9 +12,8 @@ class RHICommandList;
 class RHICommandContext : public Uncopyable
 {
 public:
-	~RHICommandContext() = default;
 
-	// This must make sure that it never return nullptr in run-time.
+	static const int GetCommandListCount();
 	RHICommandList& GetCommandList() const;
 	void AddCommandList(std::unique_ptr<RHICommandList>&& InCommandList);
 	void AddCommand(struct RHICommand* InCommand) const;
@@ -28,6 +27,7 @@ private:
 private:
 	std::vector<std::unique_ptr<RHICommandList>> CommandLists;
 	unsigned int CurrentCommandListHandle = 0;
+	static const int CommandListCount;
 
 	mutable std::list<std::unique_ptr<struct RHICommand>> Commands;
 

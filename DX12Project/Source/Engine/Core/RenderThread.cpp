@@ -104,6 +104,8 @@ namespace RenderThread
             GCommandContext.CleanUp();
         }
 
+        SafeDelete(GRHI);
+
 #if defined(DEBUG) | defined(_DEBUG)
         ComPtr<IDXGIDebug1> dxgiDebug;
         HRESULT hr = DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug));
@@ -114,8 +116,6 @@ namespace RenderThread
             dxgiDebug = nullptr;
         }
 #endif
-
-        SafeDelete(GRHI);
     }
 };
 

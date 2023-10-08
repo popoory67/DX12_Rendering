@@ -3,6 +3,13 @@
 #include "RenderInterface.h"
 #include <assert.h>
 
+const int RHICommandContext::CommandListCount = 1;
+
+const int RHICommandContext::GetCommandListCount()
+{
+    return CommandListCount;
+}
+
 void RHICommandContext::AddCommandList(std::unique_ptr<RHICommandList>&& InCommandList)
 {
     CommandLists.emplace_back(std::move(InCommandList));

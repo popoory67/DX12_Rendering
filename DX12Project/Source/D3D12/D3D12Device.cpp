@@ -95,8 +95,7 @@ void D3D12Device::Initialize()
         RootSignatureVersion = rootSignatureCaps.HighestVersion;
 	}
 
-    // test
-    for (int i = 0; i < 2; ++i)
+    for (int i = 0; i < RHICommandContext::GetCommandListCount(); ++i)
     {
 		std::unique_ptr<D3D12CommandList> commandList = std::make_unique<D3D12CommandList>(this);
         commandList->Initialize();
