@@ -3,7 +3,7 @@
 #include "RenderInterface.h"
 #include <assert.h>
 
-void RHICommandContext::AddCommandList(RHICommandList*&& InCommandList)
+void RHICommandContext::AddCommandList(std::unique_ptr<RHICommandList>&& InCommandList)
 {
     CommandLists.emplace_back(std::move(InCommandList));
 }
@@ -27,7 +27,7 @@ void RHICommandContext::AddCommand(RHICommand* InCommand) const
     }
 }
 
-void RHICommandContext::ExecuteCommands() const
+void RHICommandContext::ExecuteCommands()
 {
     // TODO
     // Processing commands on a concurrency task with a priority
@@ -40,16 +40,18 @@ void RHICommandContext::ExecuteCommands() const
 
         Commands.pop_front();
     }
-}
 
-void RHICommandContext::Close() const
-{
-    bClose = true;
-
-    CurrentCommandListHandle = (CurrentCommandListHandle + 1) % CommandLists.size();
+    Close();
 }
 
 void RHICommandContext::CleanUp()
 {
-    SafeDeleteVector(CommandLists);
+    CommandLists.clear();
+}
+
+void RHICommandContext::Close()
+{
+    bClose = true;
+
+    CurrentCommandListHandle = (CurrentCommandListHandle + 1) % CommandLists.size();
 }

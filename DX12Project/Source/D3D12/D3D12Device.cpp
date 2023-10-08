@@ -98,7 +98,7 @@ void D3D12Device::Initialize()
     // test
     for (int i = 0; i < 2; ++i)
     {
-		D3D12CommandList* commandList = new D3D12CommandList(this);
+		std::unique_ptr<D3D12CommandList> commandList = std::make_unique<D3D12CommandList>(this);
         commandList->Initialize();
 
         GCommandContext.AddCommandList(std::move(commandList));

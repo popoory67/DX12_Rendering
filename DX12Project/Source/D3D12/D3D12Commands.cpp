@@ -12,8 +12,6 @@
 
 void D3D12CommandList::BeginDrawWindow(RHIViewport* InViewport)
 {
-	PIXBeginEvent(GetCommandList(), PIX_COLOR(0, 255, 0), "Render");
-
 	D3D12Viewport* viewport = D3D12RHI::Cast(InViewport);
 	assert(viewport);
 
@@ -24,6 +22,8 @@ void D3D12CommandList::BeginDrawWindow(RHIViewport* InViewport)
 	if (renderTarget)
 	{
         Reset();
+
+        PIXBeginEvent(GetCommandList(), PIX_COLOR(0, 255, 0), "Render");
 
 		// Indicate a state transition on the resource usage.
 		D3D12Resource* resource = D3D12RHI::Cast(renderTarget->GetTexture());
@@ -43,6 +43,8 @@ void D3D12CommandList::BeginDrawWindow(RHIViewport* InViewport)
 
 void D3D12CommandList::EndDrawWindow(RHIViewport* InViewport)
 {
+    PIXEndEvent(GetCommandList());
+
 	D3D12Viewport* viewport = D3D12RHI::Cast(InViewport);
 	assert(viewport);
 
@@ -50,8 +52,6 @@ void D3D12CommandList::EndDrawWindow(RHIViewport* InViewport)
 
     EndFrame();
     WaitForFrameCompletion();
-
-	PIXEndEvent(GetCommandList());
 }
 
 void D3D12CommandList::BeginRender()

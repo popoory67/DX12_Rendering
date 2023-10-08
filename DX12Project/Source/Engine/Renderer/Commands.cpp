@@ -24,7 +24,6 @@ RHICommand_EndDrawWindow::RHICommand_EndDrawWindow(class RHIViewport* InViewport
 void RHICommand_EndDrawWindow::Execute(const RHICommandContext& InContext)
 {
     InContext.GetCommandList().EndDrawWindow(Viewport);
-    InContext.Close();
 }
 
 RHICommand_SetRenderTargets::RHICommand_SetRenderTargets(RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTargets, RHIResource* InDepthStencil)
