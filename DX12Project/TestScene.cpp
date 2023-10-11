@@ -18,7 +18,7 @@ void TestScene::Start()
 	if (Object)
 	{
 		std::shared_ptr<PrimitiveComponent> PrimitiveData = std::make_shared<PrimitiveComponent>(this, nullptr);
-		PrimitiveData->SetMeshModel({});
+		PrimitiveData->SetMeshModel(L"../Resources/Obj/diamond.obj");
 		Object->AddComponent(PrimitiveData);
 
 		AddEntity(Object);

@@ -18,7 +18,7 @@ public:
 	virtual void ResizeViewport(class RHIViewport* InViewport) = 0;
 	virtual void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, class RHIResource* InDepthStencil) = 0;
 	virtual void AddResource(class RHIResource*&& InResource) = 0;
-	virtual void SetStreamResource(class RHIResource* InVertexBuffer) = 0;
+	virtual void SetStreamResource(class RHIResource* InVertexBuffer, const UINT InIndicesSize) = 0;
 	virtual void DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance) = 0;
 	virtual void DrawIndexedInstanced(RHIResource* InVertexBuffer, unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance) = 0;
 };

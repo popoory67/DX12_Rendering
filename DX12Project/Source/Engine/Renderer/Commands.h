@@ -82,13 +82,14 @@ private:
 struct RHICommand_SetPrimitive : public RHICommandBase<RHICommand_SetPrimitive>
 {
 	RHICommand_SetPrimitive() = delete;
-	RHICommand_SetPrimitive(std::vector<struct Vertex>&& InStream, unsigned int InSize, unsigned int InStride);
+	RHICommand_SetPrimitive(std::vector<struct Vertex>&& InVertexStream, std::vector<unsigned int>&& InIndexStream, unsigned int InSize, unsigned int InStride);
 	virtual ~RHICommand_SetPrimitive();
 
 	void Execute(const RHICommandContext& InContext) override;
 
 private:
-	std::vector<struct Vertex> StreamResource;
+	std::vector<struct Vertex> VertexStreamResource;
+	std::vector<unsigned int> IndexStreamResource;
 	unsigned int Size;
 	unsigned int Stride;
 };

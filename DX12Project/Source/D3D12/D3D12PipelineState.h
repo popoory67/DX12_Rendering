@@ -24,18 +24,18 @@ private:
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC PipelineStateDesc;
 };
 
+// D3D12_INPUT_ELEMENT_DESC should not exceed the value of MAX_VERTEX_SLOT_COUNT
 #define MAX_VERTEX_SLOT_COUNT D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT
 
 struct D3D12VertexBufferCache
 {
 	D3D12_VERTEX_BUFFER_VIEW CurrentVertexBufferView[MAX_VERTEX_SLOT_COUNT];
 	//D3D12ResourceLocation* ResourceLocation[MAX_VERTEX_SLOT_COUNT];
-	int32_t MaxVertexIndex = -1;
 };
 
 struct D3D12IndexBufferCache
 {
-	
+	D3D12_INDEX_BUFFER_VIEW CurrentIndexBufferView[MAX_VERTEX_SLOT_COUNT];
 };
 
 namespace D3D12GraphicsPipelineState
@@ -84,7 +84,7 @@ public:
 	// Cache resources
 	void SetViewport(const D3D12_VIEWPORT& InViewport, const D3D12_RECT& InRect);
 	void SetRenderTargets(D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, D3D12DepthStencilView* InDepthStencil);
-	void SetStreamResource(D3D12Buffer* InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset = 0);
+	void SetStreamResource(D3D12Buffer* InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, const UINT InIndicesSize = 0);
 
 	void CreateAndAddCache(const D3D12GraphicsPipelineState::Desc& InDesc);
 	std::weak_ptr<D3D12PipelineState> FindCache(const D3D12GraphicsPipelineState::Desc& InDesc);
@@ -109,6 +109,7 @@ private:
 		D3D12DepthStencilView* DepthStencil;
 
 		D3D12VertexBufferCache VertexBufferCache;
+		D3D12IndexBufferCache IndexBufferCache;
 
 	} StateCache;
 

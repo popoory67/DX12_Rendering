@@ -2,14 +2,38 @@
 #include "RenderInterface.h"
 #include "Scene.h"
 
-void PrimitiveBuilder::Build(VertexStream&& InVertexStream, PrimitiveProxy* InProxy)
+MeshLoader* PrimitiveBuilder::Loader = nullptr;
+
+void PrimitiveBuilder::Build(PrimitiveProxy* InProxy)
 {
     if (!InProxy)
     {
 		return;
     }
 
-	InProxy->PrimitiveData = std::move(InVertexStream);
+	VertexStream vertices;
+	GetLoader().GetVertices(vertices);
+
+	IndexStream indices;
+    GetLoader().GetIndices(indices);
+
+    InProxy->PrimitiveData.Vertices = std::move(vertices);
+	InProxy->PrimitiveData.Stride = sizeof(vertices[0]);
+    InProxy->PrimitiveData.Indices = std::move(indices);
+}
+
+void PrimitiveBuilder::LoadStaticMesh(const std::wstring& InPath)
+{
+	GetLoader().LoadObj(InPath.c_str());
+}
+
+MeshLoader& PrimitiveBuilder::GetLoader()
+{
+	if (!Loader)
+	{
+		Loader = MeshLoader::Create();
+	}
+	return *Loader;
 }
 
 PrimitiveProxy::PrimitiveProxy(PrimitiveComponent* InComponent)
@@ -31,7 +55,7 @@ PrimitiveComponent::~PrimitiveComponent()
 	SafeDelete(Proxy);
 }
 
-void PrimitiveComponent::SetMeshModel(const std::string& InPath)
+void PrimitiveComponent::SetMeshModel(const std::wstring& InPath)
 {
 	if (!Builder)
 	{
@@ -40,16 +64,8 @@ void PrimitiveComponent::SetMeshModel(const std::string& InPath)
 
 	CreateResource();
 
-	// TODO
-	// Mesh data loader has to be developed.
-	VertexStream triangleVertices =
-    {
-        { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-        { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-        { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
-    };
-
-	Builder->Build(std::move(triangleVertices), Proxy);
+	Builder->LoadStaticMesh(InPath);
+	Builder->Build(Proxy);
 }
 
 PrimitiveProxy* PrimitiveComponent::CreateProxy()

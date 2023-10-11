@@ -34,6 +34,7 @@
     <ClCompile Include="Source\D3D12\D3D12Viewport.cpp" />
     <ClCompile Include="Source\D3D12\D3DUtil.cpp" />
     <ClCompile Include="Source\D3D12\DDSTextureLoader.cpp" />
+    <ClCompile Include="Source\D3D12\DXMeshLoader.cpp" />
     <ClCompile Include="Source\D3D12\FrameResource.cpp" />
     <ClCompile Include="Source\Engine\Application.cpp" />
     <ClCompile Include="Source\Engine\Core\GameThread.cpp" />
@@ -64,6 +65,7 @@
     <ClCompile Include="Source\Engine\Core\ThreadBase.cpp" />
     <ClCompile Include="Source\Engine\Util\GameTimer.cpp" />
     <ClCompile Include="Source\Engine\Util\MathHelper.cpp" />
+    <ClCompile Include="Source\Engine\Util\MeshLoader.cpp" />
     <ClCompile Include="Source\Engine\Util\Util.cpp" />
     <ClCompile Include="Source\Engine\WindowMain.cpp" />
     <ClCompile Include="Source\Main.cpp" />
@@ -84,6 +86,7 @@
     <ClInclude Include="Source\D3D12\D3DUtil.h" />
     <ClInclude Include="Source\D3D12\d3dx12.h" />
     <ClInclude Include="Source\D3D12\DDSTextureLoader.h" />
+    <ClInclude Include="Source\D3D12\DXMeshLoader.h" />
     <ClInclude Include="Source\D3D12\FrameResource.h" />
     <ClInclude Include="Source\D3D12\UploadBuffer.h" />
     <ClInclude Include="Source\Engine\Application.h" />
@@ -105,6 +108,7 @@
     <ClInclude Include="Source\Engine\Renderer\Light.h" />
     <ClInclude Include="Source\Engine\Renderer\Material.h" />
     <ClInclude Include="Source\Engine\Renderer\Mesh.h" />
+    <ClInclude Include="Source\Engine\Renderer\Primitive.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderInterface.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderPass.h" />
     <ClInclude Include="Source\Engine\Renderer\RenderResource.h" />
@@ -116,6 +120,7 @@
     <ClInclude Include="Source\Engine\Core\ThreadBase.h" />
     <ClInclude Include="Source\Engine\Util\GameTimer.h" />
     <ClInclude Include="Source\Engine\Util\MathHelper.h" />
+    <ClInclude Include="Source\Engine\Util\MeshLoader.h" />
     <ClInclude Include="Source\Engine\Util\Util.h" />
     <ClInclude Include="Source\Engine\WindowMain.h" />
     <ClInclude Include="TestScene.h" />
@@ -261,11 +266,13 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\WinPixEventRuntime.1.0.230302001\build\WinPixEventRuntime.targets" Condition="Exists('..\packages\WinPixEventRuntime.1.0.230302001\build\WinPixEventRuntime.targets')" />
+    <Import Project="..\packages\directxmesh_desktop_2019.2023.4.28.1\build\native\directxmesh_desktop_2019.targets" Condition="Exists('..\packages\directxmesh_desktop_2019.2023.4.28.1\build\native\directxmesh_desktop_2019.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>이 프로젝트는 이 컴퓨터에 없는 NuGet 패키지를 참조합니다. 해당 패키지를 다운로드하려면 NuGet 패키지 복원을 사용하십시오. 자세한 내용은 http://go.microsoft.com/fwlink/?LinkID=322105를 참조하십시오. 누락된 파일은 {0}입니다.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\WinPixEventRuntime.1.0.230302001\build\WinPixEventRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\WinPixEventRuntime.1.0.230302001\build\WinPixEventRuntime.targets'))" />
+    <Error Condition="!Exists('..\packages\directxmesh_desktop_2019.2023.4.28.1\build\native\directxmesh_desktop_2019.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxmesh_desktop_2019.2023.4.28.1\build\native\directxmesh_desktop_2019.targets'))" />
   </Target>
 </Project>

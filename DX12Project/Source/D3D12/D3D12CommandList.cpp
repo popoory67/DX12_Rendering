@@ -105,7 +105,8 @@ void D3D12CommandList::Initialize()
         std::vector<D3D12_INPUT_ELEMENT_DESC> InputLayout =
         {
             { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+            { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
         };
 
         // we need PSO cache
@@ -123,6 +124,10 @@ void D3D12CommandList::Initialize()
             ComPtr<ID3DBlob> errors;
 
             hr = D3DCompileFromFile(L"Shaders\\TestShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "VS", "vs_5_1", compileFlags, 0, &byteCode, &errors);
+            if (errors)
+            {
+                OutputDebugStringA((char*)errors->GetBufferPointer());
+            }
 
             VS = CD3DX12_SHADER_BYTECODE(byteCode->GetBufferPointer(), byteCode->GetBufferSize());
 
@@ -160,10 +165,11 @@ void D3D12CommandList::SetRenderTargets(RHIRenderTargetInfo* InRenderTargets, un
 	GetStateCache().SetRenderTargets(&renderTargetView, InNumRenderTarget, nullptr/*depthStencilView*/);
 }
 
-void D3D12CommandList::SetStreamResource(RHIResource* InVertexBuffer)
+void D3D12CommandList::SetStreamResource(RHIResource* InVertexBuffer, const UINT InIndicesSize)
 {
     D3D12Buffer* vertexBuffer = static_cast<D3D12Buffer*>(InVertexBuffer);
-    GetStateCache().SetStreamResource(vertexBuffer, 0, vertexBuffer->GetStride(), 0);
+
+    GetStateCache().SetStreamResource(vertexBuffer, 0, vertexBuffer->GetStride(), InIndicesSize);
 }
 
 void D3D12CommandList::DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance)

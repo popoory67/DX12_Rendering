@@ -1,48 +1,41 @@
 #pragma once
-#include <DirectXCollision.h>
-#include <vector>
 #include "MathHelper.h"
 #include "RenderPass.h"
+#include "Primitive.h"
+#include <vector>
 
-using namespace DirectX;
-
-struct Vertex
-{
-	XMFLOAT3 Pos;
-	XMFLOAT4 Color;
-};
-
-// TODO
-// VertexStream should be flexible, not just apply the struct Vertex.
 using VertexStream = std::vector<Vertex>;
+using IndexStream = std::vector<unsigned int>;
 
 struct MeshRenderBatchElement
 {
-	VertexStream Primitive;
+	VertexStream Vertices;
+	IndexStream Indices;
 	unsigned int Stride;
 
-	// TODO
-	// Material, Mesh Options, Proxy
-
 	MeshRenderBatchElement() = default;
+	MeshRenderBatchElement(const MeshRenderBatchElement&) = default;
 	MeshRenderBatchElement& operator=(const MeshRenderBatchElement&) = default;
 
 	MeshRenderBatchElement(MeshRenderBatchElement&& InElement)
 	{
-		Primitive = std::move(InElement.Primitive);
+		Vertices = std::move(InElement.Vertices);
+		Indices = std::move(InElement.Indices);
 		Stride = InElement.Stride;
 	}
 
 	MeshRenderBatchElement& operator=(MeshRenderBatchElement&& InElement)
 	{
-		Primitive = std::move(InElement.Primitive);
+		Vertices = std::move(InElement.Vertices);
+		Indices = std::move(InElement.Indices);
 		Stride = InElement.Stride;
 		return *this;
 	}
 
 	~MeshRenderBatchElement()
 	{
-		Primitive.clear();
+		Vertices.clear();
+		Indices.clear();
 	}
 };
 

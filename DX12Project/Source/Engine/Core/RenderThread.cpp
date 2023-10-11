@@ -37,10 +37,10 @@ public:
             ViewportRenderer->Initialize(GCommandContext);
         }
 
-        //Renderer = std::make_unique<SceneRenderer>();
-        //{
-        //    Renderer->Initialize();
-        //}
+        Renderer = std::make_unique<SceneRenderer>();
+        {
+            Renderer->Initialize();
+        }
         return true;
     }
 

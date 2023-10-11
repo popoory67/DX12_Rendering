@@ -17,3 +17,12 @@ UINT RenderComponent::GetBindingSize()
 
 	return D3DUtil::CalcConstantBufferByteSize((UINT)size);
 }
+
+// temporary
+#include "Material.h"
+#include "MathHelper.h"
+
+MaterialComponent::~MaterialComponent()
+{
+
+}

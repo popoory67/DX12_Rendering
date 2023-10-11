@@ -164,6 +164,8 @@
     <ClCompile Include="Source\Engine\Renderer\Commands.cpp" />
     <ClCompile Include="Source\Engine\Renderer\CommandContext.cpp" />
     <ClCompile Include="Source\D3D12\D3D12View.cpp" />
+    <ClCompile Include="Source\Engine\Util\MeshLoader.cpp" />
+    <ClCompile Include="Source\D3D12\DXMeshLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3DUtil.h">
@@ -289,6 +291,9 @@
     <ClInclude Include="Source\Engine\Renderer\Commands.h" />
     <ClInclude Include="Source\Engine\Renderer\CommandContext.h" />
     <ClInclude Include="Source\D3D12\D3D12View.h" />
+    <ClInclude Include="Source\Engine\Util\MeshLoader.h" />
+    <ClInclude Include="Source\D3D12\DXMeshLoader.h" />
+    <ClInclude Include="Source\Engine\Renderer\Primitive.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" />

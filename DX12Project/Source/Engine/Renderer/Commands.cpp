@@ -44,8 +44,9 @@ RHICommand_SetRenderTargets::~RHICommand_SetRenderTargets()
 
 }
 
-RHICommand_SetPrimitive::RHICommand_SetPrimitive(std::vector<Vertex>&& InStream, unsigned int InSize, unsigned int InStride)
-    : StreamResource(std::forward< std::vector<Vertex>>(InStream))
+RHICommand_SetPrimitive::RHICommand_SetPrimitive(std::vector<Vertex>&& InVertexStream, std::vector<unsigned int>&& InIndexStream, unsigned int InSize, unsigned int InStride)
+    : VertexStreamResource(std::forward<std::vector<Vertex>>(InVertexStream))
+    , IndexStreamResource(std::forward<std::vector<unsigned int>>(InIndexStream))
     , Size(InSize)
     , Stride(InStride)
 {
@@ -54,19 +55,25 @@ RHICommand_SetPrimitive::RHICommand_SetPrimitive(std::vector<Vertex>&& InStream,
 
 RHICommand_SetPrimitive::~RHICommand_SetPrimitive()
 {
-    StreamResource.clear();
+    VertexStreamResource.clear();
 }
 
 void RHICommand_SetPrimitive::Execute(const RHICommandContext& InContext)
 {
-    RHIResource* vertexBuffer = GRHI->CreateVertexBuffer(Size, Stride);
-    void* voidPtr = GRHI->LockBuffer(vertexBuffer);
+    const UINT indicesSize = sizeof(IndexStreamResource) * sizeof(unsigned int);
+
+    RHIResource* vertexBuffer = GRHI->CreateVertexBuffer(Size, indicesSize, Stride);
+    UINT8* voidPtr = static_cast<UINT8*>(GRHI->LockBuffer(vertexBuffer)); // test
     {
-        memcpy(voidPtr, StreamResource.data(), Size);
+        memcpy(voidPtr, VertexStreamResource.data(), Size);
+        voidPtr += Size;
+
+        memcpy(voidPtr, IndexStreamResource.data(), indicesSize);
+        voidPtr += indicesSize;
     }
     GRHI->UnlockBuffer(vertexBuffer);
 
-    InContext.GetCommandList().SetStreamResource(vertexBuffer);
+    InContext.GetCommandList().SetStreamResource(vertexBuffer, indicesSize);
     InContext.GetCommandList().AddResource(std::move(vertexBuffer));
 }
 

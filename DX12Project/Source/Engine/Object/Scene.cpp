@@ -79,12 +79,12 @@ bool Scene::IsVisible(int InId)
 
 void Scene::RenderScene()
 {
-    // TODO : this is test code
     // 1. Mesh pass
     {
         // Create mesh batches
         // Send to render thread with the primitive info
 		MeshRenderBatch batch{};
+
         for (const auto& it : Primitives)
         {
             // If the primitive is invisible, this scope is skipped.
@@ -93,19 +93,8 @@ void Scene::RenderScene()
                 continue;
             }
 
-			VertexStream& vertices = it.first->PrimitiveData;
-			if (vertices.empty())
-			{
-				continue;
-			}
-
-			MeshRenderBatchElement element{};
-			{
-				element.Primitive = vertices;
-				element.Stride = sizeof(vertices[0]);
-
-				batch.AddElement(std::move(element));
-			}
+			MeshRenderBatchElement element{ it.first->PrimitiveData };
+			batch.AddElement(std::move(element));
         }
 
 		std::unique_ptr<MeshRenderPass> meshPass = std::make_unique<MeshRenderPass>();

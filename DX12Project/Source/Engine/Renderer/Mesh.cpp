@@ -27,14 +27,14 @@ void MeshRenderBatch::AddElements(std::vector<MeshRenderBatchElement>&& InMeshSt
 {
     for (const auto& element : InMeshStream)
     {
-        Count += element.Primitive.size();
+        Count += element.Vertices.size();
     }
     Elements.insert(Elements.end(), std::make_move_iterator(InMeshStream.begin()), std::make_move_iterator(InMeshStream.end()));
 }
 
 void MeshRenderBatch::AddElement(MeshRenderBatchElement&& InMeshElement)
 {
-    Count += InMeshElement.Primitive.size();
+    Count += InMeshElement.Vertices.size();
     Elements.emplace_back(std::move(InMeshElement));
 }
 
@@ -73,20 +73,29 @@ void MeshRenderPass::DoTask()
     unsigned int stride = Batches[0].GetStride();
     unsigned int count = 0;
 
-    std::vector<Vertex> stream{};
+    VertexStream vertexStream{};
+    IndexStream indexStream{};
 
     for (const auto& batch : Batches)
     {
         for (const auto& element : batch.Elements)
         {
-            stream.insert(stream.end(), std::make_move_iterator(element.Primitive.begin()), std::make_move_iterator(element.Primitive.end()));
+            vertexStream.insert(vertexStream.end(), std::make_move_iterator(element.Vertices.begin()), std::make_move_iterator(element.Vertices.end()));
+            indexStream.insert(indexStream.end(), std::make_move_iterator(element.Indices.begin()), std::make_move_iterator(element.Indices.end()));
         }
         count += batch.Count;
     }
 
-    TaskGraphSystem::Get().AddTask<RenderCommand>([stream = std::move(stream), stride, count](const RHICommandContext& InContext) mutable
+    TaskGraphSystem::Get().AddTask<RenderCommand>([vertexStream = std::move(vertexStream), 
+        indexStream = std::move(indexStream),
+        stride, 
+        count](const RHICommandContext& InContext) mutable
     {
-        auto primitiveCommand = RHICommand_SetPrimitive::Create(std::move(stream), stride * count, stride);
+        auto primitiveCommand = RHICommand_SetPrimitive::Create(
+            std::move(vertexStream), 
+            std::move(indexStream), 
+            stride * count, 
+            stride);
 
         // test
         auto drawPrimitive = RHICommand_DrawPrimitive::Create(count);

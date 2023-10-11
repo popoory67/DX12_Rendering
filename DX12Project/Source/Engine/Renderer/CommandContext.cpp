@@ -3,7 +3,7 @@
 #include "RenderInterface.h"
 #include <assert.h>
 
-const int RHICommandContext::CommandListCount = 1;
+const int RHICommandContext::CommandListCount = 1; // TODO : it would be managed more than 1
 
 const int RHICommandContext::GetCommandListCount()
 {

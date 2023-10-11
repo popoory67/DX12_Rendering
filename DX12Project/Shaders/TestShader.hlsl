@@ -9,23 +9,55 @@
 //
 //*********************************************************
 
-struct PSInput
+struct VertexIn
 {
-    float4 position : SV_POSITION;
-    float4 color : COLOR;
+    float3 Position     : POSITION;
+    float3 Normal       : NORMAL;
+    float2 TexCoord     : TEXCOORD;
 };
 
-PSInput VS(float4 position : POSITION, float4 color : COLOR)
+struct VertexOut
 {
-    PSInput result;
+    float4 Position     : SV_POSITION;
+    //float3 PosW         : POSITION;
+    float3 Normal       : NORMAL;
+    float2 TexCoord     : TEXCOORD;
+};
 
-    result.position = position;
-    result.color = color;
+VertexOut VS(VertexIn vin)
+{
+    VertexOut vout = (VertexOut)0.0f;
 
-    return result;
+    vout.Position = float4(vin.Position, 1.0f);
+    vout.Normal = vin.Normal;
+
+    //// Transform to world space.
+    //float4 posW = mul(float4(vin.Position, 1.0f), gWorld);
+    //vout.PosW = posW.xyz;
+
+    //// Assumes nonuniform scaling; otherwise, need to use inverse-transpose of world matrix.
+    //vout.NormalW = mul(vin.Normal, (float3x3)gWorld);
+
+    //// Transform to homogeneous clip space.
+    //vout.PosH = mul(posW, gViewProj);
+
+    //// Output vertex attributes for interpolation across triangle.
+    //float4 texC = mul(float4(vin.TexCoord, 0.0f, 1.0f), gTexTransform);
+    //vout.TexCoord = mul(texC, gMatTransform).xy;
+
+    return vout;
 }
 
-float4 PS(PSInput input) : SV_TARGET
+float4 PS(VertexOut pin) : SV_Target
 {
-    return input.color;
+    // lambert's cosine test
+    float3 normal = normalize(pin.Normal);
+
+    float3 lightDirection = float3(0, -1, 0); // test directional light
+    float diffuseAmount = max(dot(normal, lightDirection), 0.0f);
+
+    float4 color = float4(1.0f, 0, 0, 0);
+    float4 finalColor = color * diffuseAmount;
+
+    return finalColor;
 }

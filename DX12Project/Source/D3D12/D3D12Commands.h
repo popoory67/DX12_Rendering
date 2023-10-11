@@ -99,7 +99,7 @@ public:
 	void ResizeViewport(RHIViewport* InViewport) override;
 	void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, class RHIResource* InDepthStencil) override;
 	void AddResource(class RHIResource*&& InResource) final override;
-	void SetStreamResource(class RHIResource* InVertexBuffer) final override;
+	void SetStreamResource(class RHIResource* InVertexBuffer, const UINT InIndicesSize) final override;
 	void DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance) final override;
 	void DrawIndexedInstanced(class RHIResource* InVertexBuffer, unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance) final override;
 

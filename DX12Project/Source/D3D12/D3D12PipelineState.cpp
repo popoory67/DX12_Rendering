@@ -71,23 +71,55 @@ void D3D12PipelineStateCache::SetRenderTargets(D3D12RenderTargetView** InRenderT
     }
 }
 
-void D3D12PipelineStateCache::SetStreamResource(D3D12Buffer* InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, uint32_t InOffset)
+void D3D12PipelineStateCache::SetStreamResource(D3D12Buffer* InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, const UINT InIndicesSize)
 {
-	D3D12_VERTEX_BUFFER_VIEW view;
-	view.BufferLocation = InVertexBuffer ? InVertexBuffer->Get()->GetGPUVirtualAddress() + InOffset : 0;
-	view.StrideInBytes = InStride;
-	view.SizeInBytes = InVertexBuffer ? InVertexBuffer->GetSize() - InOffset : 0;
-
+	// Vertex
 	D3D12_VERTEX_BUFFER_VIEW& CurrentVertexCache = StateCache.VertexBufferCache.CurrentVertexBufferView[StreamIndex];
-
-	if (view.BufferLocation != CurrentVertexCache.BufferLocation || 
-		view.StrideInBytes != CurrentVertexCache.StrideInBytes ||
-		view.SizeInBytes != CurrentVertexCache.SizeInBytes)
 	{
-		if (InVertexBuffer)
+		D3D12_VERTEX_BUFFER_VIEW view;
+		view.BufferLocation = InVertexBuffer ? InVertexBuffer->Get()->GetGPUVirtualAddress() : 0;
+		view.StrideInBytes = InStride;
+		view.SizeInBytes = InVertexBuffer ? InVertexBuffer->GetSize() : 0;
+
+        if (view.BufferLocation != CurrentVertexCache.BufferLocation ||
+			view.StrideInBytes != CurrentVertexCache.StrideInBytes ||
+			view.SizeInBytes != CurrentVertexCache.SizeInBytes)
 		{
 			memcpy_s(&CurrentVertexCache, sizeof(CurrentVertexCache), &view, sizeof(view));
 		}
+		//else
+		//{
+  //          CurrentVertexCache.BufferLocation = CurrentVertexCache.BufferLocation + view.BufferLocation;
+  //          CurrentVertexCache.StrideInBytes = view.StrideInBytes;
+  //          CurrentVertexCache.SizeInBytes = view.SizeInBytes;
+		//}
+	}
+
+	// Index
+	if (InIndicesSize != 0)
+	{
+		D3D12_INDEX_BUFFER_VIEW view;
+        view.BufferLocation = CurrentVertexCache.BufferLocation + CurrentVertexCache.SizeInBytes;
+        view.Format = DXGI_FORMAT_R32_UINT;
+        view.SizeInBytes = InIndicesSize;
+
+		D3D12_INDEX_BUFFER_VIEW& CurrentIndexCache = StateCache.IndexBufferCache.CurrentIndexBufferView[StreamIndex];
+
+		if (view.BufferLocation != CurrentIndexCache.BufferLocation ||
+			view.Format != CurrentIndexCache.Format ||
+			view.SizeInBytes != CurrentIndexCache.SizeInBytes)
+		{
+            //CurrentIndexCache.BufferLocation = CurrentIndexCache.BufferLocation + CurrentVertexCache.BufferLocation + view.BufferLocation;
+            //CurrentIndexCache.Format = view.Format;
+            //CurrentIndexCache.SizeInBytes = view.SizeInBytes;
+			memcpy_s(&CurrentIndexCache, sizeof(CurrentIndexCache), &view, sizeof(view));
+		}
+		//else
+		//{
+		//	CurrentIndexCache.BufferLocation = CurrentIndexCache.BufferLocation + virtualAddress + view.BufferLocation;
+		//	CurrentIndexCache.Format = view.Format;
+		//	CurrentIndexCache.SizeInBytes = view.SizeInBytes;
+		//}
 	}
 }
 

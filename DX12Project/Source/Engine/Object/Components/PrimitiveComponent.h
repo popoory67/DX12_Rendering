@@ -2,6 +2,7 @@
 #include <d3d12.h>
 #include "RenderComponent.h"
 #include "Mesh.h"
+#include "MeshLoader.h"
 
 class PrimitiveBuilder : public Uncopyable
 {
@@ -9,7 +10,14 @@ public:
 	PrimitiveBuilder() = default;
 	virtual ~PrimitiveBuilder() = default;
 
-	virtual void Build(VertexStream&& InVertexStream, class PrimitiveProxy* InProxy);
+	virtual void Build(class PrimitiveProxy* InProxy);
+	virtual void LoadStaticMesh(const std::wstring& InPath);
+
+protected:
+	static MeshLoader& GetLoader();
+
+private:
+	static MeshLoader* Loader;
 };
 
 class PrimitiveProxy
@@ -26,7 +34,7 @@ public:
 
 private:
 	class PrimitiveComponent* OwnerComponent;
-	VertexStream PrimitiveData;
+	MeshRenderBatchElement PrimitiveData;
 };
 
 class PrimitiveComponent : public RenderComponent
@@ -40,7 +48,7 @@ public:
 	
 	UINT GetIndex() const { return Index; }
 
-	void SetMeshModel(const std::string& InPath);
+	void SetMeshModel(const std::wstring& InPath);
 
 	virtual PrimitiveProxy* CreateProxy();
 
