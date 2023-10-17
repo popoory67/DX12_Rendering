@@ -1,7 +1,10 @@
 #pragma once
 #include "Util.h"
+#include "MathHelper.h"
 #include "CommandContext.h"
 #include <vector>
+
+using namespace DirectX;
 
 enum class CommandPriority
 {
@@ -63,6 +66,25 @@ struct RHICommand_EndDrawWindow : public RHICommandBase<RHICommand_EndDrawWindow
 
 private:
 	RHIViewport* Viewport;
+};
+
+struct RHICommand_BeginRender : public RHICommandBase<RHICommand_BeginRender>
+{
+	RHICommand_BeginRender() = delete;
+	RHICommand_BeginRender(XMMATRIX&& InWorldMatrix);
+	virtual ~RHICommand_BeginRender() = default;
+
+	void Execute(const RHICommandContext& InContext) override;
+
+private:
+	XMMATRIX WorldViewProjection;
+
+	// TODO
+	// I need to develop ConstantBuffer process
+	_declspec(align(256u)) struct ConstantBuffer
+	{
+		XMFLOAT4X4 WorldViewProj;
+	};
 };
 
 struct RHICommand_SetRenderTargets : public RHICommandBase<RHICommand_SetRenderTargets>

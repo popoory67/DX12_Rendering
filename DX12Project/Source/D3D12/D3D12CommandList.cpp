@@ -172,12 +172,16 @@ void D3D12CommandList::SetStreamResource(RHIResource* InVertexBuffer, const UINT
     GetStateCache().SetStreamResource(vertexBuffer, 0, vertexBuffer->GetStride(), InIndicesSize);
 }
 
+void D3D12CommandList::AddShaderReference(int InIndex, RHIResource* InBuffer)
+{
+    D3D12Resource* buffer = D3D12RHI::Cast(InBuffer);
+
+    // test
+    GetCommandList()->SetGraphicsRootConstantBufferView(0, buffer->GetAddress());
+}
+
 void D3D12CommandList::DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance)
 {
-    // test
-    const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc = GetStateCache().GetCurrentStateCache().lock()->GetDesc();
-    CommandList->SetGraphicsRootSignature(desc.pRootSignature);
-
 	GetStateCache().IssueCachedResources(*this);
     CommandList->DrawInstanced(InNumVertices, InNumInstances, InStartIndex, InStartInstance);
 }

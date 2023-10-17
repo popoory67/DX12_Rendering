@@ -5,6 +5,7 @@
 #include "D3D12Fence.h"
 #include "D3D12PipelineState.h"
 #include "Commands.h"
+#include "MathHelper.h"
 #include "DirectXColors.h"
 #if defined(DEBUG) | defined(_DEBUG)
 #include <pix3.h>
@@ -56,7 +57,9 @@ void D3D12CommandList::EndDrawWindow(RHIViewport* InViewport)
 
 void D3D12CommandList::BeginRender()
 {
-
+    // test
+    const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc = GetStateCache().GetCurrentStateCache().lock()->GetDesc();
+    CommandList->SetGraphicsRootSignature(desc.pRootSignature);
 }
 
 void D3D12CommandList::EndRender()
@@ -71,3 +74,4 @@ void D3D12CommandList::ResizeViewport(RHIViewport* InViewport)
 
 	GetStateCache().SetViewport(viewport->GetViewport(), viewport->GetRect());
 }
+

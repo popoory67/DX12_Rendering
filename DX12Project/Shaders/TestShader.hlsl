@@ -9,6 +9,13 @@
 //
 //*********************************************************
 
+struct Constants
+{
+    float4x4 WorldViewProj;
+};
+
+ConstantBuffer<Constants> Globals : register(b0);
+
 struct VertexIn
 {
     float3 Position     : POSITION;
@@ -26,11 +33,12 @@ struct VertexOut
 
 VertexOut VS(VertexIn vin)
 {
-    VertexOut vout = (VertexOut)0.0f;
+    VertexOut vout;
 
     vout.Position = float4(vin.Position, 1.0f);
     vout.Normal = vin.Normal;
 
+    //----
     //// Transform to world space.
     //float4 posW = mul(float4(vin.Position, 1.0f), gWorld);
     //vout.PosW = posW.xyz;
@@ -45,6 +53,10 @@ VertexOut VS(VertexIn vin)
     //float4 texC = mul(float4(vin.TexCoord, 0.0f, 1.0f), gTexTransform);
     //vout.TexCoord = mul(texC, gMatTransform).xy;
 
+    //VertexOut vout;
+    //vout.Position = mul(float4(vin.Position, 1), Globals.WorldViewProj);
+    //vout.Normal = vin.Normal;
+
     return vout;
 }
 
@@ -56,7 +68,7 @@ float4 PS(VertexOut pin) : SV_Target
     float3 lightDirection = float3(0, -1, 0); // test directional light
     float diffuseAmount = max(dot(normal, lightDirection), 0.0f);
 
-    float4 color = float4(1.0f, 0, 0, 0);
+    float4 color = float4(1.0f, 1.0f, 0, 0);
     float4 finalColor = color * diffuseAmount;
 
     return finalColor;

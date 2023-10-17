@@ -93,7 +93,7 @@
     <ClCompile Include="Source\Engine\Renderer\Texture.cpp">
       <Filter>Engine\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Renderer\Transform.cpp">
+    <ClCompile Include="Source\Engine\Object\Components\TransformComponent.cpp">
       <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Util\GameTimer.cpp">
@@ -166,6 +166,8 @@
     <ClCompile Include="Source\D3D12\D3D12View.cpp" />
     <ClCompile Include="Source\Engine\Util\MeshLoader.cpp" />
     <ClCompile Include="Source\D3D12\DXMeshLoader.cpp" />
+    <ClCompile Include="Source\Engine\Object\Components\CameraComponent.cpp" />
+    <ClCompile Include="Source\Engine\Object\Camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3DUtil.h">
@@ -231,7 +233,7 @@
     <ClInclude Include="Source\Engine\Renderer\Texture.h">
       <Filter>Engine\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Renderer\Transform.h">
+    <ClInclude Include="Source\Engine\Object\Components\TransformComponent.h">
       <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Util\GameTimer.h">
@@ -294,6 +296,8 @@
     <ClInclude Include="Source\Engine\Util\MeshLoader.h" />
     <ClInclude Include="Source\D3D12\DXMeshLoader.h" />
     <ClInclude Include="Source\Engine\Renderer\Primitive.h" />
+    <ClInclude Include="Source\Engine\Object\Components\CameraComponent.h" />
+    <ClInclude Include="Source\Engine\Object\Camera.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" />

@@ -1,12 +1,5 @@
 #pragma once
-
 #include "Scene.h"
-
-//class TransformSystem
-//{
-//public:
-//	void Update(std::shared_ptr<class EntityQuery> InQuery);
-//};
 
 class TestScene : public Scene
 {
@@ -19,5 +12,13 @@ public:
 	virtual void Start();
 
 private:
+	void UpCamera();
+	void DownCamera();
+	void LeftCamera();
+	void RightCamera();
+
+private:
 	std::shared_ptr<Entity> Object;
+
+	std::shared_ptr<class CameraComponent> CameraController;
 };

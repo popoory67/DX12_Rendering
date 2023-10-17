@@ -1,10 +1,12 @@
 #include "Scene.h"
-#include "PrimitiveComponent.h"
 #include "ThreadBase.h"
 #include "RenderThread.h"
 #include "RenderPass.h"
 #include "CommandList.h"
+#include "CommandContext.h"
 #include "Entity.h"
+#include "Camera.h"
+#include "PrimitiveComponent.h"
 
 Scene::Scene()
 {
@@ -12,27 +14,32 @@ Scene::Scene()
 
 Scene::~Scene()
 {
-
+	SafeDeleteVector(Cameras);
 }
 
 void Scene::Start()
 {
+	for (const auto& it : Entities)
+	{
+		std::shared_ptr<Entity> entity = it.second;
+		auto components = entity->GetComponentsAll();
 
+		Components.insert(Components.end(), components.begin(), components.end());
+	}
 }
 
 void Scene::Update()
 {
+	UpdateComponents();
+	// UpdateVisibility();
+
+	TaskGraphSystem::Get().AddTask<RenderCommand>([thisPtr = shared_from_this()](const RHICommandContext& InContext)
+	{
+		thisPtr->UpdateCamera(InContext);
+	}, ThreadType::Render);
+
+	// Addressed a collection of entity data to SceneRendering
 	RenderScene();
-
-   // std::shared_ptr<Scene> thisPtr = shared_from_this();
-
-   // TaskGraphSystem::Get().AddTask<RenderCommand>([ThisPtr = std::shared_ptr<Scene>{ thisPtr }](const RHICommandContext& InCommandList)
-   // {
-   //     if (ThisPtr.use_count() > 0)
-   //     {
-			//ThisPtr->RenderScene();
-   //     }
-   // }, ThreadType::Render);
 }
 
 void Scene::End()
@@ -58,9 +65,70 @@ void Scene::AddPrimitive(PrimitiveComponent* InPrimitiveComponent)
 	Primitives.emplace(proxy, 1);
 }
 
+int Scene::AddNewCamera()
+{
+	Camera* newCamera = new Camera();
+	newCamera->Initialize();
+
+	Cameras.emplace_back(newCamera);
+
+    if (!MainCamera)
+    {
+        MainCamera = newCamera;
+    }
+
+	return newCamera->GetId();
+}
+
+void Scene::SetMainCamera(int InCameraId)
+{
+	if (MainCamera->GetId() == InCameraId)
+	{
+		return;
+	}
+
+	auto camera = std::find_if(Cameras.begin(), Cameras.end(), [InCameraId](const auto& it)
+	{
+		return it->GetId() == InCameraId;
+	});
+
+	if (*camera)
+	{
+		MainCamera = *camera;
+	}
+	else
+	{
+		// error message
+	}
+}
+
+const Camera* Scene::GetMainCamera()
+{
+    if (!MainCamera)
+    {
+		AddNewCamera();
+    }
+	return MainCamera;
+}
+
+class Camera* Scene::GetCamera(int InCameraId)
+{
+    auto camera = std::find_if(Cameras.begin(), Cameras.end(), [InCameraId](const auto& it)
+    {
+        return it->GetId() == InCameraId;
+    });
+
+    if (!(*camera))
+    {
+		// error message
+    }
+	return *camera;
+}
+
 void Scene::UpdateVisibility()
 {
-	// visible 여부 확인하지 않고 그리게 수정
+	// TODO
+	// Primitive have to be rendered depending on Visibility flag
 	for (auto it : EntityVisibility)
 	{
 		if (IsVisible(it.first))
@@ -72,9 +140,32 @@ void Scene::UpdateVisibility()
 
 bool Scene::IsVisible(int InId)
 {
+	// TODO
 	// Visible test
 
 	return false;
+}
+
+void Scene::UpdateComponents()
+{
+	// TODO
+	// distribute fine components to each worker threads
+
+	for (const auto& component : Components)
+	{
+		component->Update();
+	}
+}
+
+void Scene::UpdateCamera(const RHICommandContext& InContext)
+{
+	XMMATRIX world = XMMATRIX(g_XMIdentityR0, g_XMIdentityR1, g_XMIdentityR2, g_XMIdentityR3);
+	XMMATRIX worldViewProjection = world * MainCamera->GetViewMatrix() * MainCamera->GetProjectionMatrix();
+
+	RHICommand_BeginRender* viewportCommand = new RHICommand_BeginRender(std::move(worldViewProjection));
+	{
+		InContext.AddCommand(std::move(viewportCommand));
+	}
 }
 
 void Scene::RenderScene()

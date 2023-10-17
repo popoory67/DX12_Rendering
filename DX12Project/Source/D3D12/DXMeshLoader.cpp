@@ -32,7 +32,7 @@ void DXMeshLoader::GetVertices(std::vector<Vertex>& OutVertices)
     {
         vertex.Position = it.position;
         vertex.Normal = it.normal;
-        vertex.TextureCoordinate = it.textureCoordinate;
+        //vertex.TextureCoordinate = it.textureCoordinate;
 
         OutVertices.emplace_back(vertex);
     }

@@ -4,6 +4,11 @@
 
 MeshLoader* PrimitiveBuilder::Loader = nullptr;
 
+PrimitiveBuilder::~PrimitiveBuilder()
+{
+	SafeDelete(Loader);
+}
+
 void PrimitiveBuilder::Build(PrimitiveProxy* InProxy)
 {
     if (!InProxy)
@@ -11,7 +16,17 @@ void PrimitiveBuilder::Build(PrimitiveProxy* InProxy)
 		return;
     }
 
-	VertexStream vertices;
+	//VertexStream vertices;
+	
+	// TODO
+	// Mesh data loader has to be developed.
+	VertexStream vertices =
+	{
+		{ { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
+		{ { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
+		{ { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
+	};
+
 	GetLoader().GetVertices(vertices);
 
 	IndexStream indices;

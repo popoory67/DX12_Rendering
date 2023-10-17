@@ -18,11 +18,8 @@ public:
 	template<typename ComponentType>
 	void AddComponent(std::shared_ptr<ComponentType> InCompnent)
 	{
-		if (InCompnent.use_count() > 0)
-		{
-			Components.emplace_back(InCompnent);
-			AddType(ComponentType::StaticClass());
-		}
+		Components.emplace_back(InCompnent);
+		AddType(ComponentType::StaticClass());
 	}
 
 	template<typename ComponentType>
@@ -35,6 +32,11 @@ public:
 				OutComponents.emplace_back(pComponent.get());
 			}
 		}
+	}
+
+	std::vector<std::shared_ptr<class Component>>& GetComponentsAll()
+	{
+		return Components;
 	}
 
 private:

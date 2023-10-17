@@ -8,7 +8,7 @@ class PrimitiveBuilder : public Uncopyable
 {
 public:
 	PrimitiveBuilder() = default;
-	virtual ~PrimitiveBuilder() = default;
+	virtual ~PrimitiveBuilder();
 
 	virtual void Build(class PrimitiveProxy* InProxy);
 	virtual void LoadStaticMesh(const std::wstring& InPath);
@@ -29,8 +29,6 @@ public:
 	PrimitiveProxy() = delete;
 	PrimitiveProxy(class PrimitiveComponent* InComponent);
 	virtual ~PrimitiveProxy() = default;
-
-	virtual void DrawElements() {}
 
 private:
 	class PrimitiveComponent* OwnerComponent;

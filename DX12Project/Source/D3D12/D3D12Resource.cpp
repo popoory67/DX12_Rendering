@@ -18,6 +18,11 @@ D3D12Resource::~D3D12Resource()
 	Reset();
 }
 
+D3D12_GPU_VIRTUAL_ADDRESS D3D12Resource::GetAddress() const
+{
+	return Resource->GetGPUVirtualAddress()/* + Size*/;
+}
+
 void D3D12Resource::Reset()
 {
 	Resource.Reset();

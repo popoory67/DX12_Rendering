@@ -4,6 +4,8 @@
 
 class Component : public BaseClass
 {
+	friend class Scene;
+
 public:
 	Component() = delete;
 	Component(class Scene* InScene, Component* InParent);

@@ -7,7 +7,7 @@ class Viewport
 {
 public:
 	Viewport() = delete;
-	explicit Viewport(RHIViewport*&& InViewportRHI);
+	explicit Viewport(RHIViewport* InViewportRHI);
 	virtual ~Viewport();
 
 	void Initialize(RHICommandContext& InContext);

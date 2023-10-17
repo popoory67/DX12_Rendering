@@ -3,8 +3,8 @@
 #include "CommandContext.h"
 #include "CommandList.h"
 
-Viewport::Viewport(RHIViewport*&& InViewportRHI)
-	: ViewportInterface(std::move(InViewportRHI))
+Viewport::Viewport(RHIViewport* InViewportRHI)
+	: ViewportInterface(InViewportRHI)
 {
 
 }
@@ -21,17 +21,13 @@ void Viewport::Initialize(RHICommandContext& InContext)
 
 void Viewport::Draw(RHICommandContext& InContext)
 {
+	RHICommand_BeginDrawWindow* beginDraw = new RHICommand_BeginDrawWindow(ViewportInterface);
 	{
-        RHICommand_BeginDrawWindow* viewportCommand = new RHICommand_BeginDrawWindow(ViewportInterface);
-
-        InContext.AddCommand(std::move(viewportCommand));
+        InContext.AddCommand(std::move(beginDraw));
 	}
 
-	//InContext.GetCommandList().BeginRender();
-
+	RHICommand_EndDrawWindow* endDraw = new RHICommand_EndDrawWindow(ViewportInterface);
     {
-		RHICommand_EndDrawWindow* viewportCommand = new RHICommand_EndDrawWindow(ViewportInterface);
-
-        InContext.AddCommand(std::move(viewportCommand));
+        InContext.AddCommand(std::move(endDraw));
     }
 }

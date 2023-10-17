@@ -3,6 +3,7 @@
 #include "CommandList.h"
 #include "Mesh.h"
 #include "RenderInterface.h"
+#include <iostream>
 
 RHICommand_BeginDrawWindow::RHICommand_BeginDrawWindow(RHIViewport* InViewport)
     : Viewport(InViewport)
@@ -24,6 +25,36 @@ RHICommand_EndDrawWindow::RHICommand_EndDrawWindow(class RHIViewport* InViewport
 void RHICommand_EndDrawWindow::Execute(const RHICommandContext& InContext)
 {
     InContext.GetCommandList().EndDrawWindow(Viewport);
+}
+
+RHICommand_BeginRender::RHICommand_BeginRender(XMMATRIX&& InWorldViewProjection)
+    : WorldViewProjection(std::move(InWorldViewProjection))
+{
+
+}
+
+void RHICommand_BeginRender::Execute(const RHICommandContext& InContext)
+{
+    InContext.GetCommandList().BeginRender();
+
+    const int frameCount = 2; // test
+    const int size = sizeof(ConstantBuffer) * frameCount;
+
+    // Mapped buffer that is truly handled on Rendering
+    RHIResource* constantBuffer = GRHI->CreateBuffer(size, sizeof(XMMATRIX));
+    UINT8* buffer = GRHI->LockBuffer(constantBuffer);
+    {
+        // Mapping constant data
+        ConstantBuffer constantData;
+        XMStoreFloat4x4(&constantData.WorldViewProj, XMMatrixTranspose(WorldViewProjection));
+
+        memcpy(buffer + size, &constantData, sizeof(constantData));
+    }
+    GRHI->UnlockBuffer(constantBuffer);
+
+    //OutputDebugStringA("//--------------------test");
+
+    InContext.GetCommandList().AddShaderReference(0, constantBuffer);
 }
 
 RHICommand_SetRenderTargets::RHICommand_SetRenderTargets(RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTargets, RHIResource* InDepthStencil)
@@ -63,7 +94,7 @@ void RHICommand_SetPrimitive::Execute(const RHICommandContext& InContext)
     const UINT indicesSize = sizeof(IndexStreamResource) * sizeof(unsigned int);
 
     RHIResource* vertexBuffer = GRHI->CreateVertexBuffer(Size, indicesSize, Stride);
-    UINT8* voidPtr = static_cast<UINT8*>(GRHI->LockBuffer(vertexBuffer)); // test
+    UINT8* voidPtr = GRHI->LockBuffer(vertexBuffer);
     {
         memcpy(voidPtr, VertexStreamResource.data(), Size);
         voidPtr += Size;
@@ -87,4 +118,5 @@ void RHICommand_DrawPrimitive::Execute(const RHICommandContext& InContext)
 {
     // test
     InContext.GetCommandList().DrawPrimitive(Count, 1, 0, 0);
+    //DrawIndexedInstanced
 }

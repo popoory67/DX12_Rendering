@@ -41,7 +41,9 @@
     <ClCompile Include="Source\Engine\Core\TaskGraph.cpp" />
     <ClCompile Include="Source\Engine\Core\WindowsThread.cpp" />
     <ClCompile Include="Source\Engine\Events\InputManager.cpp" />
+    <ClCompile Include="Source\Engine\Object\Camera.cpp" />
     <ClCompile Include="Source\Engine\Object\Class.cpp" />
+    <ClCompile Include="Source\Engine\Object\Components\CameraComponent.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\Component.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\PrimitiveComponent.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\RenderComponent.cpp" />
@@ -60,7 +62,7 @@
     <ClCompile Include="Source\Engine\Core\RenderThread.cpp" />
     <ClCompile Include="Source\Engine\Renderer\SceneRendering.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Texture.cpp" />
-    <ClCompile Include="Source\Engine\Renderer\Transform.cpp" />
+    <ClCompile Include="Source\Engine\Object\Components\TransformComponent.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Viewport.cpp" />
     <ClCompile Include="Source\Engine\Core\ThreadBase.cpp" />
     <ClCompile Include="Source\Engine\Util\GameTimer.cpp" />
@@ -95,7 +97,9 @@
     <ClInclude Include="Source\Engine\Core\TaskGraph.h" />
     <ClInclude Include="Source\Engine\Core\WindowsThread.h" />
     <ClInclude Include="Source\Engine\Events\InputManager.h" />
+    <ClInclude Include="Source\Engine\Object\Camera.h" />
     <ClInclude Include="Source\Engine\Object\Class.h" />
+    <ClInclude Include="Source\Engine\Object\Components\CameraComponent.h" />
     <ClInclude Include="Source\Engine\Object\Components\Component.h" />
     <ClInclude Include="Source\Engine\Object\Components\PrimitiveComponent.h" />
     <ClInclude Include="Source\Engine\Object\Components\RenderComponent.h" />
@@ -115,7 +119,7 @@
     <ClInclude Include="Source\Engine\Core\RenderThread.h" />
     <ClInclude Include="Source\Engine\Renderer\SceneRendering.h" />
     <ClInclude Include="Source\Engine\Renderer\Texture.h" />
-    <ClInclude Include="Source\Engine\Renderer\Transform.h" />
+    <ClInclude Include="Source\Engine\Object\Components\TransformComponent.h" />
     <ClInclude Include="Source\Engine\Renderer\Viewport.h" />
     <ClInclude Include="Source\Engine\Core\ThreadBase.h" />
     <ClInclude Include="Source\Engine\Util\GameTimer.h" />

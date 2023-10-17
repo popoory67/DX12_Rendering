@@ -1,15 +1,13 @@
 #pragma once
+#include "Util.h"
 #include <unordered_map>
 #include <memory>
 
-class SceneRenderer
+class SceneRenderer : public Uncopyable
 {
 public:
 	SceneRenderer() = default;
-	SceneRenderer(const SceneRenderer& rhs) = delete;
-	SceneRenderer& operator=(const SceneRenderer& rhs) = delete;
-
-	~SceneRenderer() = default;
+	virtual ~SceneRenderer() = default;
 
 	bool Initialize();
 	void BeginRender();

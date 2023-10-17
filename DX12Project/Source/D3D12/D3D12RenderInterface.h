@@ -41,8 +41,9 @@ public:
 
 	RHIViewport* CreateViewport(void* InHWnd, unsigned int InWidth, unsigned int InHeight) override;
 	void ResizeViewport(RHIViewport* InViewportRHI) override;
+	RHIResource* CreateBuffer(unsigned int InSize, unsigned int InStride) override;
 	RHIResource* CreateVertexBuffer(unsigned int InVertexSize, unsigned int InIndexSize, unsigned int InStride) override;
-	void* LockBuffer(RHIResource* InBuffer) override;
+	UINT8* LockBuffer(RHIResource* InBuffer) override;
 	void UnlockBuffer(RHIResource* InBuffer) override;
 
 private:

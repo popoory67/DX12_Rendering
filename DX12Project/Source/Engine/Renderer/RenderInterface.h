@@ -16,8 +16,9 @@ public:
 
 	virtual RHIViewport* CreateViewport(void* InHWnd, unsigned int InWidth, unsigned int InHeight) = 0;
 	virtual void ResizeViewport(RHIViewport* InViewportRHI) = 0;
+	virtual RHIResource* CreateBuffer(unsigned int InSize, unsigned int InStride) = 0;
 	virtual RHIResource* CreateVertexBuffer(unsigned int InVertexSize, unsigned int InIndexSize, unsigned int InStride) = 0;
-	virtual void* LockBuffer(RHIResource* InVertexBuffer) = 0;
+	virtual UINT8* LockBuffer(RHIResource* InVertexBuffer) = 0;
 	virtual void UnlockBuffer(RHIResource* InVertexBuffer) = 0;
 };
 

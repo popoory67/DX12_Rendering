@@ -30,15 +30,21 @@ void D3D12RHI::Destroy()
 	SafeDelete(CurrentDevice);
 }
 
+RHIResource* D3D12RHI::CreateBuffer(unsigned int InSize, unsigned int InStride)
+{
+    ComPtr<ID3D12Resource> resource = CreateResource(InSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr);
+    return new D3D12Buffer(std::move(resource), InSize, InStride);
+}
+
 RHIResource* D3D12RHI::CreateVertexBuffer(unsigned int InVertexSize, unsigned int InIndexSize, unsigned int InStride)
 {
 	ComPtr<ID3D12Resource> resource = CreateResource(InVertexSize + InIndexSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr);
     return new D3D12Buffer(std::move(resource), InVertexSize, InStride);
 }
 
-void* D3D12RHI::LockBuffer(RHIResource* InBuffer)
+UINT8* D3D12RHI::LockBuffer(RHIResource* InBuffer)
 {
-	return InBuffer->Lock();
+	return static_cast<UINT8*>(InBuffer->Lock());
 }
 
 void D3D12RHI::UnlockBuffer(RHIResource* InBuffer)

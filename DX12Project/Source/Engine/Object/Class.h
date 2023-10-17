@@ -26,8 +26,6 @@ public:
 	ClassType* GetClass();
 	bool IsEqualClass(ClassType* InClass);
 
-private:
-
 protected:
 	static std::unique_ptr<ClassType> Type;
 };
