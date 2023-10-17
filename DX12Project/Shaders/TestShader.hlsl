@@ -41,16 +41,10 @@ VertexOut VS(VertexIn vin)
 {
     VertexOut vout;
 
-    // temp
-    {
-        vout.Position = float4(vin.Position, 1.0f);
-        vout.Color = float4(vin.Normal, 1.0f);
-    }
-
     // adjusted matrix
     {
-        //vout.Position = mul(float4(vin.Position, 1), Globals.WorldViewProj);
-        //vout.Color = float4(vin.Normal, 1.0f);
+        vout.Position = mul(float4(vin.Position, 1), Globals.WorldViewProj);
+        vout.Color = float4(vin.Normal, 1.0f);
     }
 
     //----

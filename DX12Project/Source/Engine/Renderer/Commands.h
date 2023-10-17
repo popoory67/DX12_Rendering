@@ -50,7 +50,10 @@ public:
 	}
 };
 
-struct RHICommand_BeginDrawWindow : public RHICommandBase<RHICommand_BeginDrawWindow>
+#define RHICOMMAND(ClassName) \
+struct ClassName : public RHICommandBase<ClassName>
+
+RHICOMMAND(RHICommand_BeginDrawWindow)
 {
 public:
 	RHICommand_BeginDrawWindow() = delete;
@@ -63,7 +66,7 @@ private:
 	RHIViewport* Viewport;
 };
 
-struct RHICommand_EndDrawWindow : public RHICommandBase<RHICommand_EndDrawWindow>
+RHICOMMAND(RHICommand_EndDrawWindow)
 {
 public:
 	RHICommand_EndDrawWindow() = delete;
@@ -76,7 +79,7 @@ private:
 	RHIViewport* Viewport;
 };
 
-struct RHICommand_BeginRender : public RHICommandBase<RHICommand_BeginRender>
+RHICOMMAND(RHICommand_BeginRender)
 {
 public:
 	RHICommand_BeginRender() = delete;
@@ -96,7 +99,7 @@ private:
 	};
 };
 
-struct RHICommand_SetRenderTargets : public RHICommandBase<RHICommand_SetRenderTargets>
+RHICOMMAND(RHICommand_SetRenderTargets)
 {
 public:
 	RHICommand_SetRenderTargets() = delete;
@@ -111,7 +114,7 @@ private:
 	RHIResource* DepthStencil;
 };
 
-struct RHICommand_SetPrimitive : public RHICommandBase<RHICommand_SetPrimitive>
+RHICOMMAND(RHICommand_SetPrimitive)
 {
 public:
 	RHICommand_SetPrimitive() = delete;
@@ -127,7 +130,7 @@ private:
 	unsigned int Stride;
 };
 
-struct RHICommand_DrawPrimitive : public RHICommandBase<RHICommand_DrawPrimitive>
+RHICOMMAND(RHICommand_DrawPrimitive)
 {
 public:
 	RHICommand_DrawPrimitive() = delete;
