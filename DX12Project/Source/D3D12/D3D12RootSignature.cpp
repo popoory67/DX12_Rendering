@@ -19,6 +19,23 @@ D3D12RootSignature::D3D12RootSignature(D3D12Device* InDevice, const D3D12_VERSIO
         RootSignature)));
 }
 
+D3D12RootSignature::D3D12RootSignature(D3D12Device* InDevice, const D3D12_ROOT_SIGNATURE_DESC& InDesc)
+    : D3D12Api(InDevice)
+{
+    ComPtr<ID3DBlob> error;
+    const D3D_ROOT_SIGNATURE_VERSION version = InDevice->GetRootSignatureVersion();
+
+    HRESULT serializeHR = D3D12SerializeRootSignature(&InDesc, /*version*/D3D_ROOT_SIGNATURE_VERSION_1, &RootSignatureBlob, &error);
+    if (error)
+    {
+        ::OutputDebugStringA((char*)error->GetBufferPointer());
+        ThrowIfFailed(serializeHR);
+    }
+
+    ThrowIfFailed(GetDevice()->CreateRootSignature(0, RootSignatureBlob->GetBufferPointer(), RootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&
+        RootSignature)));
+}
+
 D3D12RootSignature::~D3D12RootSignature()
 {
 	RootSignature.Reset();

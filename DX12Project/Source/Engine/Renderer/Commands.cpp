@@ -3,12 +3,13 @@
 #include "CommandList.h"
 #include "Mesh.h"
 #include "RenderInterface.h"
+#include "CommandContext.h"
 #include <iostream>
 
 RHICommand_BeginDrawWindow::RHICommand_BeginDrawWindow(RHIViewport* InViewport)
     : Viewport(InViewport)
 {
-    Priority = CommandPriority::First;
+    Priority = PipelinePrioirty::PreRender;
 }
 
 void RHICommand_BeginDrawWindow::Execute(const RHICommandContext& InContext)
@@ -19,7 +20,7 @@ void RHICommand_BeginDrawWindow::Execute(const RHICommandContext& InContext)
 RHICommand_EndDrawWindow::RHICommand_EndDrawWindow(class RHIViewport* InViewport)
     : Viewport(InViewport)
 {
-    Priority = CommandPriority::Last;
+    Priority = PipelinePrioirty::EndRender;
 }
 
 void RHICommand_EndDrawWindow::Execute(const RHICommandContext& InContext)
@@ -30,7 +31,7 @@ void RHICommand_EndDrawWindow::Execute(const RHICommandContext& InContext)
 RHICommand_BeginRender::RHICommand_BeginRender(XMMATRIX&& InWorldViewProjection)
     : WorldViewProjection(std::move(InWorldViewProjection))
 {
-
+    Priority = PipelinePrioirty::BeginRender;
 }
 
 void RHICommand_BeginRender::Execute(const RHICommandContext& InContext)
@@ -48,7 +49,7 @@ void RHICommand_BeginRender::Execute(const RHICommandContext& InContext)
         ConstantBuffer constantData;
         XMStoreFloat4x4(&constantData.WorldViewProj, XMMatrixTranspose(WorldViewProjection));
 
-        memcpy(buffer + size, &constantData, sizeof(constantData));
+        memcpy(buffer /*+ size*/, &constantData, sizeof(constantData));
     }
     GRHI->UnlockBuffer(constantBuffer);
 
@@ -62,7 +63,7 @@ RHICommand_SetRenderTargets::RHICommand_SetRenderTargets(RHIRenderTargetInfo* In
     , NumRenderTargets(InNumRenderTargets)
     , DepthStencil(InDepthStencil)
 {
-
+    Priority = PipelinePrioirty::DrawSetting;
 }
 
 void RHICommand_SetRenderTargets::Execute(const RHICommandContext& InContext)
@@ -81,7 +82,7 @@ RHICommand_SetPrimitive::RHICommand_SetPrimitive(std::vector<Vertex>&& InVertexS
     , Size(InSize)
     , Stride(InStride)
 {
-
+    Priority = PipelinePrioirty::DrawSetting;
 }
 
 RHICommand_SetPrimitive::~RHICommand_SetPrimitive()
@@ -111,7 +112,7 @@ void RHICommand_SetPrimitive::Execute(const RHICommandContext& InContext)
 RHICommand_DrawPrimitive::RHICommand_DrawPrimitive(unsigned int InCount)
     : Count(InCount)
 {
-
+    Priority = PipelinePrioirty::Draw;
 }
 
 void RHICommand_DrawPrimitive::Execute(const RHICommandContext& InContext)

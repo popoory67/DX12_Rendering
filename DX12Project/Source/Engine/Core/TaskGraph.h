@@ -48,7 +48,7 @@ public:
 		if (Prerequisite && !Prerequisite->IsCompleted())
 		{
 			Prerequisite->Execute();
-			return;
+			//return;
 		}
 
 		if (!IsCompleted())

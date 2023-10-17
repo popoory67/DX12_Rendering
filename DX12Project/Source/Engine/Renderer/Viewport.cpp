@@ -21,12 +21,12 @@ void Viewport::Initialize(RHICommandContext& InContext)
 
 void Viewport::Draw(RHICommandContext& InContext)
 {
-	RHICommand_BeginDrawWindow* beginDraw = new RHICommand_BeginDrawWindow(ViewportInterface);
+	RHICommand_BeginDrawWindow* beginDraw = RHICommand_BeginDrawWindow::Create(ViewportInterface);
 	{
         InContext.AddCommand(std::move(beginDraw));
 	}
 
-	RHICommand_EndDrawWindow* endDraw = new RHICommand_EndDrawWindow(ViewportInterface);
+	RHICommand_EndDrawWindow* endDraw = RHICommand_EndDrawWindow::Create(ViewportInterface);
     {
         InContext.AddCommand(std::move(endDraw));
     }

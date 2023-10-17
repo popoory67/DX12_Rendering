@@ -59,26 +59,29 @@ void TaskGraphSystem::Execute(ThreadType InThreadType)
     const auto& it = TaskGraphs.find(InThreadType);
     if (it != TaskGraphs.cend())
     {
-        if (TaskGraphBase* graph = (it->second))
+        if (TaskGraphBase*& graph = (it->second))
         {
             graph->Execute();
 
             TaskGraphBase* subsequent = graph->Subsequent;
-            it->second = subsequent;
+            //it->second = subsequent;
 
-            while (graph && graph->IsCompleted())
+            while (graph)
             {
                 // TODO
                 // Graph memory pool
-                TaskGraphBase* temporary = graph;
-                graph = graph->Prerequisite;
+                TaskGraphBase* temporary = graph->Prerequisite;
 
-                SafeDelete(temporary);
+                if (graph->IsCompleted())
+                {
+                    SafeDelete(graph);
+                }
+                graph = temporary;
             }
 
             if (subsequent)
             {
-                subsequent->Prerequisite = graph;
+                (it->second) = subsequent;
             }
         }
     }

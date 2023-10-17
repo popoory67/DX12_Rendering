@@ -23,20 +23,35 @@ struct VertexIn
     float2 TexCoord     : TEXCOORD;
 };
 
+//struct VertexOut
+//{
+//    float4 Position     : SV_POSITION;
+//    //float3 PosW         : POSITION;
+//    float3 Normal       : NORMAL;
+//    float2 TexCoord     : TEXCOORD;
+//};
+
 struct VertexOut
 {
-    float4 Position     : SV_POSITION;
-    //float3 PosW         : POSITION;
-    float3 Normal       : NORMAL;
-    float2 TexCoord     : TEXCOORD;
+    float4 Position : SV_POSITION;
+    float4 Color : COLOR;
 };
 
 VertexOut VS(VertexIn vin)
 {
     VertexOut vout;
 
-    vout.Position = float4(vin.Position, 1.0f);
-    vout.Normal = vin.Normal;
+    // temp
+    {
+        vout.Position = float4(vin.Position, 1.0f);
+        vout.Color = float4(vin.Normal, 1.0f);
+    }
+
+    // adjusted matrix
+    {
+        //vout.Position = mul(float4(vin.Position, 1), Globals.WorldViewProj);
+        //vout.Color = float4(vin.Normal, 1.0f);
+    }
 
     //----
     //// Transform to world space.
@@ -53,23 +68,21 @@ VertexOut VS(VertexIn vin)
     //float4 texC = mul(float4(vin.TexCoord, 0.0f, 1.0f), gTexTransform);
     //vout.TexCoord = mul(texC, gMatTransform).xy;
 
-    //VertexOut vout;
-    //vout.Position = mul(float4(vin.Position, 1), Globals.WorldViewProj);
-    //vout.Normal = vin.Normal;
-
     return vout;
 }
 
 float4 PS(VertexOut pin) : SV_Target
 {
+        return pin.Color;
+
     // lambert's cosine test
-    float3 normal = normalize(pin.Normal);
+    //float3 normal = normalize(pin.Normal);
 
-    float3 lightDirection = float3(0, -1, 0); // test directional light
-    float diffuseAmount = max(dot(normal, lightDirection), 0.0f);
+    //float3 lightDirection = float3(0, -1, 0); // test directional light
+    //float diffuseAmount = max(dot(normal, lightDirection), 0.0f);
 
-    float4 color = float4(1.0f, 1.0f, 0, 0);
-    float4 finalColor = color * diffuseAmount;
+    //float4 color = float4(1.0f, 1.0f, 0, 0);
+    //float4 finalColor = color * diffuseAmount;
 
-    return finalColor;
+    //return finalColor;
 }

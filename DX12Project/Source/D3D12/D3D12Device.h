@@ -46,7 +46,8 @@ protected:
 	D3D12ResourceManager* ResourceManager = nullptr;
 };
 
-// this class can just make sure that it's a D3D12 api.
+// This class is a bridge to the derived
+// and ensure that the derived is able to use D3D12 API.
 class D3D12Api
 {
 public:

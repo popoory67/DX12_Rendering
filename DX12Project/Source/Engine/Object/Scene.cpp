@@ -162,7 +162,7 @@ void Scene::UpdateCamera(const RHICommandContext& InContext)
 	XMMATRIX world = XMMATRIX(g_XMIdentityR0, g_XMIdentityR1, g_XMIdentityR2, g_XMIdentityR3);
 	XMMATRIX worldViewProjection = world * MainCamera->GetViewMatrix() * MainCamera->GetProjectionMatrix();
 
-	RHICommand_BeginRender* viewportCommand = new RHICommand_BeginRender(std::move(worldViewProjection));
+	RHICommand_BeginRender* viewportCommand = RHICommand_BeginRender::Create(std::move(worldViewProjection));
 	{
 		InContext.AddCommand(std::move(viewportCommand));
 	}

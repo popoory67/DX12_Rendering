@@ -2,6 +2,7 @@
 #include "D3D12Commands.h"
 #include "D3DUtil.h"
 #include "Util.h"
+#include "CommandContext.h"
 
 D3D12Device::D3D12Device()
 {

@@ -24,14 +24,7 @@ void RHICommandContext::AddCommand(RHICommand* InCommand) const
 {
     std::unique_ptr<RHICommand> command(InCommand);
 
-    if (command->GetPriority() == CommandPriority::First)
-    {
-        Commands.push_front(std::move(command));
-    }
-    else
-    {
-        Commands.push_back(std::move(command));
-    }
+    Commands.push(std::move(command));
 }
 
 void RHICommandContext::ExecuteCommands()
@@ -42,10 +35,8 @@ void RHICommandContext::ExecuteCommands()
 
     while (!Commands.empty() && !bClose)
     {
-        std::unique_ptr<RHICommand> command = std::move(Commands.front());
+        std::unique_ptr<RHICommand> command = Commands.pop_move();// std::move(Commands.top());
         command->Execute(*this);
-
-        Commands.pop_front();
     }
 
     Close();

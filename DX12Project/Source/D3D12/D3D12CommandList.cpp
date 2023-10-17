@@ -72,13 +72,19 @@ void D3D12CommandList::Initialize()
     // Additionally, pipeline state object will read the file on the step of loading resources.
     {
         // root signature
-        CD3DX12_DESCRIPTOR_RANGE1 ranges[3];
-        ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+        //CD3DX12_DESCRIPTOR_RANGE1 ranges[3];
+        //ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
-        CD3DX12_ROOT_PARAMETER1 rootParameters[3];
-        rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_ALL);
-        rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_ALL);
-        rootParameters[2].InitAsDescriptorTable(1, &ranges[2], D3D12_SHADER_VISIBILITY_PIXEL);
+        //CD3DX12_ROOT_PARAMETER1 rootParameters[3];
+        //rootParameters[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_ALL);
+        //rootParameters[1].InitAsConstantBufferView(1, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_ALL);
+        //rootParameters[2].InitAsDescriptorTable(1, &ranges[2], D3D12_SHADER_VISIBILITY_PIXEL);
+       
+        CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
+        ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);  // 1 CBV at register b0
+
+        CD3DX12_ROOT_PARAMETER1 rootParameters[1];
+        rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_VERTEX);
 
         D3D12_STATIC_SAMPLER_DESC sampler = {};
         sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
@@ -97,6 +103,22 @@ void D3D12CommandList::Initialize()
 
         CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
         rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 1, &sampler, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+        
+        // Root signature test (cosntant)
+        //D3D12_ROOT_PARAMETER rootParameter;
+        //rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // Constant Buffer View
+        //rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL; // Visible to all shader stages
+
+        //// Constant buffer is bound to the first slot.
+        //rootParameter.Descriptor.ShaderRegister = 0;
+        //rootParameter.Descriptor.RegisterSpace = 0;
+
+        //D3D12_ROOT_SIGNATURE_DESC  rootSignatureDesc;
+        //rootSignatureDesc.NumParameters = 1;
+        //rootSignatureDesc.pParameters = &rootParameter;
+        //rootSignatureDesc.NumStaticSamplers = 0;
+        //rootSignatureDesc.pStaticSamplers = nullptr;
+        //rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
         std::shared_ptr<D3D12RootSignature> rootSignature = std::make_shared<D3D12RootSignature>(GetParent(), rootSignatureDesc);
         GetParent()->GetResourceManager().AddRootSignature(1, rootSignature);

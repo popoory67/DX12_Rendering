@@ -7,7 +7,8 @@ class D3D12RootSignature : public D3D12Api
 public:
 	D3D12RootSignature() = delete;
 	explicit D3D12RootSignature(D3D12Device* InDevice, const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& InDesc);
-	~D3D12RootSignature();
+	explicit D3D12RootSignature(D3D12Device* InDevice, const D3D12_ROOT_SIGNATURE_DESC& InDesc);
+	virtual ~D3D12RootSignature();
 
 	ID3D12RootSignature* GetInterface() { return RootSignature.Get(); }
 	ID3D12RootSignature** GetAddressOf();
