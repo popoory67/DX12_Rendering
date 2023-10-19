@@ -118,7 +118,7 @@ RHICOMMAND(RHICommand_SetPrimitive)
 {
 public:
 	RHICommand_SetPrimitive() = delete;
-	RHICommand_SetPrimitive(std::vector<struct Vertex>&& InVertexStream, std::vector<unsigned int>&& InIndexStream, unsigned int InSize, unsigned int InStride);
+	RHICommand_SetPrimitive(std::vector<struct Vertex>&& InVertexStream, std::vector<unsigned int>&& InIndexStream, unsigned int InStride);
 	virtual ~RHICommand_SetPrimitive();
 
 	void Execute(const RHICommandContext& InContext) override;
@@ -126,7 +126,6 @@ public:
 private:
 	std::vector<struct Vertex> VertexStreamResource;
 	std::vector<unsigned int> IndexStreamResource;
-	unsigned int Size;
 	unsigned int Stride;
 };
 

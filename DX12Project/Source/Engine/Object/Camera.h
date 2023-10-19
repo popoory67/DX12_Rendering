@@ -9,8 +9,6 @@ public:
 	Camera();
 	~Camera() = default;
 
-	void Initialize();
-
 	int GetId() const;
 	XMMATRIX GetViewMatrix() const;
 	XMMATRIX GetProjectionMatrix() const;

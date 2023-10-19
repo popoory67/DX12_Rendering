@@ -71,7 +71,12 @@ D3D12DescriptorCache::D3D12DescriptorCache(D3D12Device* InDeivce)
 void D3D12DescriptorCache::SetVertexBuffers(D3D12CommandList& InCommandList, D3D12VertexBufferCache& InCache)
 {
 	InCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	InCommandList->IASetVertexBuffers(0, 1, InCache.CurrentVertexBufferView);
+	InCommandList->IASetVertexBuffers(0, 1, &InCache.CurrentVertexBufferView[0]);
+}
+
+void D3D12DescriptorCache::SetIndexBuffers(class D3D12CommandList& InCommandList, struct D3D12IndexBufferCache& InCache)
+{
+	InCommandList->IASetIndexBuffer(&InCache.CurrentIndexBufferView[0]);
 }
 
 void D3D12DescriptorCache::SetRenderTargets(D3D12CommandList& InCommandList, D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, D3D12DepthStencilView* InDepthStencil)

@@ -39,5 +39,6 @@ public:
 	virtual ~D3D12DescriptorCache() = default;
 
 	void SetVertexBuffers(class D3D12CommandList& InCommandList, struct D3D12VertexBufferCache& InCache);
+	void SetIndexBuffers(class D3D12CommandList& InCommandList, struct D3D12IndexBufferCache& InCache);
 	void SetRenderTargets(class D3D12CommandList& InCommandList, class D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, class D3D12DepthStencilView* InDepthStencil);
 };

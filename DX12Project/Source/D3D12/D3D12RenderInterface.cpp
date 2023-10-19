@@ -38,6 +38,7 @@ RHIResource* D3D12RHI::CreateBuffer(unsigned int InSize, unsigned int InStride)
 
 RHIResource* D3D12RHI::CreateVertexBuffer(unsigned int InVertexSize, unsigned int InIndexSize, unsigned int InStride)
 {
+	// D3D12_HEAP_TYPE_UPLOAD : to copy the resource CPU to GPU
 	ComPtr<ID3D12Resource> resource = CreateResource(InVertexSize + InIndexSize, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr);
     return new D3D12Buffer(std::move(resource), InVertexSize, InStride);
 }

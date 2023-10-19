@@ -75,10 +75,9 @@ RHICommand_SetRenderTargets::~RHICommand_SetRenderTargets()
 
 }
 
-RHICommand_SetPrimitive::RHICommand_SetPrimitive(std::vector<Vertex>&& InVertexStream, std::vector<unsigned int>&& InIndexStream, unsigned int InSize, unsigned int InStride)
+RHICommand_SetPrimitive::RHICommand_SetPrimitive(std::vector<Vertex>&& InVertexStream, std::vector<unsigned int>&& InIndexStream, unsigned int InStride)
     : VertexStreamResource(std::forward<std::vector<Vertex>>(InVertexStream))
     , IndexStreamResource(std::forward<std::vector<unsigned int>>(InIndexStream))
-    , Size(InSize)
     , Stride(InStride)
 {
     Priority = PipelinePrioirty::DrawSetting;
@@ -91,16 +90,16 @@ RHICommand_SetPrimitive::~RHICommand_SetPrimitive()
 
 void RHICommand_SetPrimitive::Execute(const RHICommandContext& InContext)
 {
-    const UINT indicesSize = sizeof(IndexStreamResource) * sizeof(unsigned int);
+    const unsigned int verticesSize = VertexStreamResource.size() * Stride;
+    const unsigned int indicesSize = IndexStreamResource.size() * sizeof(unsigned int);
 
-    RHIResource* vertexBuffer = GRHI->CreateVertexBuffer(Size, indicesSize, Stride);
+    RHIResource* vertexBuffer = GRHI->CreateVertexBuffer(verticesSize, indicesSize, Stride);
     UINT8* voidPtr = GRHI->LockBuffer(vertexBuffer);
     {
-        memcpy(voidPtr, VertexStreamResource.data(), Size);
-        voidPtr += Size;
+        memcpy(voidPtr, VertexStreamResource.data(), verticesSize);
+        voidPtr += verticesSize;
 
         memcpy(voidPtr, IndexStreamResource.data(), indicesSize);
-        voidPtr += indicesSize;
     }
     GRHI->UnlockBuffer(vertexBuffer);
 
@@ -117,6 +116,6 @@ RHICommand_DrawPrimitive::RHICommand_DrawPrimitive(unsigned int InCount)
 void RHICommand_DrawPrimitive::Execute(const RHICommandContext& InContext)
 {
     // test
-    InContext.GetCommandList().DrawPrimitive(Count, 1, 0, 0);
-    //InContext.GetCommandList().DrawIndexedInstanced(1, 1, 0, 0, Count);
+    //InContext.GetCommandList().DrawPrimitive(Count, 1, 0, 0);
+    InContext.GetCommandList().DrawIndexedInstanced(Count, 1, 0, 0, 0);
 }

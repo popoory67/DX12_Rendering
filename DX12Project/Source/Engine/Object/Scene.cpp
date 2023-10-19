@@ -22,9 +22,12 @@ void Scene::Start()
 	for (const auto& it : Entities)
 	{
 		std::shared_ptr<Entity> entity = it.second;
-		auto components = entity->GetComponentsAll();
+		{
+			entity->Initialize();
 
-		Components.insert(Components.end(), components.begin(), components.end());
+			auto components = entity->GetComponentsAll();
+			Components.insert(Components.end(), components.begin(), components.end());
+		}
 	}
 }
 
@@ -68,7 +71,6 @@ void Scene::AddPrimitive(PrimitiveComponent* InPrimitiveComponent)
 int Scene::AddNewCamera()
 {
 	Camera* newCamera = new Camera();
-	newCamera->Initialize();
 
 	Cameras.emplace_back(newCamera);
 

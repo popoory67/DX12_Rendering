@@ -48,7 +48,9 @@ void D3D12PipelineStateCache::IssueCachedResources(D3D12CommandList& InCommandLi
 	InCommandList->RSSetScissorRects(1, &StateCache.ScissorRect);
 
 	DescriptorCache->SetRenderTargets(InCommandList, StateCache.RenderTargets, StateCache.NumActivatedRenderTargets, StateCache.DepthStencil);
-	DescriptorCache->SetVertexBuffers(InCommandList, StateCache.VertexBufferCache);
+
+    DescriptorCache->SetVertexBuffers(InCommandList, StateCache.VertexBufferCache);
+    DescriptorCache->SetIndexBuffers(InCommandList, StateCache.IndexBufferCache);
 }
 
 void D3D12PipelineStateCache::SetViewport(const D3D12_VIEWPORT& InViewport, const D3D12_RECT& InRect)
@@ -71,14 +73,14 @@ void D3D12PipelineStateCache::SetRenderTargets(D3D12RenderTargetView** InRenderT
     }
 }
 
-void D3D12PipelineStateCache::SetStreamResource(D3D12Buffer* InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, const UINT InIndicesSize)
+void D3D12PipelineStateCache::SetStreamResource(D3D12Buffer* InVertexBuffer, uint32_t StreamIndex, const UINT InIndicesSize)
 {
 	// Vertex
 	D3D12_VERTEX_BUFFER_VIEW& CurrentVertexCache = StateCache.VertexBufferCache.CurrentVertexBufferView[StreamIndex];
 	{
 		D3D12_VERTEX_BUFFER_VIEW view;
 		view.BufferLocation = InVertexBuffer ? InVertexBuffer->Get()->GetGPUVirtualAddress() : 0;
-		view.StrideInBytes = InStride;
+		view.StrideInBytes = InVertexBuffer->GetStride();
 		view.SizeInBytes = InVertexBuffer ? InVertexBuffer->GetSize() : 0;
 
         if (view.BufferLocation != CurrentVertexCache.BufferLocation ||

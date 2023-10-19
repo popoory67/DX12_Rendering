@@ -8,18 +8,11 @@ Camera::Camera()
     , NearPlane(1.1f)
     , FarPlane(1000.0f)
 {
-    AspectRatio = 100 / 100; // TODO : width / height
-
     Position = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
     ViewVector = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
     UpVector = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
     ViewMatrix = XMMatrixLookAtLH(Position, ViewVector, UpVector);
-}
-
-void Camera::Initialize()
-{
-    // this placed on world zero position
 
     ++Id;
 }

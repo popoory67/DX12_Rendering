@@ -1,5 +1,6 @@
 #pragma once
 #include <d3d12.h>
+#include "TransformComponent.h"
 #include "RenderComponent.h"
 #include "Mesh.h"
 #include "MeshLoader.h"
@@ -35,7 +36,9 @@ private:
 	MeshRenderBatchElement PrimitiveData;
 };
 
-class PrimitiveComponent : public RenderComponent
+class PrimitiveComponent 
+	: public RenderComponent
+	, public TransformComponent // test
 {
 	using Parent = RenderComponent;
 

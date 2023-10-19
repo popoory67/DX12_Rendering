@@ -16,17 +16,17 @@ void PrimitiveBuilder::Build(PrimitiveProxy* InProxy)
 		return;
     }
 
-	//VertexStream vertices;
-	//GetLoader().GetVertices(vertices);
+	VertexStream vertices;
+	GetLoader().GetVertices(vertices);
 
     // TODO
     // Mesh data loader has to be developed.
-    VertexStream vertices =
-    {
-        { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
-        { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
-        { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
-    };
+    //VertexStream vertices =
+    //{
+    //    { { 0.0f, 0.25f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
+    //    { { 0.25f, -0.25f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
+    //    { { -0.25f, -0.25f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
+    //};
 
 	IndexStream indices;
     GetLoader().GetIndices(indices);
@@ -60,6 +60,7 @@ std::unique_ptr<PrimitiveBuilder> PrimitiveComponent::Builder;
 
 PrimitiveComponent::PrimitiveComponent(Scene* InScene, Component* InParent)
 	: Parent(InScene, InParent)
+	, TransformComponent(this)
 {
 
 }

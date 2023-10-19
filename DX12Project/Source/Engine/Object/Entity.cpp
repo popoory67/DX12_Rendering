@@ -23,6 +23,17 @@ void Entity::AddType(ClassType* InType)
 	}
 }
 
+Entity::Entity(Scene* InScene)
+	: Owner(InScene)
+{
+
+}
+
+Scene* Entity::GetScene() const
+{
+	return Owner;
+}
+
 size_t Entity::GetId()
 {
 	return EntityTypeHash & Index;

@@ -71,7 +71,6 @@ void MeshRenderPass::DoTask()
     }
 
     unsigned int stride = Batches[0].GetStride();
-    unsigned int count = 0;
 
     VertexStream vertexStream{};
     IndexStream indexStream{};
@@ -83,22 +82,23 @@ void MeshRenderPass::DoTask()
             vertexStream.insert(vertexStream.end(), std::make_move_iterator(element.Vertices.begin()), std::make_move_iterator(element.Vertices.end()));
             indexStream.insert(indexStream.end(), std::make_move_iterator(element.Indices.begin()), std::make_move_iterator(element.Indices.end()));
         }
-        count += batch.Count;
     }
 
     TaskGraphSystem::Get().AddTask<RenderCommand>([vertexStream = std::move(vertexStream), 
         indexStream = std::move(indexStream),
-        stride, 
-        count](const RHICommandContext& InContext) mutable
+        stride](const RHICommandContext& InContext) mutable
     {
+        int indicesSize = indexStream.size();
+        //int verticesSize = indexStream.size();
+
         auto primitiveCommand = RHICommand_SetPrimitive::Create(
             std::move(vertexStream), 
             std::move(indexStream), 
-            stride * count, 
             stride);
 
+        // TODO
         // test
-        auto drawPrimitive = RHICommand_DrawPrimitive::Create(count);
+        auto drawPrimitive = RHICommand_DrawPrimitive::Create(indicesSize/*vertexStream.size()*/);
 
         InContext.AddCommand(primitiveCommand);
         InContext.AddCommand(drawPrimitive);

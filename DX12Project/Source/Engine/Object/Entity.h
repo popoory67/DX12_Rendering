@@ -6,8 +6,13 @@
 class Entity
 {
 public:
-	Entity() = default;
+	Entity() = delete;
+	Entity(class Scene* InScene);
 	virtual ~Entity() = default;
+
+	virtual void Initialize() {}
+
+	Scene* GetScene() const;
 
 	size_t GetType() { return EntityTypeHash; }
 	void SetIndex(size_t InIndex) { Index = InIndex; }
@@ -46,6 +51,8 @@ private:
 private:
 	std::vector<ClassType*> EntityTypes;
 	std::vector<std::shared_ptr<class Component>> Components;
+
+	Scene* Owner;
 
 	size_t EntityTypeHash;
 	size_t Index = 0;

@@ -15,7 +15,6 @@ public:
 	void SetRelativeTransform(const XMFLOAT3& InPosition, const XMFLOAT3& InRotation, const XMFLOAT3& InScale = { 1.0f, 1.0f, 1.0f });
 	void SetRelativePosition(float InX, float InY, float InZ = 0.0f);
 
-
 	void SetTransform(const XMFLOAT3& InPosition, const XMFLOAT3& InRotation, const XMFLOAT3& InScale = { 1.0f, 1.0f, 1.0f });
 	void SetPosition(float InX, float InY, float InZ = 0.0f);
 	void SetRotation(float InRoll, float InPitch, float InYaw);

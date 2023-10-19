@@ -84,7 +84,7 @@ public:
 	// Cache resources
 	void SetViewport(const D3D12_VIEWPORT& InViewport, const D3D12_RECT& InRect);
 	void SetRenderTargets(D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, D3D12DepthStencilView* InDepthStencil);
-	void SetStreamResource(D3D12Buffer* InVertexBuffer, uint32_t StreamIndex, uint32_t InStride, const UINT InIndicesSize = 0);
+	void SetStreamResource(D3D12Buffer* InVertexBuffer, uint32_t StreamIndex, const UINT InIndicesSize = 0);
 
 	void CreateAndAddCache(const D3D12GraphicsPipelineState::Desc& InDesc);
 	std::weak_ptr<D3D12PipelineState> FindCache(const D3D12GraphicsPipelineState::Desc& InDesc);

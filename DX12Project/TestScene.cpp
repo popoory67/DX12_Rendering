@@ -4,6 +4,23 @@
 #include "CameraComponent.h"
 #include "InputManager.h"
 
+Model::Model(class Scene* InScene)
+    : Parent(InScene)
+{
+
+}
+
+void Model::Initialize()
+{
+    // Primitive
+    {
+        StaticMesh = std::make_shared<PrimitiveComponent>(GetScene(), nullptr);
+        StaticMesh->SetMeshModel(L"../Resources/Obj/diamond.obj");
+        StaticMesh->SetScale(0.1f, 0.1f, 0.1f);
+        AddComponent(StaticMesh);
+    }
+}
+
 TestScene::TestScene()
 {
     auto resetCamera = std::bind(&TestScene::CameraReset, this);
@@ -20,6 +37,8 @@ TestScene::TestScene()
     InputManager::Get().BindKey(KeyMap::MouseMiddleUp, upScrollCamera, resetCamera);
     auto downScrollCamera = std::bind(&TestScene::DownScrollCamera, this);
     InputManager::Get().BindKey(KeyMap::MouseMiddleDown, downScrollCamera, resetCamera);
+
+    MoveSpeed = 10.0f;
 }
 
 TestScene::~TestScene()
@@ -29,23 +48,15 @@ TestScene::~TestScene()
 
 void TestScene::Start()
 {
-	Object = std::make_shared<Entity>();
-
+	Object = std::make_shared<Model>(this);
     AddEntity(Object);
-
-    // Primitive
-    {
-        std::shared_ptr<PrimitiveComponent> primitiveData = std::make_shared<PrimitiveComponent>(this, nullptr);
-        primitiveData->SetMeshModel(L"../Resources/Obj/diamond.obj");
-        Object->AddComponent(primitiveData);
-    }
 
     // Camera
     {
         CameraController = std::make_shared<CameraComponent>(this, nullptr);
+        CameraController->SetPosition(1.0f, -1.0f, 428.0f);
         Object->AddComponent(CameraController);
     }
-
 	Parent::Start();
 }
 

@@ -166,7 +166,7 @@ void D3D12CommandList::SetStreamResource(RHIResource* InVertexBuffer, const UINT
 {
     D3D12Buffer* vertexBuffer = static_cast<D3D12Buffer*>(InVertexBuffer);
 
-    GetStateCache().SetStreamResource(vertexBuffer, 0, vertexBuffer->GetStride(), InIndicesSize);
+    GetStateCache().SetStreamResource(vertexBuffer, 0, InIndicesSize);
 }
 
 void D3D12CommandList::AddShaderReference(int InIndex, RHIResource* InBuffer)
