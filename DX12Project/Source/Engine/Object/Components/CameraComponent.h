@@ -20,7 +20,6 @@ protected:
 	void Update() override;
 
 private:
-	float MoveSpeed = 1.0f;
 	float FOV;
 	float AspectRatio;
 

@@ -28,9 +28,9 @@ private:
 	XMMATRIX ViewMatrix;
 	XMMATRIX ProjectionMatrix;
 
-	XMFLOAT3 Position;
-	XMFLOAT3 ViewVector;
-	XMFLOAT3 UpVector;
+	XMVECTOR Position; // The position of camera that indicates to "Eye"
+	XMVECTOR ViewVector; // Where the camera directs. "Look at"
+	XMVECTOR UpVector; // The up direction of the camera. "Up"
 
 	float FOV;
 	float AspectRatio;

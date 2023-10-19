@@ -21,7 +21,7 @@ public:
 	virtual void SetStreamResource(class RHIResource* InVertexBuffer, const UINT InIndicesSize) = 0;
 	virtual void AddShaderReference(int InIndex, RHIResource* InBuffer) = 0;
 	virtual void DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance) = 0;
-	virtual void DrawIndexedInstanced(RHIResource* InVertexBuffer, unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance) = 0;
+	virtual void DrawIndexedInstanced(unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance) = 0;
 };
 
 class RHICommandListExecutor

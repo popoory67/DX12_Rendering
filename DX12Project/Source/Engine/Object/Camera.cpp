@@ -3,12 +3,18 @@
 int Camera::Id = -1;
 
 Camera::Camera()
-    : UpVector(0.0f, 1.0f, 0.0f)
-    , FOV(0.8f)
-    , NearPlane(1.0f)
+    : FOV(3.14159265359f / 4.0f) // 45 degrees
+    , AspectRatio(1.778f)
+    , NearPlane(1.1f)
     , FarPlane(1000.0f)
 {
     AspectRatio = 100 / 100; // TODO : width / height
+
+    Position = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+    ViewVector = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    UpVector = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+    ViewMatrix = XMMatrixLookAtLH(Position, ViewVector, UpVector);
 }
 
 void Camera::Initialize()
@@ -51,18 +57,20 @@ void Camera::SetPlane(float InNear, float InFar)
 
 void Camera::SetTransform(const XMFLOAT3& InPosition, const XMFLOAT3& InRotation)
 {
-    Position = InPosition;
+    Position = XMVectorSet(InPosition.x, InPosition.y, InPosition.z, 0.0f);
 
     float rotation = cosf(InRotation.y);
     {
-        ViewVector.x = rotation * sinf(InRotation.z);
-        ViewVector.y = sinf(InRotation.y);
-        ViewVector.z = rotation * cosf(InRotation.z);
+        float roll = rotation * sinf(InRotation.z);
+        float pitch = sinf(InRotation.y);
+        float yaw = rotation * cosf(InRotation.z);
+
+        ViewVector += XMVectorSet(roll, pitch, yaw, 0.0f);
     }
 }
 
 void Camera::UpdateView()
 {
-    ViewMatrix = XMMatrixLookToRH(XMLoadFloat3(&Position), XMLoadFloat3(&ViewVector), XMLoadFloat3(&UpVector));
+    ViewMatrix = XMMatrixLookAtLH(Position, ViewVector, UpVector);
     ProjectionMatrix = XMMatrixPerspectiveFovRH(FOV, AspectRatio, NearPlane, FarPlane);
 }

@@ -102,7 +102,7 @@ public:
 	void SetStreamResource(class RHIResource* InVertexBuffer, const UINT InIndicesSize) final override;
 	void AddShaderReference(int InIndex, class RHIResource* InBuffer) final override;
 	void DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance) final override;
-	void DrawIndexedInstanced(class RHIResource* InVertexBuffer, unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance) final override;
+	void DrawIndexedInstanced(unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance) final override;
 
 	FORCEINLINE bool IsClosed() const { return bClosed; }
 	void Close();

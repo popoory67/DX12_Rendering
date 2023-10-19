@@ -10,11 +10,11 @@
 #include <mutex>
 
 void* Application::MainWindowHandle = nullptr;
+float Application::ClientWidth = 800.0f;
+float Application::ClientHeight = 600.0f;
 
 Application::Application()
 	: Caption(L"Application")
-	, ClientWidth(800)
-	, ClientHeight(600)
 {
     Timer = std::make_unique<GameTimer>();
 }
@@ -54,4 +54,14 @@ void Application::TickTimer() const
 void* Application::GetWindowHandle()
 {
     return MainWindowHandle;
+}
+
+float Application::GetWidth()
+{
+    return ClientWidth;
+}
+
+float Application::GetHeight()
+{
+    return ClientHeight;
 }

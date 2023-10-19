@@ -17,8 +17,14 @@ private:
 	void LeftCamera();
 	void RightCamera();
 
+	void UpScrollCamera();
+	void DownScrollCamera();
+
+	void CameraReset();
+
 private:
 	std::shared_ptr<Entity> Object;
 
 	std::shared_ptr<class CameraComponent> CameraController;
+	float MoveSpeed = 1.0f;
 };

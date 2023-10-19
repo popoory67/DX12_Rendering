@@ -14,46 +14,40 @@ InputManager& InputManager::Get()
     return Instance;
 }
 
-void InputManager::BindKey(int InKey, KeyFunc InFunc)
+void InputManager::BindKey(UINT8 InKey, KeyFunc InKeyDownFunc, KeyFunc InKeyUpFunc)
 {
-    KeyMap.emplace(InKey, InFunc);
+    KeyDownMap.emplace(InKey, InKeyDownFunc);
+    KeyUpMap.emplace(InKey, InKeyUpFunc);
+}
+
+void InputManager::BindKey(KeyMap InKey, KeyFunc InKeyDownFunc, KeyFunc InKeyUpFunc)
+{
+    BindKey(static_cast<UINT8>(InKey), InKeyDownFunc, InKeyUpFunc);
 }
 
 void InputManager::OnKeyDown(UINT8 InKey)
 {
-    if (!KeyMap[InKey])
+    if (!KeyDownMap[InKey])
     {
         return;
     }
 
-    KeyMap[InKey]();
-
-    //switch (InKey)
-    //{
-    //case 'W':
-    //    break;
-    //case 'A':
-    //    break;
-    //case 'S':
-    //    break;
-    //case 'D':
-    //    break;
-    //case VK_LEFT:
-    //    break;
-    //case VK_RIGHT:
-    //    break;
-    //case VK_UP:
-    //    break;
-    //case VK_DOWN:
-    //    break;
-    //case VK_ESCAPE:
-    //    break;
-    //}
+    KeyDownMap[InKey]();
 }
 
 void InputManager::OnKeyUp(UINT8 InKey)
 {
+    if (!KeyUpMap[InKey])
+    {
+        return;
+    }
 
+    KeyUpMap[InKey]();
+}
+
+bool InputManager::IsKeyBoard(UINT8 InKey)
+{
+    return static_cast<KeyMap>(InKey) > KeyMap::KeyBoardEnd;
 }
 
 LRESULT InputManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -67,6 +61,15 @@ LRESULT InputManager::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_KEYUP:
 		OnKeyUp(static_cast<UINT8>(wParam));
         return 0;
+
+    case WM_MOUSEWHEEL:
+    {  
+        int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+        UINT8 key = delta > 0 ? static_cast<UINT8>(KeyMap::MouseMiddleUp) : static_cast<UINT8>(KeyMap::MouseMiddleDown);
+
+        OnKeyDown(key);
+    }
+    return 0;
 
 	case WM_DESTROY:
 		PostQuitMessage(0);

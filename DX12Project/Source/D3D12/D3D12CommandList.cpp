@@ -183,7 +183,7 @@ void D3D12CommandList::DrawPrimitive(unsigned int InNumVertices, unsigned int In
     CommandList->DrawInstanced(InNumVertices, InNumInstances, InStartIndex, InStartInstance);
 }
 
-void D3D12CommandList::DrawIndexedInstanced(RHIResource* InVertexBuffer, unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance)
+void D3D12CommandList::DrawIndexedInstanced(unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance)
 {
 	GetStateCache().IssueCachedResources(*this);
     CommandList->DrawIndexedInstanced(InNumIndices, InNumInstances, InStartIndex, InStartVertex, InStartInstance);

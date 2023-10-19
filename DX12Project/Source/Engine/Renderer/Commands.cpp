@@ -53,9 +53,8 @@ void RHICommand_BeginRender::Execute(const RHICommandContext& InContext)
     }
     GRHI->UnlockBuffer(constantBuffer);
 
-    //OutputDebugStringA("//--------------------test");
-
     InContext.GetCommandList().AddShaderReference(0, constantBuffer);
+    InContext.GetCommandList().AddResource(std::move(constantBuffer));
 }
 
 RHICommand_SetRenderTargets::RHICommand_SetRenderTargets(RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTargets, RHIResource* InDepthStencil)
@@ -119,5 +118,5 @@ void RHICommand_DrawPrimitive::Execute(const RHICommandContext& InContext)
 {
     // test
     InContext.GetCommandList().DrawPrimitive(Count, 1, 0, 0);
-    //DrawIndexedInstanced
+    //InContext.GetCommandList().DrawIndexedInstanced(1, 1, 0, 0, Count);
 }

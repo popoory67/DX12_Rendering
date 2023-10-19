@@ -6,14 +6,20 @@
 
 TestScene::TestScene()
 {
+    auto resetCamera = std::bind(&TestScene::CameraReset, this);
+
     auto upCamera = std::bind(&TestScene::UpCamera, this);
-    InputManager::Get().BindKey('W', upCamera);
+    InputManager::Get().BindKey('W', upCamera, resetCamera);
     auto downCamera = std::bind(&TestScene::DownCamera, this);
-    InputManager::Get().BindKey('S', downCamera);
+    InputManager::Get().BindKey('S', downCamera, resetCamera);
     auto leftCamera = std::bind(&TestScene::LeftCamera, this);
-    InputManager::Get().BindKey('A', leftCamera);
+    InputManager::Get().BindKey('A', leftCamera, resetCamera);
     auto rightCamera = std::bind(&TestScene::RightCamera, this);
-    InputManager::Get().BindKey('D', rightCamera);
+    InputManager::Get().BindKey('D', rightCamera, resetCamera);
+    auto upScrollCamera = std::bind(&TestScene::UpScrollCamera, this);
+    InputManager::Get().BindKey(KeyMap::MouseMiddleUp, upScrollCamera, resetCamera);
+    auto downScrollCamera = std::bind(&TestScene::DownScrollCamera, this);
+    InputManager::Get().BindKey(KeyMap::MouseMiddleDown, downScrollCamera, resetCamera);
 }
 
 TestScene::~TestScene()
@@ -37,7 +43,6 @@ void TestScene::Start()
     // Camera
     {
         CameraController = std::make_shared<CameraComponent>(this, nullptr);
-        CameraController->SetTransform({ 0.0f, -2.0f, 0.0f }, {});
         Object->AddComponent(CameraController);
     }
 
@@ -46,20 +51,35 @@ void TestScene::Start()
 
 void TestScene::UpCamera()
 {
-    CameraController->SetRelativePosition(0.0f, -20.0f, 0.0f);
+    CameraController->SetRelativePosition(0.0f, MoveSpeed);
 }
 
 void TestScene::DownCamera()
 {
-    CameraController->SetRelativePosition(0.0f, 20.0f, 0.0f);
+    CameraController->SetRelativePosition(0.0f, -MoveSpeed);
 }
 
 void TestScene::LeftCamera()
 {
-    CameraController->SetRelativePosition(-20.0f, 0.0f, 0.0f);
+    CameraController->SetRelativePosition(-MoveSpeed, 0.0f);
 }
 
 void TestScene::RightCamera()
 {
-    CameraController->SetRelativePosition(20.0f, 0.0f, 0.0f);
+    CameraController->SetRelativePosition(MoveSpeed, 0.0f);
+}
+
+void TestScene::UpScrollCamera()
+{
+    CameraController->SetRelativePosition(0.0f, 0.0f, -MoveSpeed);
+}
+
+void TestScene::DownScrollCamera()
+{
+    CameraController->SetRelativePosition(0.0f, 0.0f, MoveSpeed);
+}
+
+void TestScene::CameraReset()
+{
+    CameraController->SetRelativePosition(0.0f, 0.0f);
 }

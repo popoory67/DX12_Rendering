@@ -16,14 +16,18 @@ public:
 
 	static void* GetWindowHandle();
 
+	static float GetWidth();
+	static float GetHeight();
+
 protected:
 	std::wstring Caption;
-	int ClientWidth;
-	int ClientHeight;
 
 	bool IsPaused = false;
 
 	static void* MainWindowHandle;
+
+	static float ClientWidth;
+	static float ClientHeight;
 
 private:
 	std::unique_ptr<class GameTimer> Timer;
