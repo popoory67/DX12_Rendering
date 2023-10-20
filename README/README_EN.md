@@ -3,6 +3,9 @@ Multithreaded rendering engine with DirectX 12
 
 It's been developing, not finished.<br>When you create this project in Visual Studio, you can test a basic rendering scene with a DirectX 12 device by running task graphs and handling vertex data on the GPU.
 
+### The way to control camera
+You can use keys 'W', 'A', 'S', and 'D' on the keyboard and the mouse scroll.
+
 ### Development goals
 * It is generally segmented into RHI, renderer, and object-based components that can then be released separately.
 * Beyond DirectX 12 rendering, it makes use of multi-threading to offer a productive rendering pipeline management system.
@@ -37,12 +40,11 @@ Numerous things still need to be developed.
 Depending on the priority, certain details are as follows.
 	
     0) Processing tasks on each thread
-    1) Processing vertices (Base pass)
-    2) PSO management(loading, storing)
-    3) Procesing Basic material and texture (Material pass, Post-process pass)
-    4) Loading Autodesk FBX
-    5) Skeletal animation
-    6) Thread pooling
+    1) PSO management(loading, storing)
+    2) Procesing Basic material and texture (Material pass, Post-process pass)
+    3) Loading Autodesk FBX
+    4) Skeletal animation
+    5) Thread pooling
 
 Other than that, it can be implemented additional things that are interesting.
 <br><br>

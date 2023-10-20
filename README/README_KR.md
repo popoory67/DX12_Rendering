@@ -3,6 +3,9 @@ DirectX 12 API를 이용한 Multithreaded rendering 엔진이며, 현재 개발 
 
 Visual studio 솔루션으로 빌드할 수 있습니다. 현재 DirectX 12 device, Task graph, Vertex to GPU를 구현한 상태이며, 빌드 시 기본 렌더링 화면을 볼 수 있습니다.
 
+### 조작
+'W', 'A', 'S', 'D'와 마우스 스크롤로 카메라를 조작할 수 있습니다.
+
 ### 개발 목표
 * 크게 RHI, Rendering, Object로 나누어 모듈로 제작하고, 최종적으로 각 모듈을 개별 배포할 수 있도록 합니다.
 * DirectX 12로 렌더링을 하는 것에 그치지 않고, 멀티 쓰레딩을 사용하여 효율적인 렌더링 파이프라인 관리 시스템을 제공합니다.
@@ -37,12 +40,11 @@ Visual studio 솔루션으로 빌드할 수 있습니다. 현재 DirectX 12 devi
 구체적인 내용은 구현 우선순위에 따라 다음과 같습니다.
 	
     0) Task를 쓰레드 단위로 처리
-    1) Vertex 처리 (Base pass)
-    2) PSO load/save, 관리
-    3) Basic material, Texture 처리 (Material pass, Post-process pass)
-    4) Autodesk fbx load
-    5) Skeletal animation
-    6) Thread pooling
+    1) PSO load/save, 관리
+    2) Basic material, Texture 처리 (Material pass, Post-process pass)
+    3) Autodesk fbx load
+    4) Skeletal animation
+    5) Thread pooling
 
 그 외에 흥미있는 것 위주로 추가 구현할 수 있습니다.
 
