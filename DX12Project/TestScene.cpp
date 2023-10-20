@@ -12,12 +12,24 @@ Model::Model(class Scene* InScene)
 
 void Model::Initialize()
 {
+    // Entity transform
+    {
+        OriginalTransform = std::make_shared<TransformComponent>(GetScene());
+        AddComponent(OriginalTransform);
+        {
+            OriginalTransform->SetTransform({ 0.0f, 0.0f, -10.0f }, { 0.0f, 0.0f, 0.0f });
+            OriginalTransform->SetScale(0.01f, 0.01f, 0.01f);
+            OriginalTransform->SetRotation(45.0f, 0.0f, 0.0f);
+        }
+    }
+
     // Primitive
     {
-        StaticMesh = std::make_shared<PrimitiveComponent>(GetScene(), nullptr);
-        StaticMesh->SetMeshModel(L"../Resources/Obj/diamond.obj");
-        StaticMesh->SetScale(0.1f, 0.1f, 0.1f);
+        StaticMesh = std::make_shared<PrimitiveComponent>(GetScene());
         AddComponent(StaticMesh);
+        {
+            StaticMesh->SetMeshModel(L"../Resources/Obj/diamond.obj");
+        }
     }
 }
 
@@ -38,7 +50,7 @@ TestScene::TestScene()
     auto downScrollCamera = std::bind(&TestScene::DownScrollCamera, this);
     InputManager::Get().BindKey(KeyMap::MouseMiddleDown, downScrollCamera, resetCamera);
 
-    MoveSpeed = 10.0f;
+    MoveSpeed = 0.1f;
 }
 
 TestScene::~TestScene()
@@ -53,11 +65,19 @@ void TestScene::Start()
 
     // Camera
     {
-        CameraController = std::make_shared<CameraComponent>(this, nullptr);
-        CameraController->SetPosition(1.0f, -1.0f, 428.0f);
+        CameraController = std::make_shared<CameraComponent>(this);
+        CameraController->SetPosition(0.0f, 0.0f, 5.0f);
+        CameraController->SetRotation(0.0f, 10.0f, 0.0f);
         Object->AddComponent(CameraController);
     }
 	Parent::Start();
+}
+
+void TestScene::Update()
+{
+
+
+    Parent::Update();
 }
 
 void TestScene::UpCamera()

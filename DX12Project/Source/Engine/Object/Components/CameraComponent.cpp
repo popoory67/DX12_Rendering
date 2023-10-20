@@ -4,8 +4,7 @@
 
 CameraComponent::CameraComponent(Scene* InScene, Component* InParent)
     : Parent(InScene, InParent)
-    , TransformComponent(this)
-    , FOV(3.14159265359f / 4.0f) // 45 degrees
+    , FOV(3.14f / 4.0f) // 45 degrees
     , AspectRatio(1.778f)
 {
     const Camera* camera = InScene->GetMainCamera();

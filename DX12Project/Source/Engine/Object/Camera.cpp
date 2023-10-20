@@ -3,13 +3,13 @@
 int Camera::Id = -1;
 
 Camera::Camera()
-    : FOV(3.14159265359f / 4.0f) // 45 degrees
+    : FOV(3.14f / 4.0f) // 45 degrees
     , AspectRatio(1.778f)
-    , NearPlane(1.1f)
+    , NearPlane(1.0f)
     , FarPlane(1000.0f)
 {
     Position = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-    ViewVector = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    ViewVector = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
     UpVector = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
     ViewMatrix = XMMatrixLookAtLH(Position, ViewVector, UpVector);
@@ -52,13 +52,15 @@ void Camera::SetTransform(const XMFLOAT3& InPosition, const XMFLOAT3& InRotation
 {
     Position = XMVectorSet(InPosition.x, InPosition.y, InPosition.z, 0.0f);
 
-    float rotation = cosf(InRotation.y);
-    {
-        float roll = rotation * sinf(InRotation.z);
-        float pitch = sinf(InRotation.y);
-        float yaw = rotation * cosf(InRotation.z);
+    const float radian = 3.14f / 180;
 
-        ViewVector += XMVectorSet(roll, pitch, yaw, 0.0f);
+    float rotation = cosf(InRotation.y * radian);
+    {
+        float roll = rotation * sinf(InRotation.z * radian);
+        float pitch = sinf(InRotation.y * radian);
+        float yaw = rotation * cosf(InRotation.z * radian);
+
+        ViewVector = XMVectorSet(roll, pitch, yaw + InPosition.z, 0.0f);
     }
 }
 

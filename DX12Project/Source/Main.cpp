@@ -3,6 +3,7 @@
 #include "D3DUtil.h"
 #if defined(DEBUG) | defined(_DEBUG)
 #include <vld.h>
+#include <iostream>
 #endif
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd)
@@ -10,6 +11,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 	// Enable run-time memory check for debug builds.
 #if defined(DEBUG) | defined(_DEBUG)
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+	// Enter your path where WinPixGpuCapturer.dll exist
+    //HMODULE hModule = LoadLibrary(TEXT("path"));
+    //if (hModule == NULL)
+    //{
+    //    return EXIT_FAILURE;
+    //}
 #endif
 
 	try

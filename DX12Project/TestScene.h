@@ -14,6 +14,7 @@ public:
 
 private:
 	std::shared_ptr<class PrimitiveComponent> StaticMesh;
+	std::shared_ptr<class TransformComponent> OriginalTransform;
 };
 
 class TestScene : public Scene
@@ -24,7 +25,8 @@ public:
 	TestScene();
 	virtual ~TestScene();
 
-	virtual void Start();
+	void Start() override;
+	void Update() override;
 
 private:
 	void UpCamera();

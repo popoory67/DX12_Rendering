@@ -38,6 +38,12 @@ void MeshRenderBatch::AddElement(MeshRenderBatchElement&& InMeshElement)
     Elements.emplace_back(std::move(InMeshElement));
 }
 
+void MeshRenderBatch::AddElement(const MeshRenderBatchElement& InMeshElement)
+{
+    Count += InMeshElement.Vertices.size();
+    Elements.emplace_back(InMeshElement);
+}
+
 unsigned int MeshRenderBatch::GetStride() const
 {
     if (Elements.empty())
@@ -89,7 +95,6 @@ void MeshRenderPass::DoTask()
         stride](const RHICommandContext& InContext) mutable
     {
         int indicesSize = indexStream.size();
-        //int verticesSize = indexStream.size();
 
         auto primitiveCommand = RHICommand_SetPrimitive::Create(
             std::move(vertexStream), 
@@ -98,7 +103,7 @@ void MeshRenderPass::DoTask()
 
         // TODO
         // test
-        auto drawPrimitive = RHICommand_DrawPrimitive::Create(indicesSize/*vertexStream.size()*/);
+        auto drawPrimitive = RHICommand_DrawPrimitive::Create(indicesSize);
 
         InContext.AddCommand(primitiveCommand);
         InContext.AddCommand(drawPrimitive);

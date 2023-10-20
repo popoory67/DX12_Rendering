@@ -189,8 +189,8 @@ void Scene::RenderScene()
                 continue;
             }
 
-			MeshRenderBatchElement element{ it.first->PrimitiveData };
-			batch.AddElement(std::move(element));
+			PrimitiveProxy* proxy = it.first;
+			batch.AddElement(proxy->PrimitiveData);
         }
 
 		std::unique_ptr<MeshRenderPass> meshPass = std::make_unique<MeshRenderPass>();

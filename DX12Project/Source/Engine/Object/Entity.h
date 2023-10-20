@@ -1,5 +1,6 @@
 #pragma once
 #include "Class.h"
+#include "Component.h"
 #include <vector>
 #include <memory>
 
@@ -12,29 +13,24 @@ public:
 
 	virtual void Initialize() {}
 
+	size_t GetId() const;
 	Scene* GetScene() const;
 
-	size_t GetType() { return EntityTypeHash; }
-	void SetIndex(size_t InIndex) { Index = InIndex; }
-	size_t GetId();
-
-	bool IsEqualTypeId(size_t InTypeId);
-
-	template<typename ComponentType>
+	template<typename ComponentType = Component>
 	void AddComponent(std::shared_ptr<ComponentType> InCompnent)
 	{
+		InCompnent->Owner = this;
 		Components.emplace_back(InCompnent);
-		AddType(ComponentType::StaticClass());
 	}
 
-	template<typename ComponentType>
-	void GetComponents(std::vector<class Component*>& OutComponents)
+	template<typename ComponentType = Component>
+	void GetComponents(std::vector<std::shared_ptr<ComponentType>>& OutComponents)
 	{
-		for (auto pComponent : Components)
+		for (const auto& pComponent : Components)
 		{
-			if (pComponent->IsEqualClass(ComponentType::StaticClass()))
+			if (pComponent->IsEqualClass(StaticClass<ComponentType>()))
 			{
-				OutComponents.emplace_back(pComponent.get());
+				OutComponents.emplace_back(std::static_pointer_cast<ComponentType>(pComponent));
 			}
 		}
 	}
@@ -45,16 +41,8 @@ public:
 	}
 
 private:
-
-	void AddType(ClassType* InType);
-	
-private:
-	std::vector<ClassType*> EntityTypes;
-	std::vector<std::shared_ptr<class Component>> Components;
+	std::vector<std::shared_ptr<Component>> Components;
 
 	Scene* Owner;
-
-	size_t EntityTypeHash;
-	size_t Index = 0;
-	size_t Id = 0;
+	static size_t Id;
 };

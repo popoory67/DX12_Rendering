@@ -2,6 +2,7 @@
 #include "MathHelper.h"
 #include "RenderPass.h"
 #include "Primitive.h"
+#include "MathHelper.h"
 #include <vector>
 
 using VertexStream = std::vector<Vertex>;
@@ -63,11 +64,13 @@ struct MeshRenderBatch : public RenderBatch
 	virtual ~MeshRenderBatch();
 
 	void AddElements(std::vector<MeshRenderBatchElement>&& InMeshStream);
+	void AddElement(const MeshRenderBatchElement& InMeshElement);
 	void AddElement(MeshRenderBatchElement&& InMeshElement);
 	unsigned int GetStride() const;
 
 	unsigned int Count;
 	std::vector<MeshRenderBatchElement> Elements;
+	//XMMATRIX TransformMatrix;
 };
 
 // This is the stage to render which has meshes.

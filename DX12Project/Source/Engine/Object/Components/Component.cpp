@@ -1,11 +1,17 @@
 #include "Component.h"
 #include "Scene.h"
+#include "Entity.h"
 
 Component::Component(Scene* InScene, Component* InParent)
     : CurrentScene(InScene)
     , Parent(InParent)
 {
 
+}
+
+Entity* Component::GetOwner() const
+{
+    return Owner;
 }
 
 Scene* Component::GetScene() const

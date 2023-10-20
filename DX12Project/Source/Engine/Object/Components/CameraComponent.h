@@ -3,13 +3,13 @@
 #include "TransformComponent.h"
 
 // to camera entity
-class CameraComponent : public TransformComponent, public Component
+class CameraComponent : public TransformComponent
 {
-	using Parent = Component;
+	using Parent = TransformComponent;
 
 public:
 	CameraComponent() = delete;
-	CameraComponent(class Scene* InScene, Component* InParent);
+	CameraComponent(class Scene* InScene, Component* InParent = nullptr);
 	virtual ~CameraComponent() = default;
 
 	void SetFOV(float InFOV);

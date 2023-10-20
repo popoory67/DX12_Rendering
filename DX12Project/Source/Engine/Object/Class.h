@@ -1,31 +1,66 @@
 #pragma once
+#include "D3DUtil.h"
+#include <typeindex>
 #include <memory>
 #include <any>
 
-class ClassType
+class ClassTypeBase
 {
 public:
-	ClassType();
-	ClassType(std::any InClass);
-	~ClassType();
+	size_t GetType() const
+	{
+		return GUID;
+	}
 
-	size_t GetType();
-
-private:
+protected:
 	size_t GUID;
 };
+
+template<class T>
+class ClassType : public ClassTypeBase
+{
+private:
+	size_t CreateType()
+	{
+		std::type_index type(typeid(T));
+		return type.hash_code();
+	}
+
+public:
+	ClassType()
+	{
+		GUID = CreateType();
+	}
+
+	~ClassType() = default;
+};
+
+template<class T>
+static ClassType<T>& StaticClass()
+{
+	static ClassType<T> type{};
+	return type;
+}
 
 class BaseClass
 {
 public:
-	BaseClass();
-	virtual ~BaseClass();
+	BaseClass() = default;
+	virtual ~BaseClass() = default;
 
-	static ClassType* StaticClass();
+	const char* GetClassName() const 
+	{
+		return typeid(*this).name();
+	}
 
-	ClassType* GetClass();
-	bool IsEqualClass(ClassType* InClass);
+	const size_t GetClass() const
+	{
+		std::type_index type(typeid(*this));
+		return type.hash_code();
+	}
 
-protected:
-	static std::unique_ptr<ClassType> Type;
+	bool IsEqualClass(ClassTypeBase& InClass)
+	{
+		return InClass.GetType() == GetClass();
+	}
 };

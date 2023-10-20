@@ -1,12 +1,12 @@
 #pragma once
-#include "Component.h"
+#include "TransformComponent.h"
 #include <windows.h>
 #include <unordered_map>
 #include <any>
 
-class RenderComponent : public Component
+class RenderComponent : public TransformComponent
 {
-	using Parent = Component;
+	using Parent = TransformComponent;
 
 public:
 	RenderComponent() = delete;

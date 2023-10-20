@@ -36,15 +36,13 @@ private:
 	MeshRenderBatchElement PrimitiveData;
 };
 
-class PrimitiveComponent 
-	: public RenderComponent
-	, public TransformComponent // test
+class PrimitiveComponent : public RenderComponent
 {
 	using Parent = RenderComponent;
 
 public:
 	PrimitiveComponent() = delete;
-	PrimitiveComponent(class Scene* InScene, Component* InParent);
+	PrimitiveComponent(class Scene* InScene, Component* InParent = nullptr);
 	virtual ~PrimitiveComponent();
 	
 	UINT GetIndex() const { return Index; }

@@ -5,11 +5,14 @@
 class Component : public BaseClass
 {
 	friend class Scene;
+	friend class Entity;
 
 public:
 	Component() = delete;
 	Component(class Scene* InScene, Component* InParent);
 	virtual ~Component() = default;
+
+	class Entity* GetOwner() const;
 
 protected:
 	virtual void Update() {}
@@ -21,9 +24,9 @@ protected:
 protected:
 	std::string Name;
 
-	int NumFramesDirty = 3;
-
 private:
 	class Scene* CurrentScene = nullptr;
-	class Component* Parent = nullptr;
+	class Entity* Owner = nullptr;
+
+	Component* Parent = nullptr;
 };
