@@ -54,6 +54,8 @@ void Camera::SetTransform(const XMFLOAT3& InPosition, const XMFLOAT3& InRotation
 
     const float radian = 3.14f / 180;
 
+    // TODO
+    // Rotation have to apply Camera transform.
     float rotation = cosf(InRotation.y * radian);
     {
         float roll = rotation * sinf(InRotation.z * radian);

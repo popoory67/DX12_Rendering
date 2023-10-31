@@ -71,11 +71,13 @@ void D3D12CommandList::BeginRender()
     // test
     const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc = GetStateCache().GetCurrentStateCache().lock()->GetDesc();
     CommandList->SetGraphicsRootSignature(desc.pRootSignature);
+
+	ExecuteHeaps();
 }
 
 void D3D12CommandList::EndRender()
 {
-
+	FlushHeaps();
 }
 
 void D3D12CommandList::ResizeViewport(RHIViewport* InViewport)

@@ -218,8 +218,10 @@ void D3D12CommandList::AddDescriptorHeap(D3D12Descriptor* InDescriptor)
 
 void D3D12CommandList::ExecuteHeaps()
 {
-	if (!Heaps.empty())
-		CommandList->SetDescriptorHeaps((UINT)Heaps.size(), &(*Heaps.begin()));
+    if (!Heaps.empty())
+    {
+        CommandList->SetDescriptorHeaps((UINT)Heaps.size(), &(*Heaps.begin()));
+    }
 }
 
 void D3D12CommandList::FlushHeaps()

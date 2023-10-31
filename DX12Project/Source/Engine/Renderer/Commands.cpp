@@ -25,6 +25,7 @@ RHICommand_EndDrawWindow::RHICommand_EndDrawWindow(class RHIViewport* InViewport
 
 void RHICommand_EndDrawWindow::Execute(const RHICommandContext& InContext)
 {
+    InContext.GetCommandList().EndRender();
     InContext.GetCommandList().EndDrawWindow(Viewport);
 }
 

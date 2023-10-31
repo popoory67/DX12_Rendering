@@ -112,10 +112,6 @@ public:
 	void AddTransition(D3D12Resource* InResource, const D3D12_RESOURCE_STATES& InAfterState);
 	void FlushTransitions();
 
-	// Descriptor heap
-	void AddDescriptorHeap(class D3D12Descriptor* InDescriptor);
-	void ExecuteHeaps();
-	void FlushHeaps();
 
 	ComPtr<ID3D12GraphicsCommandList> operator->()
 	{
@@ -128,6 +124,10 @@ private:
 
 	void WaitForFrameCompletion();
 	void EndFrame();
+
+	void AddDescriptorHeap(class D3D12Descriptor* InDescriptor);
+	void ExecuteHeaps();
+	void FlushHeaps();
 
 private:
 	bool bClosed = false;

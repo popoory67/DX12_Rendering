@@ -16,7 +16,7 @@ D3D12Viewport::D3D12Viewport(D3D12Device* InDevice, HWND InHandle, unsigned int 
 	: D3D12Api(InDevice)
 	, WindowHandle(InHandle)
 	, BackBufferFormat(DXGI_FORMAT_R8G8B8A8_UNORM)
-	, DepthStencilFormat(DXGI_FORMAT_D32_FLOAT) // DXGI_FORMAT_R24G8_TYPELESS
+	, DepthStencilFormat(DXGI_FORMAT_D32_FLOAT)
 {
 	ScreenViewport.Width = static_cast<float>(InWidth);
 	ScreenViewport.Height = static_cast<float>(InHeight);
@@ -127,8 +127,8 @@ void D3D12Viewport::CreateSwapChain()
 	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
 	// MSAA Sample count
-	swapChainDesc.SampleDesc.Count = IsMsaa4xState ? 4 : 1;
-	swapChainDesc.SampleDesc.Quality = IsMsaa4xState ? (Msaa4xQuality - 1) : 0;
+	swapChainDesc.SampleDesc.Count = IsMsaa4xEnabled() ? 4 : 1;
+	swapChainDesc.SampleDesc.Quality = IsMsaa4xEnabled() ? (Msaa4xQuality - 1) : 0;
 
 	swapChainDesc.BufferCount = SwapChainBufferCount;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -138,7 +138,7 @@ void D3D12Viewport::CreateSwapChain()
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-	// Note: Swap chain uses queue to perform flush.
+	// Note: Swapchain uses queue to perform flush.
 	if (auto pDevice = GetParent())
 	{
 		auto commandQueue = pDevice->GetCommandQueue();
@@ -148,20 +148,15 @@ void D3D12Viewport::CreateSwapChain()
 
 		ThrowIfFailed(swapChain->QueryInterface(IID_PPV_ARGS(SwapChain.GetAddressOf())));
 
-		// Check 4X MSAA quality support for our back buffer format.
-		// All Direct3D 11 capable devices support 4X MSAA for all render target formats, 
-		// so we only need to check quality support.
 		D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS MultiSampleQualityLevels;
 		MultiSampleQualityLevels.Format = BackBufferFormat;
-		MultiSampleQualityLevels.SampleCount = 4;
+		MultiSampleQualityLevels.SampleCount = IsMsaa4xEnabled() ? 4 : 1;
 		MultiSampleQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
-		MultiSampleQualityLevels.NumQualityLevels = 0;
+		MultiSampleQualityLevels.NumQualityLevels = IsMsaa4xEnabled() ? (Msaa4xQuality - 1) : 0;
 
 		ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &MultiSampleQualityLevels, sizeof(MultiSampleQualityLevels)));
 
 		Msaa4xQuality = MultiSampleQualityLevels.NumQualityLevels;
-
-		assert(Msaa4xQuality > 0 && "Unexpected MSAA quality level."); // ??
 	}
 
 	::PostMessage(WindowHandle, WM_PAINT, 0, 0);
