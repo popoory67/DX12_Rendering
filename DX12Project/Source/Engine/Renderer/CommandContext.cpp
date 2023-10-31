@@ -35,7 +35,7 @@ void RHICommandContext::ExecuteCommands()
 
     while (!Commands.empty() && !bClose)
     {
-        std::unique_ptr<RHICommand> command = Commands.pop_move();// std::move(Commands.top());
+        std::unique_ptr<RHICommand> command = Commands.pop_move();
         command->Execute(*this);
     }
 

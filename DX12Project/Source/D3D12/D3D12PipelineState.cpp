@@ -34,12 +34,6 @@ D3D12PipelineStateCache::D3D12PipelineStateCache(D3D12Device* InDevice)
 D3D12PipelineStateCache::~D3D12PipelineStateCache()
 {
     SafeDelete(StateCache.RootSignature);
-    SafeDelete(StateCache.DepthStencil);
-
-    //for (int i = 0; i < _countof(StateCache.RenderTargets); ++i)
-    //{
-    //    SafeDelete(StateCache.RenderTargets[i]);
-    //}
 }
 
 void D3D12PipelineStateCache::IssueCachedResources(D3D12CommandList& InCommandList)

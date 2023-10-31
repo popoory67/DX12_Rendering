@@ -99,21 +99,6 @@ private:
 	};
 };
 
-RHICOMMAND(RHICommand_SetRenderTargets)
-{
-public:
-	RHICommand_SetRenderTargets() = delete;
-	RHICommand_SetRenderTargets(class RHIRenderTargetInfo* InRenderTargetViews, unsigned int InNumRenderTargets, class RHIResource* InRenderTargetView);
-	virtual ~RHICommand_SetRenderTargets();
-
-	void Execute(const RHICommandContext& InContext) override;
-
-private:
-	RHIRenderTargetInfo* RenderTargets;
-	unsigned int NumRenderTargets;
-	RHIResource* DepthStencil;
-};
-
 RHICOMMAND(RHICommand_SetPrimitive)
 {
 public:

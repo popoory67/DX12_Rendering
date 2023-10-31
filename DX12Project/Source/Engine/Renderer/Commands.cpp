@@ -57,24 +57,6 @@ void RHICommand_BeginRender::Execute(const RHICommandContext& InContext)
     InContext.GetCommandList().AddResource(std::move(constantBuffer));
 }
 
-RHICommand_SetRenderTargets::RHICommand_SetRenderTargets(RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTargets, RHIResource* InDepthStencil)
-    : RenderTargets(InRenderTargets)
-    , NumRenderTargets(InNumRenderTargets)
-    , DepthStencil(InDepthStencil)
-{
-    Priority = PipelinePrioirty::DrawSetting;
-}
-
-void RHICommand_SetRenderTargets::Execute(const RHICommandContext& InContext)
-{
-    InContext.GetCommandList().SetRenderTargets(RenderTargets, NumRenderTargets, DepthStencil);
-}
-
-RHICommand_SetRenderTargets::~RHICommand_SetRenderTargets()
-{
-
-}
-
 RHICommand_SetPrimitive::RHICommand_SetPrimitive(std::vector<Vertex>&& InVertexStream, std::vector<unsigned int>&& InIndexStream, unsigned int InStride)
     : VertexStreamResource(std::forward<std::vector<Vertex>>(InVertexStream))
     , IndexStreamResource(std::forward<std::vector<unsigned int>>(InIndexStream))

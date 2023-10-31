@@ -97,7 +97,7 @@ public:
 	void BeginRender() final override;
 	void EndRender() final override;
 	void ResizeViewport(RHIViewport* InViewport) override;
-	void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, class RHIResource* InDepthStencil) override;
+	void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, class RHIDepthStencilInfo* InDepthStencil) override;
 	void AddResource(class RHIResource*&& InResource) final override;
 	void SetStreamResource(class RHIResource* InVertexBuffer, const UINT InIndicesSize) final override;
 	void AddShaderReference(int InIndex, class RHIResource* InBuffer) final override;
@@ -111,9 +111,6 @@ public:
 	// Indicate a state transition on the resource usage.
 	void AddTransition(D3D12Resource* InResource, const D3D12_RESOURCE_STATES& InAfterState);
 	void FlushTransitions();
-
-
-	void ClearDepthStencilView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
 
 	// Descriptor heap
 	void AddDescriptorHeap(class D3D12Descriptor* InDescriptor);

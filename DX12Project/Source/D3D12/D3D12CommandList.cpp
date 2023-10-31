@@ -4,7 +4,6 @@
 #include "D3D12Fence.h"
 #include "D3D12Descriptor.h"
 #include "D3D12Resource.h"
-#include "D3D12PipelineState.h"
 #include "D3D12RootSignature.h"
 #include "D3DUtil.h"
 #include <optional>
@@ -41,8 +40,8 @@ void D3D12CommandList::Close()
 	if (!bClosed)
 	{
 		FlushTransitions();
-
-		ThrowIfFailed(CommandList->Close());
+        CommandList->Close();
+		//ThrowIfFailed();
 
 		bClosed = true;
 	}
@@ -145,21 +144,21 @@ void D3D12CommandList::Initialize()
         PipelineStateDesc.SampleMask = UINT_MAX;
         PipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         PipelineStateDesc.NumRenderTargets = 1;
-        PipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+        PipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // render target is limited to 8.
+        PipelineStateDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
         PipelineStateDesc.SampleDesc.Count = D3D12Viewport::IsMsaa4xEnabled() ? 4 : 1;
         PipelineStateDesc.SampleDesc.Quality = D3D12Viewport::IsMsaa4xEnabled() ? (D3D12Viewport::GetMsaaQuality() - 1) : 0;
-        //PipelineStateDesc.DSVFormat = InDepthStencilFormat;
 
         GetStateCache().CreateAndAddCache(PipelineStateDesc);
     }
 }
 
-void D3D12CommandList::SetRenderTargets(RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, RHIResource* InDepthStencil)
+void D3D12CommandList::SetRenderTargets(RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, RHIDepthStencilInfo* InDepthStencil)
 {
     D3D12RenderTargetView* renderTargetView = D3D12RHI::Cast(InRenderTargets);
-    //D3D12DepthStencilView* depthStencilView = static_cast<D3D12DepthStencilView*>(InDepthStencil);
+    D3D12DepthStencilView* depthStencilView = D3D12RHI::Cast(InDepthStencil);
 
-	GetStateCache().SetRenderTargets(&renderTargetView, InNumRenderTarget, nullptr/*depthStencilView*/);
+	GetStateCache().SetRenderTargets(&renderTargetView, InNumRenderTarget, depthStencilView);
 }
 
 void D3D12CommandList::SetStreamResource(RHIResource* InVertexBuffer, const UINT InIndicesSize)
@@ -208,11 +207,6 @@ void D3D12CommandList::FlushTransitions()
 void D3D12CommandList::AddResource(RHIResource*&& InResource)
 {
     ResourceManager.AddResource(std::move(InResource));
-}
-
-void D3D12CommandList::ClearDepthStencilView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect/* = nullptr*/)
-{
-	CommandList->ClearDepthStencilView(InDescriptorHandle.value(), ClearFlags, InDepthValue, InStencil, InNumRects, InRect);
 }
 
 void D3D12CommandList::AddDescriptorHeap(D3D12Descriptor* InDescriptor)

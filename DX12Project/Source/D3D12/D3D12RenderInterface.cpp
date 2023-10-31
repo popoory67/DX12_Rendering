@@ -2,7 +2,6 @@
 #include "D3D12RenderInterface.h"
 #include "D3D12Resource.h"
 #include "D3D12Descriptor.h"
-#include "D3D12PipelineState.h"
 #include "D3D12Commands.h"
 
 D3D12RHI::D3D12RHI()
@@ -70,15 +69,6 @@ ComPtr<ID3D12Resource> D3D12RHI::CreateResource(unsigned int InByteSize, const D
 	return newResource;
 }
 
-void D3D12RHI::CreateRenderTarget(D3D12Resource* InResource, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize)
-{
-	assert(InResource);
-
-	GetCurrentDevice()->GetDevice()->CreateRenderTargetView(InResource->GetResource(), nullptr, InDescriptorHandle);
-
-	InDescriptorHandle.Offset(1, InDescriptorSize);
-}
-
 //void D3D12RHI::CreateShaderResource(D3D12ShaderResource* InResource, D3D12Descriptor* InDescriptor, std::string InName/* = nullptr*/, std::wstring InFilePath/* = nullptr*/)
 //{
 //	assert(InDescriptor);
@@ -115,11 +105,3 @@ void D3D12RHI::CreateRenderTarget(D3D12Resource* InResource, CD3DX12_CPU_DESCRIP
 //		//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(GetParent()->GetDeviceInterface(), GetCommnadList()->GetGraphicsInterface(), InFilePath.c_str(), InResource->Get(), InResource->GetTextureResource()->Get()));
 //	}
 //}
-
-void D3D12RHI::CreateDepthStencilView(D3D12Resource* InResource, class D3D12Descriptor* InDescriptor, D3D12_DEPTH_STENCIL_VIEW_DESC& InDepthStencilDesc)
-{
-	assert(InDescriptor);
-	assert(InResource);
-
-	GetCurrentDevice()->GetDevice()->CreateDepthStencilView(InResource->GetResource(), &InDepthStencilDesc, InDescriptor->GetCpuHandle(0));
-}

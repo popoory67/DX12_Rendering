@@ -24,6 +24,7 @@ RHIResource* RHIRenderTargetInfo::GetTexture() const
 }
 
 RHIDepthStencilInfo::RHIDepthStencilInfo(RHIResource* InTargetResource)
+    : TargetResource(InTargetResource)
 {
 
 }

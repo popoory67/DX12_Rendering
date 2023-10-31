@@ -44,3 +44,11 @@ D3D12DepthStencilView::D3D12DepthStencilView(D3D12Resource* InResource, class D3
 {
 
 }
+
+void D3D12DepthStencilView::Reset()
+{
+    D3D12Resource* resource = D3D12RHI::Cast(TargetResource);
+    assert(resource);
+
+    resource->Reset();
+}

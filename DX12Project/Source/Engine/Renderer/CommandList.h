@@ -16,7 +16,7 @@ public:
 	virtual void BeginRender() = 0;
 	virtual void EndRender() = 0;
 	virtual void ResizeViewport(class RHIViewport* InViewport) = 0;
-	virtual void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, class RHIResource* InDepthStencil) = 0;
+	virtual void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, class RHIDepthStencilInfo* InDepthStencil) = 0;
 	virtual void AddResource(class RHIResource*&& InResource) = 0;
 	virtual void SetStreamResource(class RHIResource* InVertexBuffer, const UINT InIndicesSize) = 0;
 	virtual void AddShaderReference(int InIndex, RHIResource* InBuffer) = 0;
