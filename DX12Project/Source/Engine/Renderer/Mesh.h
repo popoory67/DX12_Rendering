@@ -3,6 +3,7 @@
 #include "RenderPass.h"
 #include "Primitive.h"
 #include "MathHelper.h"
+#include "MaterialComponent.h"
 #include <vector>
 
 using VertexStream = std::vector<Vertex>;
@@ -13,6 +14,8 @@ struct MeshRenderBatchElement
 	VertexStream Vertices;
 	IndexStream Indices;
 	unsigned int Stride;
+
+	MaterialProxy* MaterialShaderProxy = nullptr;
 
 	MeshRenderBatchElement() = default;
 	MeshRenderBatchElement(const MeshRenderBatchElement&) = default;
@@ -70,7 +73,6 @@ struct MeshRenderBatch : public RenderBatch
 
 	unsigned int Count;
 	std::vector<MeshRenderBatchElement> Elements;
-	//XMMATRIX TransformMatrix;
 };
 
 // This is the stage to render which has meshes.

@@ -1,21 +1,61 @@
 #pragma once
 #include "RenderComponent.h"
 
-class MaterialComponent : public RenderComponent
+enum class ShaderType : unsigned int
 {
-public:
-	virtual ~MaterialComponent();
+	Vertex,
+	Fragment,
+};
 
-	int GetDiffuseSrvHeapIndex() const { return DiffuseSrvHeapIndex; }
-	unsigned GetIndex() const { return Index; }
+struct ShaderBinding
+{
+	SIZE_T BytecodeLength;
+	BYTE* Bytecode = nullptr;
+	ShaderType Type;
+};
+
+class MaterialProxy
+{
+	friend class MaterialComponent;
+
+public:
+	MaterialProxy();
+	virtual ~MaterialProxy() = default;
 
 private:
-	// Index into SRV heap for diffuse texture.
-	int DiffuseSrvHeapIndex = -1;
+	ShaderBinding ShaderInfo_VS;
+	ShaderBinding ShaderInfo_FS;
 
-	// Index into SRV heap for normal texture.
-	int NormalSrvHeapIndex = -1;
+	BYTE* TextureData = nullptr;
+};
 
-	// Index into constant buffer corresponding to this material.
-	unsigned int Index = 0;
+class MaterialComponent : public RenderComponent
+{
+	using Parent = RenderComponent;
+
+public:
+	MaterialComponent() = delete;
+	MaterialComponent(class Scene* InScene, Component* InParent = nullptr);
+	virtual ~MaterialComponent();
+
+	void UpdateResources() override;
+
+	MaterialProxy& GetProxy() const;
+
+	void SetTexture(const std::wstring& InPath);
+	void SetShader(const std::wstring& InPath, ShaderType InShaderType);
+
+protected:
+	void Initialize() override;
+
+private:
+	BYTE* LoadTexture(const std::wstring& InPath);
+	std::vector<char> LoadShader(const std::wstring& InPath);
+
+private:
+	BYTE* TextureData;
+	std::vector<char> ShaderCode_VS;
+	std::vector<char> ShaderCode_FS;
+
+	MaterialProxy* Proxy = nullptr;
 };

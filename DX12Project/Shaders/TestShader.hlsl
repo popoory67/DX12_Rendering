@@ -11,6 +11,9 @@ cbuffer Transform : register(b1)
     float4x4 VertexTransform;
 }
 
+Texture2D g_texture : register(t0);
+SamplerState g_sampler : register(s0);
+
 struct VertexIn
 {
     float3 Position     : POSITION;
@@ -34,12 +37,15 @@ VertexOut VS(VertexIn vin)
     {
         vout.Position = mul(float4(vin.Position, 1.0f), Globals.WorldViewProj);
         vout.Normal = float4(vin.Normal, 1.0f);
+        vout.TexCoord = vin.TexCoord;
     }
     return vout;
 }
 
 float4 PS(VertexOut pin) : SV_Target
 {
+//        return g_texture.Sample(g_sampler, pin.TexCoord);
+
     // lambert's cosine test
     float3 normal = normalize(pin.Normal);
 

@@ -26,6 +26,17 @@ void Scene::Start()
 			entity->Initialize();
 
 			auto components = entity->GetComponentsAll();
+            for (auto& component : components)
+            {
+				component->Initialize();
+
+				auto renderComponent = std::dynamic_pointer_cast<RenderComponent>(component);
+				if (renderComponent)
+				{
+					renderComponent->UpdateResources();
+				}
+            }
+
 			Components.insert(Components.end(), components.begin(), components.end());
 		}
 	}
@@ -193,6 +204,8 @@ void Scene::RenderScene()
 			batch.AddElement(proxy->PrimitiveData);
         }
 
+		// TODO
+		// MeshRenderPass and MeshRenderBatch have to be distributed to several Tasks to utilize tons of vertices.
 		std::unique_ptr<MeshRenderPass> meshPass = std::make_unique<MeshRenderPass>();
         {
             meshPass->AddMeshBatch(std::move(batch));

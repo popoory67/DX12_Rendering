@@ -13,24 +13,8 @@ public:
 	RenderComponent(class Scene* InScene, Component* InParent);
 	virtual ~RenderComponent() = default;
 
-	template<typename DataType>
-	void AddShaderBinding(std::string InName, DataType InData)
-	{
-		Bindings.emplace(std::make_pair(InName, InData));
-	}
+	virtual void UpdateResources() {}
 
-	template<typename DataType>
-	void UpdateShaderBinding(std::string InName, DataType InData)
-	{
-		auto it = Bindings.find(InName);
-		if (it != Bindings.cend())
-		{
-			it->second = InData;
-		}
-	}
-
-	UINT GetBindingSize();
-
-private:
-	std::unordered_map<std::string, std::any> Bindings;
+protected:
+	bool bDirty = false;
 };

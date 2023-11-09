@@ -169,6 +169,8 @@
     <ClCompile Include="Source\Engine\Object\Components\CameraComponent.cpp" />
     <ClCompile Include="Source\Engine\Object\Camera.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\MaterialComponent.cpp" />
+    <ClCompile Include="Source\Engine\Object\Components\MeshComponent.cpp" />
+    <ClCompile Include="TestEntities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3DUtil.h">
@@ -300,6 +302,8 @@
     <ClInclude Include="Source\Engine\Object\Components\CameraComponent.h" />
     <ClInclude Include="Source\Engine\Object\Camera.h" />
     <ClInclude Include="Source\Engine\Object\Components\MaterialComponent.h" />
+    <ClInclude Include="Source\Engine\Object\Components\MeshComponent.h" />
+    <ClInclude Include="TestEntities.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" />

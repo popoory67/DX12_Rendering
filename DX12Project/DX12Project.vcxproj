@@ -46,8 +46,10 @@
     <ClCompile Include="Source\Engine\Object\Components\CameraComponent.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\Component.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\MaterialComponent.cpp" />
+    <ClCompile Include="Source\Engine\Object\Components\MeshComponent.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\PrimitiveComponent.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\RenderComponent.cpp" />
+    <ClCompile Include="TestEntities.cpp" />
     <ClCompile Include="Source\Engine\Object\Entity.cpp" />
     <ClCompile Include="Source\Engine\Object\Scene.cpp" />
     <ClCompile Include="Source\Engine\Renderer\CommandContext.cpp" />
@@ -103,8 +105,10 @@
     <ClInclude Include="Source\Engine\Object\Components\CameraComponent.h" />
     <ClInclude Include="Source\Engine\Object\Components\Component.h" />
     <ClInclude Include="Source\Engine\Object\Components\MaterialComponent.h" />
+    <ClInclude Include="Source\Engine\Object\Components\MeshComponent.h" />
     <ClInclude Include="Source\Engine\Object\Components\PrimitiveComponent.h" />
     <ClInclude Include="Source\Engine\Object\Components\RenderComponent.h" />
+    <ClInclude Include="TestEntities.h" />
     <ClInclude Include="Source\Engine\Object\Entity.h" />
     <ClInclude Include="Source\Engine\Object\Scene.h" />
     <ClInclude Include="Source\Engine\Renderer\CommandContext.h" />
@@ -188,7 +192,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <GenerateManifest>true</GenerateManifest>
-    <ExternalIncludePath>ThirdParty\Visual Leak Detector\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>ThirdParty\stb;ThirdParty\Visual Leak Detector\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>ThirdParty\Visual Leak Detector\lib\Win64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
