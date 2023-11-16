@@ -1,32 +1,16 @@
 #pragma once
 #include "RenderComponent.h"
+#include "RenderResource.h"
 
-enum class ShaderType : unsigned int
+struct MaterialProxy
 {
-	Vertex,
-	Fragment,
-};
-
-struct ShaderBinding
-{
-	SIZE_T BytecodeLength;
-	BYTE* Bytecode = nullptr;
-	ShaderType Type;
-};
-
-class MaterialProxy
-{
-	friend class MaterialComponent;
-
-public:
 	MaterialProxy();
 	virtual ~MaterialProxy() = default;
 
-private:
 	ShaderBinding ShaderInfo_VS;
 	ShaderBinding ShaderInfo_FS;
 
-	BYTE* TextureData = nullptr;
+	TextureSettings* TextureInfo = nullptr;
 };
 
 class MaterialComponent : public RenderComponent
@@ -49,11 +33,12 @@ protected:
 	void Initialize() override;
 
 private:
-	BYTE* LoadTexture(const std::wstring& InPath);
+	void LoadTexture(const std::wstring& InPath);
 	std::vector<char> LoadShader(const std::wstring& InPath);
 
 private:
-	BYTE* TextureData;
+	TextureSettings Settings;
+
 	std::vector<char> ShaderCode_VS;
 	std::vector<char> ShaderCode_FS;
 

@@ -3,7 +3,7 @@
 int Camera::Id = -1;
 
 Camera::Camera()
-    : FOV(3.14f / 4.0f) // 45 degrees
+    : FOV(MathHelper::Pi / 4.0f) // 45 degrees
     , AspectRatio(1.778f)
     , NearPlane(1.0f)
     , FarPlane(1000.0f)

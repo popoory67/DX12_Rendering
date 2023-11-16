@@ -30,7 +30,7 @@ void D3D12CommandList::Reset()
 	CommandListAllocator->Reset();
 
     std::shared_ptr<D3D12PipelineState> cache = GetStateCache().GetCurrentStateCache().lock();
-	ThrowIfFailed(CommandList->Reset(CommandListAllocator->Get(), cache->GetInterface()));
+	ThrowIfFailed(GetCommandList()->Reset(CommandListAllocator->Get(), cache->GetInterface()));
 
 	bClosed = false;
 }
@@ -40,8 +40,8 @@ void D3D12CommandList::Close()
 	if (!bClosed)
 	{
 		FlushTransitions();
-        CommandList->Close();
-		//ThrowIfFailed();
+
+		ThrowIfFailed(GetCommandList()->Close());
 
 		bClosed = true;
 	}
@@ -168,6 +168,11 @@ void D3D12CommandList::SetStreamResource(RHIResource* InVertexBuffer, const UINT
     GetStateCache().SetStreamResource(vertexBuffer, 0, InIndicesSize);
 }
 
+void D3D12CommandList::SetShaderBinding(ShaderBinding& InBinding)
+{
+    GetStateCache().SetShaderBinding(InBinding);
+}
+
 void D3D12CommandList::AddShaderReference(int InIndex, RHIResource* InBuffer)
 {
     D3D12Resource* buffer = D3D12RHI::Cast(InBuffer);
@@ -179,13 +184,53 @@ void D3D12CommandList::AddShaderReference(int InIndex, RHIResource* InBuffer)
 void D3D12CommandList::DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance)
 {
 	GetStateCache().IssueCachedResources(*this);
-    CommandList->DrawInstanced(InNumVertices, InNumInstances, InStartIndex, InStartInstance);
+    GetCommandList()->DrawInstanced(InNumVertices, InNumInstances, InStartIndex, InStartInstance);
 }
 
 void D3D12CommandList::DrawIndexedInstanced(unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance)
 {
 	GetStateCache().IssueCachedResources(*this);
-    CommandList->DrawIndexedInstanced(InNumIndices, InNumInstances, InStartIndex, InStartVertex, InStartInstance);
+    GetCommandList()->DrawIndexedInstanced(InNumIndices, InNumInstances, InStartIndex, InStartVertex, InStartInstance);
+}
+
+uint32_t CalculateRowPitch(uint32_t InWidth, uint32_t InBytesPerPixel) 
+{
+    uint32_t rowPitch = (InWidth * InBytesPerPixel + (D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1)) & ~(D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1);
+    return rowPitch;
+}
+
+void D3D12CommandList::CopyResourceRegion(RHIResource* InDestResource, RHIResource* InSourceResource)
+{
+    D3D12Resource* destResource = D3D12RHI::Cast(InDestResource);
+    D3D12Resource* sourceResource = D3D12RHI::Cast(InSourceResource);
+
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT placedFootprint;
+    {
+        UINT64 totalSize = 0;
+        GetDevice()->GetCopyableFootprints(&sourceResource->GetDesc(), 0, 1, 0, &placedFootprint, nullptr, nullptr, &totalSize);
+
+        assert(placedFootprint.Offset % D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT == 0);
+
+        placedFootprint.Footprint.Format = destResource->GetDesc().Format;
+        placedFootprint.Footprint.Width = destResource->GetDesc().Width;
+        placedFootprint.Footprint.Height = destResource->GetDesc().Height;
+        placedFootprint.Footprint.Depth = destResource->GetDesc().DepthOrArraySize;
+        placedFootprint.Footprint.RowPitch = CalculateRowPitch(placedFootprint.Footprint.Width, 4); // 4 bytes
+        placedFootprint.Offset = 0;
+    }
+
+    CD3DX12_TEXTURE_COPY_LOCATION dest(destResource->GetResource(), 0);
+    {
+        destResource->SetResourceState(D3D12_RESOURCE_STATE_COPY_DEST);
+    }
+
+    CD3DX12_TEXTURE_COPY_LOCATION source(sourceResource->GetResource(), placedFootprint);
+
+    GetCommandList()->CopyTextureRegion(&dest, 0, 0, 0, &source, nullptr);
+
+    AddTransition(destResource, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    //SafeDelete(sourceResource);
 }
 
 void D3D12CommandList::AddTransition(D3D12Resource* InResource, const D3D12_RESOURCE_STATES& InAfterState)
@@ -199,34 +244,14 @@ void D3D12CommandList::AddTransition(D3D12Resource* InResource, const D3D12_RESO
 
 void D3D12CommandList::FlushTransitions()
 {
-	CommandList->ResourceBarrier(Barriers.size(), Barriers.data());
+    GetCommandList()->ResourceBarrier(Barriers.size(), Barriers.data());
 	
 	Barriers.clear();
 }
 
-void D3D12CommandList::AddResource(RHIResource*&& InResource)
+void D3D12CommandList::AddResource(RHIResource* InResource)
 {
-    ResourceManager.AddResource(std::move(InResource));
-}
-
-void D3D12CommandList::AddDescriptorHeap(D3D12Descriptor* InDescriptor)
-{
-	assert(InDescriptor);
-
-	Heaps.emplace_back(InDescriptor->Get());
-}
-
-void D3D12CommandList::ExecuteHeaps()
-{
-    if (!Heaps.empty())
-    {
-        CommandList->SetDescriptorHeaps((UINT)Heaps.size(), &(*Heaps.begin()));
-    }
-}
-
-void D3D12CommandList::FlushHeaps()
-{
-	Heaps.clear();
+    ResourceManager.AddResource(InResource);
 }
 
 void D3D12CommandList::CreateCommandList(D3D12Device* InDevice)
@@ -243,7 +268,7 @@ void D3D12CommandList::CreateCommandList(D3D12Device* InDevice)
 	// Start off in a closed state.  This is because the first time we refer 
 	// to the command list we will Reset it, and it needs to be closed before
 	// calling Reset.
-	CommandList->Close();
+    GetCommandList()->Close();
 }
 
 void D3D12CommandList::WaitForFrameCompletion()

@@ -1,5 +1,6 @@
 #include "D3D12Device.h"
 #include "D3D12Commands.h"
+#include "D3D12Descriptor.h"
 #include "D3DUtil.h"
 #include "Util.h"
 #include "CommandContext.h"
@@ -125,4 +126,25 @@ ID3D12Device* D3D12Api::GetDevice() const
 void D3D12ResourceManager::AddRootSignature(int InKey, const std::shared_ptr<D3D12RootSignature>& InSignature)
 {
 	RootSignatures[InKey] = InSignature;
+}
+
+void D3D12ResourceManager::AddDescriptorHeap(D3D12Descriptor* InDescriptor)
+{
+    assert(InDescriptor);
+
+    Heaps.emplace_back(InDescriptor->Get());
+}
+
+void D3D12ResourceManager::ExecuteHeaps(D3D12CommandList& InCommandList)
+{
+	// test
+    if (!Heaps.empty())
+    {
+		InCommandList->SetDescriptorHeaps((UINT)Heaps.size(), &(*Heaps.begin()));
+    }
+}
+
+void D3D12ResourceManager::FlushHeaps()
+{
+    Heaps.clear();
 }

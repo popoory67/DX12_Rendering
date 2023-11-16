@@ -1,6 +1,7 @@
 #pragma once
 #include "Util.h"
 #include "MathHelper.h"
+#include "RenderResource.h"
 #include <vector>
 
 using namespace DirectX;
@@ -126,4 +127,19 @@ public:
 private:
 	unsigned int Count;
 	unsigned int Stride;
+};
+
+RHICOMMAND(RHICommand_SetShaderResource)
+{
+public:
+	RHICommand_SetShaderResource() = delete;
+	RHICommand_SetShaderResource(TextureSettings* InSettings);
+	virtual ~RHICommand_SetShaderResource();
+
+	void AddShader(ShaderBinding* InShaderBinding);
+	void Execute(const RHICommandContext& InContext) override;
+
+private:
+	TextureSettings* Settings = nullptr;
+	std::vector<ShaderBinding*> Shaders;
 };

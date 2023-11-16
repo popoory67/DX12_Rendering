@@ -30,8 +30,8 @@ public:
 	ComPtr<ID3D12Resource>& Get() noexcept { return Resource; }
 	ID3D12Resource* GetResource() noexcept { return Resource.Get(); }
 	
-	FORCEINLINE D3D12_RESOURCE_DESC GetDesc() const noexcept { return Desc; }
-	FORCEINLINE D3D12_RESOURCE_STATES GetResourceState() const noexcept { return ResourceState; }
+	FORCEINLINE const D3D12_RESOURCE_DESC& GetDesc() noexcept { return Desc; }
+	FORCEINLINE const D3D12_RESOURCE_STATES& GetResourceState() const noexcept { return ResourceState; }
 
 	FORCEINLINE void SetResourceState(const D3D12_RESOURCE_STATES& InNewState) noexcept
 	{

@@ -55,7 +55,6 @@
     <ClCompile Include="Source\Engine\Renderer\CommandContext.cpp" />
     <ClCompile Include="Source\Engine\Renderer\CommandList.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Commands.cpp" />
-    <ClCompile Include="Source\Engine\Renderer\GeometryGenerator.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Light.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Material.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Mesh.cpp" />
@@ -64,7 +63,6 @@
     <ClCompile Include="Source\Engine\Renderer\RenderResource.cpp" />
     <ClCompile Include="Source\Engine\Core\RenderThread.cpp" />
     <ClCompile Include="Source\Engine\Renderer\SceneRendering.cpp" />
-    <ClCompile Include="Source\Engine\Renderer\Texture.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\TransformComponent.cpp" />
     <ClCompile Include="Source\Engine\Renderer\Viewport.cpp" />
     <ClCompile Include="Source\Engine\Core\ThreadBase.cpp" />
@@ -114,7 +112,6 @@
     <ClInclude Include="Source\Engine\Renderer\CommandContext.h" />
     <ClInclude Include="Source\Engine\Renderer\CommandList.h" />
     <ClInclude Include="Source\Engine\Renderer\Commands.h" />
-    <ClInclude Include="Source\Engine\Renderer\GeometryGenerator.h" />
     <ClInclude Include="Source\Engine\Renderer\Light.h" />
     <ClInclude Include="Source\Engine\Renderer\Material.h" />
     <ClInclude Include="Source\Engine\Renderer\Mesh.h" />
@@ -124,7 +121,6 @@
     <ClInclude Include="Source\Engine\Renderer\RenderResource.h" />
     <ClInclude Include="Source\Engine\Core\RenderThread.h" />
     <ClInclude Include="Source\Engine\Renderer\SceneRendering.h" />
-    <ClInclude Include="Source\Engine\Renderer\Texture.h" />
     <ClInclude Include="Source\Engine\Object\Components\TransformComponent.h" />
     <ClInclude Include="Source\Engine\Renderer\Viewport.h" />
     <ClInclude Include="Source\Engine\Core\ThreadBase.h" />

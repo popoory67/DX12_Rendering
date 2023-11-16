@@ -75,9 +75,6 @@
     <ClCompile Include="Source\D3D12\D3D12RenderInterface.cpp">
       <Filter>D3D12\Private</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Renderer\GeometryGenerator.cpp">
-      <Filter>Engine\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\Light.cpp">
       <Filter>Engine\Renderer</Filter>
     </ClCompile>
@@ -88,9 +85,6 @@
       <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Renderer\SceneRendering.cpp">
-      <Filter>Engine\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Renderer\Texture.cpp">
       <Filter>Engine\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Object\Components\TransformComponent.cpp">
@@ -218,9 +212,6 @@
     <ClInclude Include="Source\D3D12\D3D12RenderInterface.h">
       <Filter>D3D12\Public</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\Renderer\GeometryGenerator.h">
-      <Filter>Engine\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\Renderer\Light.h">
       <Filter>Engine\Renderer</Filter>
     </ClInclude>
@@ -231,9 +222,6 @@
       <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Renderer\SceneRendering.h">
-      <Filter>Engine\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\Renderer\Texture.h">
       <Filter>Engine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Object\Components\TransformComponent.h">

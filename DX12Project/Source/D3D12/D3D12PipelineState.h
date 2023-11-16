@@ -1,7 +1,7 @@
 #pragma once
 #include "D3D12Resource.h"
 #include "D3D12View.h"
-#include "D3D12Descriptor.h"
+#include "RenderResource.h"
 #include <type_traits>
 #include <d3d12.h>
 #include <unordered_map>
@@ -85,6 +85,7 @@ public:
 	void SetViewport(const D3D12_VIEWPORT& InViewport, const D3D12_RECT& InRect);
 	void SetRenderTargets(D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, D3D12DepthStencilView* InDepthStencil);
 	void SetStreamResource(D3D12Buffer* InVertexBuffer, uint32_t StreamIndex, const UINT InIndicesSize = 0);
+	void SetShaderBinding(ShaderBinding& InShaderBinding);
 
 	void CreateAndAddCache(const D3D12GraphicsPipelineState::Desc& InDesc);
 	std::weak_ptr<D3D12PipelineState> FindCache(const D3D12GraphicsPipelineState::Desc& InDesc);
@@ -92,7 +93,7 @@ public:
 
 private:
 	
-	std::shared_ptr<D3D12DescriptorCache> DescriptorCache;
+	std::shared_ptr<class D3D12DescriptorCache> DescriptorCache;
 
 	struct
 	{
@@ -110,6 +111,9 @@ private:
 
 		D3D12VertexBufferCache VertexBufferCache;
 		D3D12IndexBufferCache IndexBufferCache;
+
+		ShaderBinding* VS;
+		ShaderBinding* FS;
 
 	} StateCache;
 

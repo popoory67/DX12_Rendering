@@ -102,3 +102,55 @@ void RHICommand_DrawPrimitive::Execute(const RHICommandContext& InContext)
     //InContext.GetCommandList().DrawPrimitive(Count, 1, 0, 0);
     InContext.GetCommandList().DrawIndexedInstanced(Count, 1, 0, 0, 0);
 }
+
+RHICommand_SetShaderResource::RHICommand_SetShaderResource(TextureSettings* InSettings)
+    : Settings(InSettings)
+{
+    Priority = PipelinePrioirty::BeginRender;
+}
+
+RHICommand_SetShaderResource::~RHICommand_SetShaderResource()
+{
+    Shaders.clear();
+}
+
+void RHICommand_SetShaderResource::AddShader(ShaderBinding* InShaderBinding)
+{
+    Shaders.emplace_back(InShaderBinding);
+}
+
+void RHICommand_SetShaderResource::Execute(const RHICommandContext& InContext)
+{
+    // DirectX 12 supports normally 4 channels.
+    // Because the 4 channels format is much more optimized on GPU devices than 3 channels.
+    // Therefore, to change a texture format to 4 channels for a hardware compatibility is pretty usual.
+    unsigned int rgbaSize = Settings->Width * Settings->Height * 4;
+
+    unsigned int rowPitch = Settings->Width * Settings->Channels;
+    unsigned int size = rowPitch * Settings->Height;
+
+    // A texture
+    RHIResource* textureResource = GRHI->CreateTexture(Settings);
+
+    // A staging buffer that is a temporarily allocated memory for moving CPU memory to GPU memory.
+    RHIResource* stagingBuffer = GRHI->CreateBuffer(rgbaSize, rowPitch);
+    {
+        // A raw texture data to the staging
+        UINT8* buffer = GRHI->LockBuffer(stagingBuffer);
+        {
+            memcpy(buffer, Settings->TextureData, size);
+        }
+        GRHI->UnlockBuffer(stagingBuffer);
+    }
+
+    // Copy the CPU texture to the GPU texture. (Staging -> Texture)
+    InContext.GetCommandList().CopyResourceRegion(textureResource, stagingBuffer);
+
+    for (auto& shader : Shaders)
+    {
+        InContext.GetCommandList().SetShaderBinding(*shader);
+    }
+
+    InContext.GetCommandList().AddResource(stagingBuffer);
+    InContext.GetCommandList().AddResource(textureResource);
+}

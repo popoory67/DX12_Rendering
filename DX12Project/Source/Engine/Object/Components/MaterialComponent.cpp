@@ -21,8 +21,8 @@ MaterialComponent::MaterialComponent(class Scene* InScene, Component* InParent)
 
 MaterialComponent::~MaterialComponent()
 {
-    stbi_image_free(TextureData);
-    TextureData = nullptr;
+    stbi_image_free(Settings.TextureData);
+    Settings.TextureData = nullptr;
 
     SafeDelete(Proxy);
 }
@@ -40,7 +40,7 @@ void MaterialComponent::UpdateResources()
     GetProxy().ShaderInfo_FS.Bytecode = reinterpret_cast<BYTE*>(ShaderCode_FS.data());
     GetProxy().ShaderInfo_FS.BytecodeLength = ShaderCode_FS.size();
 
-    GetProxy().TextureData = TextureData;
+    GetProxy().TextureInfo = &Settings;
 }
 
 MaterialProxy& MaterialComponent::GetProxy() const
@@ -50,7 +50,7 @@ MaterialProxy& MaterialComponent::GetProxy() const
 
 void MaterialComponent::SetTexture(const std::wstring& InPath)
 {
-    TextureData = LoadTexture(InPath.c_str());
+    LoadTexture(InPath.c_str());
 }
 
 void MaterialComponent::SetShader(const std::wstring& InPath, ShaderType InShaderType)
@@ -65,15 +65,17 @@ void MaterialComponent::SetShader(const std::wstring& InPath, ShaderType InShade
     }
 }
 
-BYTE* MaterialComponent::LoadTexture(const std::wstring& InPath)
+void MaterialComponent::LoadTexture(const std::wstring& InPath)
 {
     int size = WideCharToMultiByte(CP_UTF8, 0, &InPath[0], (int)InPath.size(), NULL, 0, NULL, NULL);
     std::string strTo(size, 0);
     WideCharToMultiByte(CP_UTF8, 0, &InPath[0], (int)InPath.size(), &strTo[0], size, NULL, NULL);
 
     int width, height, channels;
-    BYTE* pixels = stbi_load(strTo.c_str(), &width, &height, &channels, 0);
-    return pixels;
+    Settings.TextureData = stbi_load(strTo.c_str(), &width, &height, &channels, 0);
+    Settings.Width = width;
+    Settings.Height = height;
+    Settings.Channels = channels;
 }
 
 std::vector<char> MaterialComponent::LoadShader(const std::wstring& InPath)

@@ -81,18 +81,31 @@ void MeshRenderPass::DoTask()
     VertexStream vertexStream{};
     IndexStream indexStream{};
 
+    // test
+    TextureSettings* resource = nullptr;
+    ShaderBinding* vsShader = nullptr;
+    ShaderBinding* fsShader = nullptr;
+
     for (const auto& batch : Batches)
     {
         for (const auto& element : batch.Elements)
         {
             vertexStream.insert(vertexStream.end(), std::make_move_iterator(element.Vertices.begin()), std::make_move_iterator(element.Vertices.end()));
             indexStream.insert(indexStream.end(), std::make_move_iterator(element.Indices.begin()), std::make_move_iterator(element.Indices.end()));
+
+            // test
+            resource = element.MaterialShaderProxy->TextureInfo;
+            vsShader = &element.MaterialShaderProxy->ShaderInfo_VS;
+            fsShader = &element.MaterialShaderProxy->ShaderInfo_FS;
         }
     }
 
     TaskGraphSystem::Get().AddTask<RenderCommand>([vertexStream = std::move(vertexStream), 
         indexStream = std::move(indexStream),
-        stride](const RHICommandContext& InContext) mutable
+        stride,
+        resource,
+        vsShader,
+        fsShader](const RHICommandContext& InContext) mutable
     {
         int indicesSize = indexStream.size();
 
@@ -107,6 +120,15 @@ void MeshRenderPass::DoTask()
 
         InContext.AddCommand(primitiveCommand);
         InContext.AddCommand(drawPrimitive);
+
+        // shader test
+        auto shaderCommand = RHICommand_SetShaderResource::Create(resource);
+        {
+            shaderCommand->AddShader(vsShader);
+            shaderCommand->AddShader(fsShader);
+
+            InContext.AddCommand(shaderCommand);
+        }
 
     }, ThreadType::Render);
 }

@@ -78,6 +78,12 @@ public:
 
 	void AddRootSignature(int InKey, const std::shared_ptr<class D3D12RootSignature>& InSignature);
 
+	void AddDescriptorHeap(class D3D12Descriptor* InDescriptor);
+
+	void ExecuteHeaps(D3D12CommandList& InCommandList);
+	void FlushHeaps();
+
 private:
 	std::unordered_map<int, std::shared_ptr<class D3D12RootSignature>> RootSignatures;
+	std::vector<ID3D12DescriptorHeap*> Heaps;
 };
