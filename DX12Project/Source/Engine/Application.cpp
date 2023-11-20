@@ -31,8 +31,8 @@ bool Application::Initialize()
 
     // Worker thread
     {
-        //PSOLibrary* psoCache = new PSOLibrary();
-        //ThreadPool::Get().Enqueue(psoCache, ThreadType::Worker);
+        PSOLibrary* psoCache = new PSOLibrary();
+        ThreadPool::Get().Enqueue(psoCache, ThreadType::Worker);
     }
 
 	return true;
@@ -40,7 +40,7 @@ bool Application::Initialize()
 
 int Application::Run()
 {
-    //ThreadPool::Get().Run();
+    ThreadPool::Get().Run();
 	return 1;
 }
 

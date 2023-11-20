@@ -29,5 +29,6 @@ protected:
 
 	std::condition_variable Condition;
 	std::mutex Mutex;
+
 	bool bSuspended = false;
 };

@@ -23,7 +23,6 @@ private:
 	std::vector<std::unique_ptr<GenericThread>> Backgrounds;
 	std::queue<Task*> Tasks;
 
-	std::condition_variable Condition;
 	std::mutex Mutex;
 
 	bool bStopAll = false;

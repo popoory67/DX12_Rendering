@@ -37,7 +37,7 @@ void WindowsThread::Wait()
 {
     std::unique_lock<std::mutex> lock(Mutex);
 
-    Condition.wait(lock, [bSuspended = this->bSuspended]
+    Condition.wait(lock, [this]
     {
         return !bSuspended;
     });
@@ -71,6 +71,11 @@ bool WindowsThread::CreateInternal(Task* InAction, ThreadType InThreadType, Thre
 void WindowsThread::ThreadProc()
 {
     Wait();
+
+    if (!IsTaskAllocated())
+    {
+        return;
+    }
 
     if (Action->Init() == true)
     {

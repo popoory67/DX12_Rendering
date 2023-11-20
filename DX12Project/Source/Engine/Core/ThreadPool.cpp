@@ -42,10 +42,6 @@ void ThreadPool::Run()
     while (!bStopAll && !Tasks.empty())
     {
         std::unique_lock<std::mutex> lock(Mutex);
-        Condition.wait(lock, []()
-        {
-            return true;
-        });
 
         Task* task = Tasks.front();
         Tasks.pop();
@@ -53,9 +49,8 @@ void ThreadPool::Run()
         int threadHandle = GetAvailableThreadHandle();
         {
             Backgrounds[threadHandle]->SetTask(task);
+            Backgrounds[threadHandle]->Resume();
         }
-
-        Condition.notify_all();
     }
 }
 
@@ -73,8 +68,6 @@ void ThreadPool::StopAll()
     }
 
     Backgrounds.clear();
-
-    Condition.notify_all();
 }
 
 int ThreadPool::GetAvailableThreadHandle() const
