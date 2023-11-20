@@ -143,3 +143,16 @@ private:
 	TextureSettings* Settings = nullptr;
 	std::vector<ShaderBinding*> Shaders;
 };
+
+RHICOMMAND(RHICommand_SetPipelineState)
+{
+public:
+	RHICommand_SetPipelineState() = delete;
+	RHICommand_SetPipelineState(int InPipelineStateId);
+	virtual ~RHICommand_SetPipelineState() = default;
+
+	void Execute(const RHICommandContext& InContext) override;
+
+private:
+	int PipelineStateId = -1;
+};

@@ -47,10 +47,7 @@ void Scene::Update()
 	UpdateComponents();
 	// UpdateVisibility();
 
-	TaskGraphSystem::Get().AddTask<RenderCommand>([thisPtr = shared_from_this()](const RHICommandContext& InContext)
-	{
-		thisPtr->UpdateCamera(InContext);
-	}, ThreadType::Render);
+	UpdateCamera(GetCommandContext());
 
 	// Addressed a collection of entity data to SceneRendering
 	RenderScene();
@@ -210,7 +207,8 @@ void Scene::RenderScene()
         {
             meshPass->AddMeshBatch(std::move(batch));
 
-            RenderGraph::Get().AddTask(std::move(meshPass));
+			std::unique_ptr<RenderPass> pass(std::move(meshPass));
+            RenderGraph::Get().AddTask(std::move(pass));
         }
     }
 }

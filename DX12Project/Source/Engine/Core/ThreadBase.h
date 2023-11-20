@@ -39,8 +39,18 @@ public:
 
 	static GenericThread* Create(Task* InAction, ThreadType InThreadType, ThreadPriority InPriority = ThreadPriority::Normal);
 
+	// Temporarily stop this thread not to use system resources.
+	// This function is usually called for waiting a specific resource.
 	virtual void Suspend() = 0;
+
+	// Run this thread back on.
+	virtual void Resume() = 0;
+
+	// Force stop this thread.
 	virtual void Kill() = 0;
+
+	bool IsTaskAllocated() const;
+	void SetTask(Task* InTask);
 
 protected:
 	virtual bool CreateInternal(Task* InAction, ThreadType InThreadType, ThreadPriority InPriority) = 0;
@@ -50,30 +60,4 @@ protected:
 
 	ThreadPriority Priority;
 	ThreadType Type;
-};
-
-class ThreadPool : public Uncopyable
-{
-public:
-	ThreadPool();
-	virtual ~ThreadPool();
-
-	static ThreadPool& Get();
-
-	void Enqueue(Task*&& InTask, ThreadType InType = ThreadType::Worker);
-
-private:
-	void Run();
-	void StopAll();
-
-private:
-	std::vector<std::thread> Backgrounds; // Worker threads
-	std::queue<Task*> Tasks;
-
-	std::condition_variable Condition;
-	std::mutex Mutex;
-
-	bool bStopAll = false;
-
-	const int PoolSize = 2;
 };

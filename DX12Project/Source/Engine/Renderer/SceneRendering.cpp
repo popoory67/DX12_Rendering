@@ -9,15 +9,11 @@ bool SceneRenderer::Initialize()
 
 void SceneRenderer::BeginRender()
 {
-	// Set root signatures on a command list
-
     RenderGraph::Get().Execute();
 }
 
 void SceneRenderer::Render(RHICommandContext& InContext)
 {	
-	// Set constant buffers
-
 	InContext.ExecuteCommands();
 }
 

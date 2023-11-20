@@ -29,20 +29,22 @@ protected:
 // for example, base color, lighting, shadows, reflection, and so on.
 // It is sometimes compared with the understanding of an image layer, but not the same thing.
 // Because the pass contains the meaning of process, such as the process to calculate the base color with textures and modeling assets and draw a 2D texture to frame buffer on VRAM.
-class RenderPass
+class RenderPass : public TaskNode
 {
 public:
 	RenderPass();
 	virtual ~RenderPass() = default;
-	RenderPass(RenderPass&&) = default;
-	RenderPass& operator=(RenderPass&&) = default;
 
 	virtual void DoTask() {}
-	constexpr int GetPriority() { return Priority; }
+
+	unsigned int GetPriority()
+	{
+		return static_cast<unsigned int>(Type);
+	}
 
 protected:
-	int Priority;
 	RenderPassType Type;
+	RenderPassType Prerequisite;
 };
 
 class RenderGraph : public TaskGraph<RenderPass>
@@ -52,8 +54,6 @@ public:
 	virtual ~RenderGraph() = default;
 
 	static RenderGraph& Get();
-
-	void AddTask(std::unique_ptr<RenderPass> InRenderPass);
 
 	// TODO
 	// Manage and clear tasks

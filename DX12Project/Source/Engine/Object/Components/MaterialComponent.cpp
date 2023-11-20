@@ -36,9 +36,11 @@ void MaterialComponent::UpdateResources()
 {
     GetProxy().ShaderInfo_VS.Bytecode = reinterpret_cast<BYTE*>(ShaderCode_VS.data());
     GetProxy().ShaderInfo_VS.BytecodeLength = ShaderCode_VS.size();
+    GetProxy().ShaderInfo_VS.Hash = ShaderCode_VS_Hash;
 
     GetProxy().ShaderInfo_FS.Bytecode = reinterpret_cast<BYTE*>(ShaderCode_FS.data());
     GetProxy().ShaderInfo_FS.BytecodeLength = ShaderCode_FS.size();
+    GetProxy().ShaderInfo_FS.Hash = ShaderCode_FS_Hash;
 
     GetProxy().TextureInfo = &Settings;
 }
@@ -48,20 +50,22 @@ MaterialProxy& MaterialComponent::GetProxy() const
     return *Proxy;
 }
 
-void MaterialComponent::SetTexture(const std::wstring& InPath)
+void MaterialComponent::SetTexture(const std::wstring& InAssetName)
 {
-    LoadTexture(InPath.c_str());
+    LoadTexture(Util::GetAssetFullPath(InAssetName));
 }
 
-void MaterialComponent::SetShader(const std::wstring& InPath, ShaderType InShaderType)
+void MaterialComponent::SetShader(const std::wstring& InAssetName, ShaderType InShaderType)
 {
     if (InShaderType == ShaderType::Vertex)
     {
-        ShaderCode_VS = LoadShader(InPath);
+        ShaderCode_VS = LoadShader(Util::GetShaderAssetFullPath(InAssetName));
+        ShaderCode_VS_Hash = std::hash<std::wstring>()(InAssetName);
     }
     else if (InShaderType == ShaderType::Fragment)
     {
-        ShaderCode_FS = LoadShader(InPath);
+        ShaderCode_FS = LoadShader(Util::GetShaderAssetFullPath(InAssetName));
+        ShaderCode_FS_Hash = std::hash<std::wstring>()(InAssetName);
     }
 }
 

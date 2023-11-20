@@ -12,6 +12,7 @@ struct ShaderBinding
 	SIZE_T BytecodeLength;
 	BYTE* Bytecode = nullptr;
 	ShaderType Type;
+	size_t Hash;
 };
 
 struct TextureSettings

@@ -26,8 +26,8 @@ public:
 
 	MaterialProxy& GetProxy() const;
 
-	void SetTexture(const std::wstring& InPath);
-	void SetShader(const std::wstring& InPath, ShaderType InShaderType);
+	void SetTexture(const std::wstring& InAssetName);
+	void SetShader(const std::wstring& InAssetName, ShaderType InShaderType);
 
 protected:
 	void Initialize() override;
@@ -40,7 +40,10 @@ private:
 	TextureSettings Settings;
 
 	std::vector<char> ShaderCode_VS;
+	size_t ShaderCode_VS_Hash;
+
 	std::vector<char> ShaderCode_FS;
+	size_t ShaderCode_FS_Hash;
 
 	MaterialProxy* Proxy = nullptr;
 };

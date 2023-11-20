@@ -13,6 +13,7 @@ public:
 	static GenericThread* CreateThread();
 
 	void Suspend() override;
+	void Resume() override;
 	void Kill() override;
 
 	bool CreateInternal(class Task* InAction, ThreadType InThreadType, ThreadPriority InPriority) override;
@@ -20,6 +21,13 @@ public:
 protected:
 	void ThreadProc();
 
+	void Wait();
+	bool IsSuspended() const;
+
 protected:
 	std::thread Thread;
+
+	std::condition_variable Condition;
+	std::mutex Mutex;
+	bool bSuspended = false;
 };

@@ -229,8 +229,6 @@ void D3D12CommandList::CopyResourceRegion(RHIResource* InDestResource, RHIResour
     GetCommandList()->CopyTextureRegion(&dest, 0, 0, 0, &source, nullptr);
 
     AddTransition(destResource, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
-    //SafeDelete(sourceResource);
 }
 
 void D3D12CommandList::AddTransition(D3D12Resource* InResource, const D3D12_RESOURCE_STATES& InAfterState)

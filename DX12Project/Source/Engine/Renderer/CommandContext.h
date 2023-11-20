@@ -4,9 +4,14 @@
 #include <memory>
 #include <queue>
 #include <vector>
-#include <list>
+#include <mutex>
 
 extern class RHICommandContext GCommandContext;
+
+static class RHICommandContext& GetCommandContext()
+{
+	return GCommandContext;
+}
 
 class RHICommandList;
 
@@ -59,4 +64,6 @@ private:
 	mutable PriorityQueue_Commands Commands;
 
 	mutable bool bClose = false;
+
+	mutable std::mutex Mutex;
 };

@@ -1,7 +1,6 @@
 #include "D3D12Resource.h"
 #include "D3D12Device.h"
 #include "D3DUtil.h"
-#include "DDSTextureLoader.h"
 
 D3D12Resource::D3D12Resource(ComPtr<ID3D12Resource>&& InResource, unsigned int InSize/* = 0*/, unsigned int InStride/* = 0*/)
 	: Resource(std::move(InResource))

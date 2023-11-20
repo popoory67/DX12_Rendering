@@ -122,14 +122,14 @@ PrimitiveProxy* PrimitiveComponent::CreateProxy()
 	return proxy;
 }
 
-void PrimitiveComponent::SetMeshModel(const std::wstring& InPath)
+void PrimitiveComponent::SetMeshModel(const std::wstring& InAssetName)
 {
     if (!Builder)
     {
         Builder = std::make_unique<PrimitiveBuilder>();
     }
 
-    Builder->LoadStaticMesh(InPath);
+    Builder->LoadStaticMesh(Util::GetAssetFullPath(InAssetName));
 }
 
 void PrimitiveComponent::CreateResource()

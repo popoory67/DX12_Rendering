@@ -1,13 +1,12 @@
 #include "Application.h"
 #include "InputManager.h"
-#include "ThreadBase.h"
+#include "ThreadPool.h"
 #include "GameTimer.h"
 #include "RenderThread.h"
 #include "GameThread.h"
 #include "CommandList.h"
 #include "Viewport.h"
-#include <condition_variable>
-#include <mutex>
+#include "PipelineState.h"
 
 void* Application::MainWindowHandle = nullptr;
 float Application::ClientWidth = 800.0f;
@@ -27,17 +26,21 @@ Application::~Application()
 
 bool Application::Initialize()
 {
-    std::shared_ptr<std::mutex> mutex = std::make_shared<std::mutex>();
-    std::shared_ptr<std::condition_variable> condition = std::make_shared<std::condition_variable>();
+    GameThread::StartGameThread();
+    RenderThread::StartRenderThread();
 
-    GameThread::StartGameThread(mutex, condition);
-    RenderThread::StartRenderThread(mutex, condition);
+    // Worker thread
+    {
+        //PSOLibrary* psoCache = new PSOLibrary();
+        //ThreadPool::Get().Enqueue(psoCache, ThreadType::Worker);
+    }
 
 	return true;
 }
 
 int Application::Run()
 {
+    //ThreadPool::Get().Run();
 	return 1;
 }
 

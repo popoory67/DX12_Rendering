@@ -28,9 +28,9 @@ void TestScene::Start()
 
         if (auto material = Wolf->GetComponent<MaterialComponent>())
         {
-            material->SetTexture(L"../Resources/Obj/wolf/textures/Wolf_Body.jpg");
-            material->SetShader(L"./Shaders/ByteCodes/TestShader_vs.cso", ShaderType::Vertex);
-            material->SetShader(L"./Shaders/ByteCodes/TestShader_fs.cso", ShaderType::Fragment);
+            material->SetTexture(L"Obj/wolf/textures/Wolf_Body.jpg");
+            material->SetShader(L"TestShader_vs.cso", ShaderType::Vertex);
+            material->SetShader(L"TestShader_fs.cso", ShaderType::Fragment);
         }
     }
 

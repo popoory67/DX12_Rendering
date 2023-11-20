@@ -56,7 +56,7 @@ unsigned int MeshRenderBatch::GetStride() const
 
 MeshRenderPass::MeshRenderPass()
 {
-    Priority = 5; // TODO : test
+    Type = RenderPassType::Base;
 }
 
 MeshRenderPass::~MeshRenderPass()
@@ -97,38 +97,33 @@ void MeshRenderPass::DoTask()
             resource = element.MaterialShaderProxy->TextureInfo;
             vsShader = &element.MaterialShaderProxy->ShaderInfo_VS;
             fsShader = &element.MaterialShaderProxy->ShaderInfo_FS;
+
+            // PSO
+
         }
     }
 
-    TaskGraphSystem::Get().AddTask<RenderCommand>([vertexStream = std::move(vertexStream), 
-        indexStream = std::move(indexStream),
-        stride,
-        resource,
-        vsShader,
-        fsShader](const RHICommandContext& InContext) mutable
+    int indicesSize = indexStream.size();
+
+    auto primitiveCommand = RHICommand_SetPrimitive::Create(
+        std::move(vertexStream),
+        std::move(indexStream),
+        stride);
+
+    // TODO
+    // test
+    auto drawPrimitive = RHICommand_DrawPrimitive::Create(indicesSize);
     {
-        int indicesSize = indexStream.size();
+        GetCommandContext().AddCommand(primitiveCommand);
+        GetCommandContext().AddCommand(drawPrimitive);
+    }
 
-        auto primitiveCommand = RHICommand_SetPrimitive::Create(
-            std::move(vertexStream), 
-            std::move(indexStream), 
-            stride);
+    // shader test
+    auto shaderCommand = RHICommand_SetShaderResource::Create(resource);
+    {
+        shaderCommand->AddShader(vsShader);
+        shaderCommand->AddShader(fsShader);
 
-        // TODO
-        // test
-        auto drawPrimitive = RHICommand_DrawPrimitive::Create(indicesSize);
-
-        InContext.AddCommand(primitiveCommand);
-        InContext.AddCommand(drawPrimitive);
-
-        // shader test
-        auto shaderCommand = RHICommand_SetShaderResource::Create(resource);
-        {
-            shaderCommand->AddShader(vsShader);
-            shaderCommand->AddShader(fsShader);
-
-            InContext.AddCommand(shaderCommand);
-        }
-
-    }, ThreadType::Render);
+        GetCommandContext().AddCommand(shaderCommand);
+    }
 }

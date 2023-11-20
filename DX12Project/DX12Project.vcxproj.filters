@@ -42,9 +42,6 @@
     <ClCompile Include="Source\D3D12\D3DUtil.cpp">
       <Filter>D3D12\Private</Filter>
     </ClCompile>
-    <ClCompile Include="Source\D3D12\FrameResource.cpp">
-      <Filter>D3D12\Private</Filter>
-    </ClCompile>
     <ClCompile Include="Source\D3D12\D3D12Commands.cpp">
       <Filter>D3D12\Private</Filter>
     </ClCompile>
@@ -55,9 +52,6 @@
       <Filter>D3D12\Private</Filter>
     </ClCompile>
     <ClCompile Include="Source\D3D12\D3D12Descriptor.cpp">
-      <Filter>D3D12\Private</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\D3D12\DDSTextureLoader.cpp">
       <Filter>D3D12\Private</Filter>
     </ClCompile>
     <ClCompile Include="Source\D3D12\D3D12Fence.cpp">
@@ -165,18 +159,14 @@
     <ClCompile Include="Source\Engine\Object\Components\MaterialComponent.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\MeshComponent.cpp" />
     <ClCompile Include="TestEntities.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\PipelineState.cpp" />
+    <ClCompile Include="Source\Engine\Core\ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3DUtil.h">
       <Filter>D3D12\Public</Filter>
     </ClInclude>
-    <ClInclude Include="Source\D3D12\FrameResource.h">
-      <Filter>D3D12\Public</Filter>
-    </ClInclude>
     <ClInclude Include="Source\D3D12\d3dx12.h">
-      <Filter>D3D12\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\D3D12\UploadBuffer.h">
       <Filter>D3D12\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\D3D12\D3D12Commands.h">
@@ -189,9 +179,6 @@
       <Filter>D3D12\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\D3D12\D3D12Descriptor.h">
-      <Filter>D3D12\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\D3D12\DDSTextureLoader.h">
       <Filter>D3D12\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\D3D12\D3D12Fence.h">
@@ -292,6 +279,8 @@
     <ClInclude Include="Source\Engine\Object\Components\MaterialComponent.h" />
     <ClInclude Include="Source\Engine\Object\Components\MeshComponent.h" />
     <ClInclude Include="TestEntities.h" />
+    <ClInclude Include="Source\Engine\Renderer\PipelineState.h" />
+    <ClInclude Include="Source\Engine\Core\ThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" />

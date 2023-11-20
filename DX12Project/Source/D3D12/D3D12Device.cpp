@@ -102,7 +102,7 @@ void D3D12Device::Initialize()
 		std::unique_ptr<D3D12CommandList> commandList = std::make_unique<D3D12CommandList>(this);
         commandList->Initialize();
 
-        GCommandContext.AddCommandList(std::move(commandList));
+		GetCommandContext().AddCommandList(std::move(commandList));
     }
 }
 

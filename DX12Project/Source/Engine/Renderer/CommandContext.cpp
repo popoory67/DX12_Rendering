@@ -22,24 +22,29 @@ RHICommandList& RHICommandContext::GetCommandList() const
 
 void RHICommandContext::AddCommand(RHICommand* InCommand) const
 {
-    std::unique_ptr<RHICommand> command(InCommand);
-
-    Commands.push(std::move(command));
+    std::lock_guard<std::mutex> lock(Mutex);
+    {
+        std::unique_ptr<RHICommand> command(InCommand);
+        Commands.push(std::move(command));
+    }
 }
 
 void RHICommandContext::ExecuteCommands()
 {
-    // TODO
-    // Processing commands on a concurrency task with a priority
-    bClose = false;
-
-    while (!Commands.empty() && !bClose)
+    std::lock_guard<std::mutex> lock(Mutex);
     {
-        std::unique_ptr<RHICommand> command = Commands.pop_move();
-        command->Execute(*this);
-    }
+        // TODO
+        // Processing commands on a concurrency task with a priority
+        bClose = false;
 
-    Close();
+        while (!Commands.empty() && !bClose)
+        {
+            std::unique_ptr<RHICommand> command = Commands.pop_move();
+            command->Execute(*this);
+        }
+
+        Close();
+    }
 }
 
 void RHICommandContext::CleanUp()

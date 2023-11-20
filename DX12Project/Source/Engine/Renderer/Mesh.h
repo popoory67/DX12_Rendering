@@ -71,7 +71,7 @@ struct MeshRenderBatch : public RenderBatch
 	void AddElement(MeshRenderBatchElement&& InMeshElement);
 	unsigned int GetStride() const;
 
-	unsigned int Count;
+	size_t Count;
 	std::vector<MeshRenderBatchElement> Elements;
 };
 
@@ -81,14 +81,16 @@ class MeshRenderPass : public RenderPass
 public:
 	MeshRenderPass();
 	virtual ~MeshRenderPass();
-	MeshRenderPass(MeshRenderPass&& InPass)
+
+	MeshRenderPass(MeshRenderPass&& InPass) noexcept
 	{
 		Batches = std::move(InPass.Batches);
 	}
 
-	MeshRenderPass& operator=(MeshRenderPass&& InPass)
+	MeshRenderPass& operator=(MeshRenderPass&& InPass) noexcept
 	{
 		Batches = std::move(InPass.Batches);
+		return *this;
 	}
 
 	void AddMeshBatch(MeshRenderBatch&& InBatch);

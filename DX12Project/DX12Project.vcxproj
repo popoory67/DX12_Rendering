@@ -33,12 +33,11 @@
     <ClCompile Include="Source\D3D12\D3D12View.cpp" />
     <ClCompile Include="Source\D3D12\D3D12Viewport.cpp" />
     <ClCompile Include="Source\D3D12\D3DUtil.cpp" />
-    <ClCompile Include="Source\D3D12\DDSTextureLoader.cpp" />
     <ClCompile Include="Source\D3D12\DXMeshLoader.cpp" />
-    <ClCompile Include="Source\D3D12\FrameResource.cpp" />
     <ClCompile Include="Source\Engine\Application.cpp" />
     <ClCompile Include="Source\Engine\Core\GameThread.cpp" />
     <ClCompile Include="Source\Engine\Core\TaskGraph.cpp" />
+    <ClCompile Include="Source\Engine\Core\ThreadPool.cpp" />
     <ClCompile Include="Source\Engine\Core\WindowsThread.cpp" />
     <ClCompile Include="Source\Engine\Events\InputManager.cpp" />
     <ClCompile Include="Source\Engine\Object\Camera.cpp" />
@@ -49,6 +48,7 @@
     <ClCompile Include="Source\Engine\Object\Components\MeshComponent.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\PrimitiveComponent.cpp" />
     <ClCompile Include="Source\Engine\Object\Components\RenderComponent.cpp" />
+    <ClCompile Include="Source\Engine\Renderer\PipelineState.cpp" />
     <ClCompile Include="TestEntities.cpp" />
     <ClCompile Include="Source\Engine\Object\Entity.cpp" />
     <ClCompile Include="Source\Engine\Object\Scene.cpp" />
@@ -88,14 +88,12 @@
     <ClInclude Include="Source\D3D12\D3D12Viewport.h" />
     <ClInclude Include="Source\D3D12\D3DUtil.h" />
     <ClInclude Include="Source\D3D12\d3dx12.h" />
-    <ClInclude Include="Source\D3D12\DDSTextureLoader.h" />
     <ClInclude Include="Source\D3D12\DXMeshLoader.h" />
-    <ClInclude Include="Source\D3D12\FrameResource.h" />
-    <ClInclude Include="Source\D3D12\UploadBuffer.h" />
     <ClInclude Include="Source\Engine\Application.h" />
     <ClInclude Include="Source\Engine\Core\GameThread.h" />
     <ClInclude Include="Source\Engine\Core\Global.h" />
     <ClInclude Include="Source\Engine\Core\TaskGraph.h" />
+    <ClInclude Include="Source\Engine\Core\ThreadPool.h" />
     <ClInclude Include="Source\Engine\Core\WindowsThread.h" />
     <ClInclude Include="Source\Engine\Events\InputManager.h" />
     <ClInclude Include="Source\Engine\Object\Camera.h" />
@@ -106,6 +104,7 @@
     <ClInclude Include="Source\Engine\Object\Components\MeshComponent.h" />
     <ClInclude Include="Source\Engine\Object\Components\PrimitiveComponent.h" />
     <ClInclude Include="Source\Engine\Object\Components\RenderComponent.h" />
+    <ClInclude Include="Source\Engine\Renderer\PipelineState.h" />
     <ClInclude Include="TestEntities.h" />
     <ClInclude Include="Source\Engine\Object\Entity.h" />
     <ClInclude Include="Source\Engine\Object\Scene.h" />

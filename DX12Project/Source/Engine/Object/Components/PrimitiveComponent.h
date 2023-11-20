@@ -49,7 +49,7 @@ public:
 	virtual PrimitiveProxy* CreateProxy();
 
 	UINT GetIndex() const { return Index; }
-	void SetMeshModel(const std::wstring& InPath);
+	void SetMeshModel(const std::wstring& InAssetName);
 
 protected:
 	virtual void CreateResource();
