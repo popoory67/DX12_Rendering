@@ -25,6 +25,10 @@ void RHICommandContext::AddCommand(RHICommand* InCommand) const
     std::lock_guard<std::mutex> lock(Mutex);
     {
         std::unique_ptr<RHICommand> command(InCommand);
+        if (command->GetPriority() == PipelinePrioirty::Draw)
+        {
+            bClose = false;
+        }
         Commands.push(std::move(command));
     }
 }
@@ -33,17 +37,16 @@ void RHICommandContext::ExecuteCommands()
 {
     std::lock_guard<std::mutex> lock(Mutex);
     {
-        // TODO
-        // Processing commands on a concurrency task with a priority
-        bClose = false;
-
-        while (!Commands.empty() && !bClose)
+        if (bClose)
         {
-            std::unique_ptr<RHICommand> command = Commands.pop_move();
-            command->Execute(*this);
+            ExecuteCommandsInternal(BackupCommands, Commands);
+            BackupCommands = std::move(Commands);
         }
-
-        Close();
+        else
+        {
+            ExecuteCommandsInternal(Commands, BackupCommands);
+            Close();
+        }
     }
 }
 
@@ -57,4 +60,17 @@ void RHICommandContext::Close()
     bClose = true;
 
     CurrentCommandListHandle = (CurrentCommandListHandle + 1) % CommandLists.size();
+}
+
+void RHICommandContext::ExecuteCommandsInternal(PriorityQueue_Commands& InExecutable, PriorityQueue_Commands& InBackup)
+{
+    InBackup = PriorityQueue_Commands{};
+
+    while (!InExecutable.empty())
+    {
+        std::unique_ptr<RHICommand> command = InExecutable.pop_move();
+        command->Execute(*this);
+
+        InBackup.push(std::move(command));
+    }
 }

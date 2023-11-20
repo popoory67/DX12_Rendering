@@ -6,7 +6,7 @@
 
 using namespace DirectX;
 
-enum class PipelinePrioirty : unsigned int
+enum class PipelinePrioirty : short
 {
 	PreRender = 0,
 	BeginRender,
@@ -119,7 +119,7 @@ RHICOMMAND(RHICommand_DrawPrimitive)
 {
 public:
 	RHICommand_DrawPrimitive() = delete;
-	RHICommand_DrawPrimitive(unsigned int InCount); // test parameter
+	RHICommand_DrawPrimitive(unsigned int InCount);
 	virtual ~RHICommand_DrawPrimitive() = default;
 
 	void Execute(const RHICommandContext& InContext) override;

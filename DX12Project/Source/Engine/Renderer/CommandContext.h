@@ -17,24 +17,6 @@ class RHICommandList;
 
 class RHICommandContext : public Uncopyable
 {
-public:
-	static const int GetCommandListCount();
-
-	RHICommandList& GetCommandList() const;
-	void AddCommandList(std::unique_ptr<RHICommandList>&& InCommandList);
-	void AddCommand(struct RHICommand* InCommand) const;
-	void ExecuteCommands();
-
-	void CleanUp();
-
-private:
-	void Close();
-
-private:
-	std::vector<std::unique_ptr<RHICommandList>> CommandLists;
-	unsigned int CurrentCommandListHandle = 0;
-	static const int CommandListCount;
-
 	template<typename T, typename Container = std::vector<T>, typename Compare = std::less<typename Container::value_type>>
 	class PriorityQueue : public std::priority_queue<T, Container, Compare>
 	{
@@ -61,7 +43,28 @@ private:
 
 	using PriorityQueue_Commands = PriorityQueue<std::unique_ptr<struct RHICommand>, std::vector<std::unique_ptr<struct RHICommand>>, Compare>;
 
+public:
+	static const int GetCommandListCount();
+
+	RHICommandList& GetCommandList() const;
+	void AddCommandList(std::unique_ptr<RHICommandList>&& InCommandList);
+	void AddCommand(struct RHICommand* InCommand) const;
+	void ExecuteCommands();
+
+	void CleanUp();
+
+private:
+	void Close();
+
+	void ExecuteCommandsInternal(PriorityQueue_Commands& InExecutable, PriorityQueue_Commands& InBackup);
+
+private:
+	std::vector<std::unique_ptr<RHICommandList>> CommandLists;
+	unsigned int CurrentCommandListHandle = 0;
+	static const int CommandListCount;
+
 	mutable PriorityQueue_Commands Commands;
+	mutable PriorityQueue_Commands BackupCommands;
 
 	mutable bool bClose = false;
 

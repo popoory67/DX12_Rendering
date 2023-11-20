@@ -109,12 +109,14 @@ void MeshRenderPass::DoTask()
         std::move(vertexStream),
         std::move(indexStream),
         stride);
+    {
+        GetCommandContext().AddCommand(primitiveCommand);
+    }
 
     // TODO
     // test
     auto drawPrimitive = RHICommand_DrawPrimitive::Create(indicesSize);
     {
-        GetCommandContext().AddCommand(primitiveCommand);
         GetCommandContext().AddCommand(drawPrimitive);
     }
 
