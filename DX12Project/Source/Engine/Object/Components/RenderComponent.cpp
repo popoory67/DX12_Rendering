@@ -6,23 +6,3 @@ RenderComponent::RenderComponent(Scene* InScene, Component* InParent)
 {
 
 }
-
-UINT RenderComponent::GetBindingSize()
-{
-	size_t size = 0;
-	for (auto it = Bindings.cbegin(); it != Bindings.cend(); ++it)
-	{
-		size += sizeof(it->second);
-	}
-
-	return D3DUtil::CalcConstantBufferByteSize((UINT)size);
-}
-
-// temporary
-#include "Material.h"
-#include "MathHelper.h"
-
-MaterialComponent::~MaterialComponent()
-{
-
-}

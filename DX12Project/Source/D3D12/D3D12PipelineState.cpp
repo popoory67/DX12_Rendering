@@ -3,6 +3,7 @@
 #include "D3D12Viewport.h"
 #include "D3D12Commands.h"
 #include "D3D12RootSignature.h"
+#include "D3D12Descriptor.h"
 #include "D3DUtil.h"
 
 D3D12PipelineState::D3D12PipelineState(D3D12Device* InDevice, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& InDesc)
@@ -83,12 +84,6 @@ void D3D12PipelineStateCache::SetStreamResource(D3D12Buffer* InVertexBuffer, uin
 		{
 			memcpy_s(&CurrentVertexCache, sizeof(CurrentVertexCache), &view, sizeof(view));
 		}
-		//else
-		//{
-  //          CurrentVertexCache.BufferLocation = CurrentVertexCache.BufferLocation + view.BufferLocation;
-  //          CurrentVertexCache.StrideInBytes = view.StrideInBytes;
-  //          CurrentVertexCache.SizeInBytes = view.SizeInBytes;
-		//}
 	}
 
 	// Index
@@ -105,17 +100,24 @@ void D3D12PipelineStateCache::SetStreamResource(D3D12Buffer* InVertexBuffer, uin
 			view.Format != CurrentIndexCache.Format ||
 			view.SizeInBytes != CurrentIndexCache.SizeInBytes)
 		{
-            //CurrentIndexCache.BufferLocation = CurrentIndexCache.BufferLocation + CurrentVertexCache.BufferLocation + view.BufferLocation;
-            //CurrentIndexCache.Format = view.Format;
-            //CurrentIndexCache.SizeInBytes = view.SizeInBytes;
 			memcpy_s(&CurrentIndexCache, sizeof(CurrentIndexCache), &view, sizeof(view));
 		}
-		//else
-		//{
-		//	CurrentIndexCache.BufferLocation = CurrentIndexCache.BufferLocation + virtualAddress + view.BufferLocation;
-		//	CurrentIndexCache.Format = view.Format;
-		//	CurrentIndexCache.SizeInBytes = view.SizeInBytes;
-		//}
+	}
+}
+
+void D3D12PipelineStateCache::SetShaderBinding(ShaderBinding& InShaderBinding)
+{
+	ShaderType type = InShaderBinding.Type;
+
+	switch (type)
+	{
+	case ShaderType::Vertex:
+		//StateCache.CurrentPipelineState->GetDesc().VS = { InShaderBinding.Bytecode };
+		StateCache.VS = &InShaderBinding;
+		break;
+	case ShaderType::Fragment:
+		StateCache.FS = &InShaderBinding;
+		break;
 	}
 }
 

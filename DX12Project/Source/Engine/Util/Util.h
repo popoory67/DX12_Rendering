@@ -2,18 +2,6 @@
 #include <windows.h>
 #include <string>
 
-inline std::wstring AnsiToWString(const std::string& str)
-{
-	WCHAR buffer[512];
-	MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, buffer, 512);
-	return std::wstring(buffer);
-}
-
-#if defined(DEBUG) || defined(_DEBUG)
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-#endif
-
 #ifndef SafeDelete
 #define SafeDelete(x) { if (x) { delete(x); x = nullptr; } }
 #endif
@@ -43,4 +31,27 @@ protected:
 private:
 	Uncopyable(const Uncopyable&) = delete;
 	Uncopyable& operator=(const Uncopyable&) = delete;
+};
+
+namespace Util
+{
+	const std::wstring ShaderPath = L"./Shaders/ByteCodes/";
+	const std::wstring AssetPath = L"../Resources/";
+
+	inline std::wstring AnsiToWString(const std::string& InStr)
+	{
+		WCHAR buffer[512];
+		MultiByteToWideChar(CP_ACP, 0, InStr.c_str(), -1, buffer, 512);
+		return std::wstring(buffer);
+	}
+
+	inline std::wstring GetShaderAssetFullPath(const std::wstring& InAssetName)
+	{
+		return ShaderPath + InAssetName;
+	}
+
+	inline std::wstring GetAssetFullPath(const std::wstring& InAssetName)
+	{
+		return AssetPath + InAssetName;
+	}
 };

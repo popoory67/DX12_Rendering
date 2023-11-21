@@ -56,7 +56,7 @@ unsigned int MeshRenderBatch::GetStride() const
 
 MeshRenderPass::MeshRenderPass()
 {
-    Priority = 5; // TODO : test
+    Type = RenderPassType::Base;
 }
 
 MeshRenderPass::~MeshRenderPass()
@@ -81,32 +81,51 @@ void MeshRenderPass::DoTask()
     VertexStream vertexStream{};
     IndexStream indexStream{};
 
+    // test
+    TextureSettings* resource = nullptr;
+    ShaderBinding* vsShader = nullptr;
+    ShaderBinding* fsShader = nullptr;
+
     for (const auto& batch : Batches)
     {
         for (const auto& element : batch.Elements)
         {
             vertexStream.insert(vertexStream.end(), std::make_move_iterator(element.Vertices.begin()), std::make_move_iterator(element.Vertices.end()));
             indexStream.insert(indexStream.end(), std::make_move_iterator(element.Indices.begin()), std::make_move_iterator(element.Indices.end()));
+
+            // test
+            resource = element.MaterialShaderProxy->TextureInfo;
+            vsShader = &element.MaterialShaderProxy->ShaderInfo_VS;
+            fsShader = &element.MaterialShaderProxy->ShaderInfo_FS;
+
+            // PSO
+
         }
     }
 
-    TaskGraphSystem::Get().AddTask<RenderCommand>([vertexStream = std::move(vertexStream), 
-        indexStream = std::move(indexStream),
-        stride](const RHICommandContext& InContext) mutable
+    int indicesSize = indexStream.size();
+
+    auto primitiveCommand = RHICommand_SetPrimitive::Create(
+        std::move(vertexStream),
+        std::move(indexStream),
+        stride);
     {
-        int indicesSize = indexStream.size();
+        GetCommandContext().AddCommand(primitiveCommand);
+    }
 
-        auto primitiveCommand = RHICommand_SetPrimitive::Create(
-            std::move(vertexStream), 
-            std::move(indexStream), 
-            stride);
+    // TODO
+    // test
+    auto drawPrimitive = RHICommand_DrawPrimitive::Create(indicesSize);
+    {
+        GetCommandContext().AddCommand(drawPrimitive);
+    }
 
-        // TODO
-        // test
-        auto drawPrimitive = RHICommand_DrawPrimitive::Create(indicesSize);
+    // shader test
+    auto shaderCommand = RHICommand_SetShaderResource::Create(resource);
+    {
+        shaderCommand->AddShader(vsShader);
+        shaderCommand->AddShader(fsShader);
 
-        InContext.AddCommand(primitiveCommand);
-        InContext.AddCommand(drawPrimitive);
-
-    }, ThreadType::Render);
+        GetCommandContext().AddCommand(shaderCommand);
+    }
 }

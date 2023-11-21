@@ -5,6 +5,25 @@
 #include <queue>
 #include <assert.h>
 
+class TaskNode
+{
+public:
+	TaskNode() = default;
+	virtual ~TaskNode() = default;
+
+	TaskNode(const TaskNode&) = default;
+	TaskNode(TaskNode&&) = default;
+	TaskNode& operator=(TaskNode&&) = default;
+
+	std::vector<unsigned int>& GetDependencies()
+	{
+		return Dependencies;
+	}
+
+protected:
+	std::vector<unsigned int> Dependencies;
+};
+
 class TaskGraphBase : public Uncopyable
 {
 	friend class TaskGraphSystem;
@@ -14,14 +33,9 @@ public:
 	virtual ~TaskGraphBase() = default;
 
 	virtual void Execute() {}
-	virtual bool IsCompleted() { return true; }
-
-protected:
-	TaskGraphBase* Prerequisite = nullptr; // prev
-	TaskGraphBase* Subsequent = nullptr; // next
 };
 
-template<class TaskType>
+template<class TaskType = TaskNode>
 class TaskGraph : public TaskGraphBase
 {
 public:
@@ -40,76 +54,63 @@ public:
 	template<class Lambda>
 	void AddTask(Lambda&& InLambda)
 	{
-		TaskInternal = std::make_unique<TaskType>(std::forward<Lambda>(InLambda));
+		std::unique_ptr<TaskType> task = std::make_unique<TaskType>(std::forward<Lambda>(InLambda));
+
+		AddTask(std::move(task));
 	}
 
-	void Execute()
+	void AddTask(std::unique_ptr<TaskType> InTaskNode)
 	{
-		if (Prerequisite && !Prerequisite->IsCompleted())
-		{
-			Prerequisite->Execute();
-			//return;
-		}
+		SetHighest(InTaskNode->GetPriority());
 
-		if (!IsCompleted())
-		{
-			TaskInternal->DoTask();
-
-			bCompleted = true;
-
-			// TODO
-			// concurrency switching
-		}
+		NextTaskGraph.emplace(InTaskNode->GetPriority(), std::move(InTaskNode));
 	}
 
-	FORCEINLINE bool IsCompleted() override
+	void Execute() override
 	{
-		return bCompleted;
-	}
-
-protected:
-	std::unique_ptr<TaskType> TaskInternal;
-
-	bool bCompleted = false;
-};
-
-class TaskGraphSystem : public Uncopyable
-{
-public:
-	virtual ~TaskGraphSystem();
-
-	static TaskGraphSystem& Get();
-	
-	// test
-	enum class ThreadType GetThreadState() const { return ThreadState; }
-	void SetThreadState(enum class ThreadType InThreadState) { ThreadState = InThreadState; }
-
-	template<class TaskType, class Lambda>
-	void AddTask(Lambda&& InLambda, enum class ThreadType InThreadType)
-	{
-		const auto& it = TaskGraphs.find(InThreadType);
-		if (it == TaskGraphs.cend())
+		if (CurrentTaskGraph.empty())
 		{
-			TaskGraphs[InThreadType] = TaskGraph<TaskType>::CreateGraph(std::forward<Lambda>(InLambda));
+			SwapBuffers();
 		}
-		else
+
+		while (!HighestTasks.empty())
 		{
-			TaskGraphBase* task = TaskGraph<TaskType>::CreateGraph(std::forward<Lambda>(InLambda));
-			AddTask(task, InThreadType);
+			unsigned int taskId = HighestTasks.front();
+			HighestTasks.pop();
+
+			if (CurrentTaskGraph.find(taskId) != CurrentTaskGraph.cend())
+			{
+				// TODO
+				// multithreading
+				std::unique_ptr<TaskType> task = std::move(CurrentTaskGraph[taskId]);
+				task->DoTask();
+
+				for (unsigned int id : task->GetDependencies())
+				{
+					HighestTasks.push(id);
+				}
+				CurrentTaskGraph.erase(taskId);
+			}
 		}
 	}
-
-	void AddTask(TaskGraphBase* InTaskGraph, enum class ThreadType InThreadType);
-
-	void Execute(enum class ThreadType InThreadType);
 
 private:
-	TaskGraphSystem();
+	void SwapBuffers()
+	{
+		CurrentTaskGraph = std::move(NextTaskGraph);
+	}
 
-	void Destroy();
+	void SetHighest(unsigned int InPriority)
+	{
+		if (HighestTasks.empty())
+		{
+			HighestTasks.push(InPriority);
+		}
+	}
 
 private:
-	enum class ThreadType ThreadState;
+	std::unordered_map<unsigned int, std::unique_ptr<TaskType>> CurrentTaskGraph;
+	std::unordered_map<unsigned int, std::unique_ptr<TaskType>> NextTaskGraph;
 
-	std::unordered_map<ThreadType, TaskGraphBase*> TaskGraphs;
+	std::queue<unsigned int> HighestTasks;
 };

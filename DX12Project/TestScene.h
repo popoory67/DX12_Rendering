@@ -1,22 +1,6 @@
 #pragma once
 #include "Scene.h"
 
-class Model : public Entity
-{
-	using Parent = Entity;
-
-public:
-	Model() = delete;
-	Model(class Scene* InScene);
-	virtual ~Model() = default;
-
-	void Initialize() override;
-
-private:
-	std::shared_ptr<class PrimitiveComponent> StaticMesh;
-	std::shared_ptr<class TransformComponent> OriginalTransform;
-};
-
 class TestScene : public Scene
 {
 	using Parent = Scene;
@@ -29,19 +13,8 @@ public:
 	void Update() override;
 
 private:
-	void UpCamera();
-	void DownCamera();
-	void LeftCamera();
-	void RightCamera();
+	std::shared_ptr<class ModelEntity> Wolf;
+	//std::shared_ptr<ModelEntity> Diamond;
 
-	void UpScrollCamera();
-	void DownScrollCamera();
-
-	void CameraReset();
-
-private:
-	std::shared_ptr<Model> Object;
-
-	std::shared_ptr<class CameraComponent> CameraController;
-	float MoveSpeed = 1.0f;
+	std::shared_ptr<class CameraEntity> Camera;
 };

@@ -1,11 +1,12 @@
 #pragma once
 #include "Util.h"
 #include "MathHelper.h"
+#include "RenderResource.h"
 #include <vector>
 
 using namespace DirectX;
 
-enum class PipelinePrioirty : unsigned int
+enum class PipelinePrioirty : short
 {
 	PreRender = 0,
 	BeginRender,
@@ -118,7 +119,7 @@ RHICOMMAND(RHICommand_DrawPrimitive)
 {
 public:
 	RHICommand_DrawPrimitive() = delete;
-	RHICommand_DrawPrimitive(unsigned int InCount); // test parameter
+	RHICommand_DrawPrimitive(unsigned int InCount);
 	virtual ~RHICommand_DrawPrimitive() = default;
 
 	void Execute(const RHICommandContext& InContext) override;
@@ -126,4 +127,32 @@ public:
 private:
 	unsigned int Count;
 	unsigned int Stride;
+};
+
+RHICOMMAND(RHICommand_SetShaderResource)
+{
+public:
+	RHICommand_SetShaderResource() = delete;
+	RHICommand_SetShaderResource(TextureSettings* InSettings);
+	virtual ~RHICommand_SetShaderResource();
+
+	void AddShader(ShaderBinding* InShaderBinding);
+	void Execute(const RHICommandContext& InContext) override;
+
+private:
+	TextureSettings* Settings = nullptr;
+	std::vector<ShaderBinding*> Shaders;
+};
+
+RHICOMMAND(RHICommand_SetPipelineState)
+{
+public:
+	RHICommand_SetPipelineState() = delete;
+	RHICommand_SetPipelineState(int InPipelineStateId);
+	virtual ~RHICommand_SetPipelineState() = default;
+
+	void Execute(const RHICommandContext& InContext) override;
+
+private:
+	int PipelineStateId = -1;
 };

@@ -37,11 +37,11 @@ void TransformComponent::SetRelativePosition(float InX, float InY, float InZ)
     WorldPosition.z += InZ;
 }
 
-void TransformComponent::SetRelativeRotation(float InX, float InY, float InZ /*= 0.0f*/)
+void TransformComponent::SetRelativeRotation(float InRoll, float InPitch, float InYaw /*= 0.0f*/)
 {
-    Rotation.x += InX;
-    Rotation.y += InY;
-    Rotation.z += InZ;
+    Rotation.x += InRoll;
+    Rotation.y += InPitch;
+    Rotation.z += InYaw;
 }
 
 void TransformComponent::SetTransform(const XMFLOAT3& InPosition, const XMFLOAT3& InRotation, const XMFLOAT3& InScale)

@@ -1,12 +1,13 @@
 #pragma once
 #include "D3D12Resource.h"
 #include "D3D12View.h"
-#include "D3D12Descriptor.h"
+#include "RenderResource.h"
+#include "PipelineState.h"
 #include <type_traits>
 #include <d3d12.h>
 #include <unordered_map>
 
-class D3D12PipelineState : public D3D12Api
+class D3D12PipelineState : public D3D12Api, public PipelineState
 {
 public:
 	D3D12PipelineState() = delete;
@@ -42,23 +43,24 @@ namespace D3D12GraphicsPipelineState
 {
 	struct Desc : public D3D12_GRAPHICS_PIPELINE_STATE_DESC
 	{
-		Desc()
+		//Desc() = delete;
+		Desc() = default;
+		Desc(size_t InVertexHash, size_t InFragmentHash)
 			: D3D12_GRAPHICS_PIPELINE_STATE_DESC()
+			, VertexShader(InVertexHash)
+			, FragmentShader(InFragmentHash)
 		{
-			// TODO
-			// Has it to be a UUID? (IID_PPV_ARGS)
-			static int counter = 0;
-			UniqueKey = ++counter;
 		}
 
-		int UniqueKey;
+		size_t VertexShader;
+		size_t FragmentShader;
 	};
 
 	struct Hash
 	{
 		std::size_t operator()(const Desc& InDesc) const
 		{
-			return std::hash<int>()(InDesc.UniqueKey);
+			return InDesc.VertexShader ^ InDesc.FragmentShader;
 		}
 	};
 
@@ -66,7 +68,8 @@ namespace D3D12GraphicsPipelineState
 	{
 		bool operator()(const Desc& lhs, const Desc& rhs) const
 		{
-			return lhs.UniqueKey == rhs.UniqueKey;
+			return lhs.VertexShader == rhs.VertexShader && 
+				lhs.FragmentShader == rhs.FragmentShader;
 		}
 	};
 };
@@ -85,6 +88,7 @@ public:
 	void SetViewport(const D3D12_VIEWPORT& InViewport, const D3D12_RECT& InRect);
 	void SetRenderTargets(D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, D3D12DepthStencilView* InDepthStencil);
 	void SetStreamResource(D3D12Buffer* InVertexBuffer, uint32_t StreamIndex, const UINT InIndicesSize = 0);
+	void SetShaderBinding(ShaderBinding& InShaderBinding);
 
 	void CreateAndAddCache(const D3D12GraphicsPipelineState::Desc& InDesc);
 	std::weak_ptr<D3D12PipelineState> FindCache(const D3D12GraphicsPipelineState::Desc& InDesc);
@@ -92,7 +96,7 @@ public:
 
 private:
 	
-	std::shared_ptr<D3D12DescriptorCache> DescriptorCache;
+	std::shared_ptr<class D3D12DescriptorCache> DescriptorCache;
 
 	struct
 	{
@@ -110,6 +114,9 @@ private:
 
 		D3D12VertexBufferCache VertexBufferCache;
 		D3D12IndexBufferCache IndexBufferCache;
+
+		ShaderBinding* VS;
+		ShaderBinding* FS;
 
 	} StateCache;
 

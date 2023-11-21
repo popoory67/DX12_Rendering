@@ -1,8 +1,10 @@
 #include "PrimitiveComponent.h"
 #include "RenderInterface.h"
 #include "Scene.h"
+#include "MaterialComponent.h"
 
 MeshLoader* PrimitiveBuilder::Loader = nullptr;
+std::unique_ptr<PrimitiveBuilder> PrimitiveComponent::Builder;
 
 PrimitiveBuilder::~PrimitiveBuilder()
 {
@@ -89,8 +91,6 @@ PrimitiveProxy::PrimitiveProxy(PrimitiveComponent* InComponent)
 
 }
 
-std::unique_ptr<PrimitiveBuilder> PrimitiveComponent::Builder;
-
 PrimitiveComponent::PrimitiveComponent(Scene* InScene, Component* InParent)
 	: Parent(InScene, InParent)
 {
@@ -102,17 +102,14 @@ PrimitiveComponent::~PrimitiveComponent()
 	SafeDelete(Proxy);
 }
 
-void PrimitiveComponent::SetMeshModel(const std::wstring& InPath)
+void PrimitiveComponent::UpdateResources()
 {
-	if (!Builder)
-	{
-		Builder = std::make_unique<PrimitiveBuilder>();
-	}
+    // After all resources setting, it has to be processed.
+	// TODO : When Dirty flag is changed, this function would be called.
+    CreateResource();
+    Builder->Build(Proxy);
 
-	CreateResource();
-
-	Builder->LoadStaticMesh(InPath);
-	Builder->Build(Proxy);
+	bDirty = true;
 }
 
 PrimitiveProxy* PrimitiveComponent::CreateProxy()
@@ -125,12 +122,17 @@ PrimitiveProxy* PrimitiveComponent::CreateProxy()
 	return proxy;
 }
 
+void PrimitiveComponent::SetMeshModel(const std::wstring& InAssetName)
+{
+    if (!Builder)
+    {
+        Builder = std::make_unique<PrimitiveBuilder>();
+    }
+
+    Builder->LoadStaticMesh(Util::GetAssetFullPath(InAssetName));
+}
+
 void PrimitiveComponent::CreateResource()
 {
 	GetScene()->AddPrimitive(this);
-}
-
-void PrimitiveComponent::Update()
-{
-
 }

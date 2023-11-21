@@ -1,16 +1,26 @@
 #pragma once
+#include <intsafe.h>
 
-class RenderResource
+enum class ShaderType : unsigned int
 {
-public:
-	virtual void Initialize();
-	virtual void Release();
+	Vertex,
+	Fragment,
 };
 
-class VertexBuffer : public RenderResource
+struct ShaderBinding
 {
-	virtual void Initialize() override
-	{
+	SIZE_T BytecodeLength;
+	BYTE* Bytecode = nullptr;
+	ShaderType Type;
+	size_t Hash;
+};
 
-	}
+struct TextureSettings
+{
+	BYTE* TextureData = nullptr;
+	size_t Width = 0;
+	size_t Height = 0;
+	unsigned short Channels = 3;
+	unsigned short MipLevel = 1;
+	unsigned short Format = 26; // DXGI_FORMAT_R11G11B10_FLOAT
 };

@@ -26,6 +26,17 @@ void Scene::Start()
 			entity->Initialize();
 
 			auto components = entity->GetComponentsAll();
+            for (auto& component : components)
+            {
+				component->Initialize();
+
+				auto renderComponent = std::dynamic_pointer_cast<RenderComponent>(component);
+				if (renderComponent)
+				{
+					renderComponent->UpdateResources();
+				}
+            }
+
 			Components.insert(Components.end(), components.begin(), components.end());
 		}
 	}
@@ -36,10 +47,7 @@ void Scene::Update()
 	UpdateComponents();
 	// UpdateVisibility();
 
-	TaskGraphSystem::Get().AddTask<RenderCommand>([thisPtr = shared_from_this()](const RHICommandContext& InContext)
-	{
-		thisPtr->UpdateCamera(InContext);
-	}, ThreadType::Render);
+	UpdateCamera(GetCommandContext());
 
 	// Addressed a collection of entity data to SceneRendering
 	RenderScene();
@@ -193,11 +201,14 @@ void Scene::RenderScene()
 			batch.AddElement(proxy->PrimitiveData);
         }
 
+		// TODO
+		// MeshRenderPass and MeshRenderBatch have to be distributed to several Tasks to utilize tons of vertices.
 		std::unique_ptr<MeshRenderPass> meshPass = std::make_unique<MeshRenderPass>();
         {
             meshPass->AddMeshBatch(std::move(batch));
 
-            RenderGraph::Get().AddTask(std::move(meshPass));
+			std::unique_ptr<RenderPass> pass(std::move(meshPass));
+            RenderGraph::Get().AddTask(std::move(pass));
         }
     }
 }

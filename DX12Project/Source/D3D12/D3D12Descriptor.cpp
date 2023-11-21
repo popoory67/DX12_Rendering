@@ -82,7 +82,7 @@ void D3D12DescriptorCache::SetRenderTargets(D3D12CommandList& InCommandList, D3D
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE renderTargetHandles[MAX_RENDER_TARGETS];
 
-	for (int i = 0; i < InNumRenderTargets; ++i)
+	for (unsigned int i = 0; i < InNumRenderTargets; ++i)
 	{
 		renderTargetHandles[i] = InRenderTargets[i]->GetHandle();
 	}

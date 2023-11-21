@@ -40,6 +40,19 @@ public:
 		return Components;
 	}
 
+	template<typename ComponentType = Component>
+	std::shared_ptr<ComponentType> GetComponent()
+	{
+		for (auto& pComponent : Components)
+		{
+			if (pComponent->IsEqualClass(StaticClass<ComponentType>()))
+			{
+				return std::static_pointer_cast<ComponentType>(pComponent);
+			}
+		}
+		return nullptr;
+	}
+
 private:
 	std::vector<std::shared_ptr<Component>> Components;
 

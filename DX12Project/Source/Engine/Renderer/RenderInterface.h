@@ -1,5 +1,6 @@
 #pragma once
 #include "Util.h"
+#include "RenderResource.h"
 #include <memory>
 
 class RHIViewport;
@@ -20,6 +21,8 @@ public:
 	virtual RHIResource* CreateVertexBuffer(unsigned int InVertexSize, unsigned int InIndexSize, unsigned int InStride) = 0;
 	virtual UINT8* LockBuffer(RHIResource* InVertexBuffer) = 0;
 	virtual void UnlockBuffer(RHIResource* InVertexBuffer) = 0;
+	virtual RHIResource* CreateTexture(TextureSettings* InTextureSettings) = 0;
+	virtual void SetShaderResource(RHIResource* InResource, unsigned int InFormat) = 0;
 };
 
 class RHIViewport : public Uncopyable
