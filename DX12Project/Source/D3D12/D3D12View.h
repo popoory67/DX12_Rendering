@@ -38,10 +38,18 @@ public:
 	D3D12DepthStencilView() = delete;
 	D3D12DepthStencilView(D3D12Resource* InResource, class D3D12Descriptor* InDescriptor);
 	virtual ~D3D12DepthStencilView() = default;
+
+	void Reset() override;
 };
 
 template <>
 struct TD3D12Types<RHIRenderTargetInfo>
 {
 	using ResourceType = D3D12RenderTargetView;
+};
+
+template <>
+struct TD3D12Types<RHIDepthStencilInfo>
+{
+	using ResourceType = D3D12DepthStencilView;
 };

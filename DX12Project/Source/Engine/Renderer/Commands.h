@@ -1,11 +1,13 @@
 #pragma once
 #include "Util.h"
 #include "MathHelper.h"
+#include "RenderResource.h"
+#include "PipelineState.h"
 #include <vector>
 
 using namespace DirectX;
 
-enum class PipelinePrioirty : unsigned int
+enum class PipelinePrioirty : short
 {
 	PreRender = 0,
 	BeginRender,
@@ -99,21 +101,6 @@ private:
 	};
 };
 
-RHICOMMAND(RHICommand_SetRenderTargets)
-{
-public:
-	RHICommand_SetRenderTargets() = delete;
-	RHICommand_SetRenderTargets(class RHIRenderTargetInfo* InRenderTargetViews, unsigned int InNumRenderTargets, class RHIResource* InRenderTargetView);
-	virtual ~RHICommand_SetRenderTargets();
-
-	void Execute(const RHICommandContext& InContext) override;
-
-private:
-	RHIRenderTargetInfo* RenderTargets;
-	unsigned int NumRenderTargets;
-	RHIResource* DepthStencil;
-};
-
 RHICOMMAND(RHICommand_SetPrimitive)
 {
 public:
@@ -133,7 +120,7 @@ RHICOMMAND(RHICommand_DrawPrimitive)
 {
 public:
 	RHICommand_DrawPrimitive() = delete;
-	RHICommand_DrawPrimitive(unsigned int InCount); // test parameter
+	RHICommand_DrawPrimitive(unsigned int InCount);
 	virtual ~RHICommand_DrawPrimitive() = default;
 
 	void Execute(const RHICommandContext& InContext) override;
@@ -141,4 +128,32 @@ public:
 private:
 	unsigned int Count;
 	unsigned int Stride;
+};
+
+RHICOMMAND(RHICommand_SetShaderResource)
+{
+public:
+	RHICommand_SetShaderResource() = delete;
+	RHICommand_SetShaderResource(TextureSettings* InSettings);
+	virtual ~RHICommand_SetShaderResource() = default;
+
+	void Execute(const RHICommandContext& InContext) override;
+
+private:
+	TextureSettings* Settings = nullptr;
+};
+
+RHICOMMAND(RHICommand_SetPipelineState)
+{
+public:
+	RHICommand_SetPipelineState() = delete;
+	RHICommand_SetPipelineState(GraphicsPipelineState::Key InPipelineStateId);
+	virtual ~RHICommand_SetPipelineState();
+
+	void AddShader(ShaderBinding* InShaderBinding);
+	void Execute(const RHICommandContext& InContext) override;
+
+private:
+	GraphicsPipelineState::Key PipelineStateId;
+	std::vector<ShaderBinding*> Shaders;
 };

@@ -1,6 +1,5 @@
 #include <stdexcept>
 #include "D3D12Descriptor.h"
-#include "D3D12PipelineState.h"
 #include "D3D12Commands.h"
 #include "D3D12View.h"
 #include "D3DUtil.h"
@@ -83,7 +82,7 @@ void D3D12DescriptorCache::SetRenderTargets(D3D12CommandList& InCommandList, D3D
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE renderTargetHandles[MAX_RENDER_TARGETS];
 
-	for (int i = 0; i < InNumRenderTargets; ++i)
+	for (unsigned int i = 0; i < InNumRenderTargets; ++i)
 	{
 		renderTargetHandles[i] = InRenderTargets[i]->GetHandle();
 	}

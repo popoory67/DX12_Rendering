@@ -16,21 +16,10 @@ D3D12Viewport::D3D12Viewport(D3D12Device* InDevice, HWND InHandle, unsigned int 
 	: D3D12Api(InDevice)
 	, WindowHandle(InHandle)
 	, BackBufferFormat(DXGI_FORMAT_R8G8B8A8_UNORM)
-	//, DepthStencilFormat(DXGI_FORMAT_D24_UNORM_S8_UINT)
+	, DepthStencilFormat(DXGI_FORMAT_D32_FLOAT)
 {
 	ScreenViewport.Width = static_cast<float>(InWidth);
 	ScreenViewport.Height = static_cast<float>(InHeight);
-
-
-	//SwapChainBufferDescriptor = std::make_shared<D3D12Descriptor>(GetParent(), rtvHeapDesc);
-
-	//D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
-	//dsvHeapDesc.NumDescriptors = 1;
-	//dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	//dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	//dsvHeapDesc.NodeMask = 0;
-
-	//DepthStencilBufferDescriptor = std::make_shared<D3D12Descriptor>(GetParent(), dsvHeapDesc);
 
 	CreateSwapChain();
 }
@@ -43,6 +32,7 @@ D3D12Viewport::~D3D12Viewport()
 	{
 		SafeDelete(SwapChainBuffer[i]);
 	}
+	SafeDelete(DepthStencilBuffer);
 }
 
 D3D12Resource* D3D12Viewport::GetCurrentBackBuffer()
@@ -58,6 +48,11 @@ void D3D12Viewport::GetRenderTargetView(D3D12RenderTargetView*& OutRenderTargets
 {
     OutRenderTargets = SwapChainBuffer[CurBackBufferIndex];
     //memcpy_s(OutRenderTargets, sizeof(D3D12RenderTargetView*), SwapChainBuffer, sizeof(D3D12RenderTargetView*));
+}
+
+void D3D12Viewport::GetDepthStencilView(D3D12DepthStencilView*& OutDepthStencil) const
+{
+	OutDepthStencil = DepthStencilBuffer;
 }
 
 constexpr float D3D12Viewport::GetAspectRatio()
@@ -84,43 +79,37 @@ void D3D12Viewport::Present(D3D12CommandList& InCommandList)
     CurBackBufferIndex = (CurBackBufferIndex + 1) % SwapChainBufferCount;
 }
 
-//DXGI_FORMAT D3D12Viewport::GetDepthStencilFormat() const
-//{
-//	return DepthStencilFormat;
-//}
-//
-//D3D12_CPU_DESCRIPTOR_HANDLE D3D12Viewport::GetDepthStencilBufferView() const
-//{
-//	assert(DepthStencilBufferDescriptor);
-//	return DepthStencilBufferDescriptor->GetCpuHandle(0);
-//}
-
 void D3D12Viewport::Resize()
 {
-	// Release the previous resources we will be recreating.
-	for (int i = 0; i < SwapChainBufferCount; ++i)
+	// Process to resize back buffers that are a render target type.
 	{
-		if (SwapChainBuffer[i])
-		{
-			SwapChainBuffer[i]->Reset();
-		}
+        // Release the previous resources we will be recreating.
+        for (int i = 0; i < SwapChainBufferCount; ++i)
+        {
+            if (SwapChainBuffer[i])
+            {
+                SwapChainBuffer[i]->Reset();
+            }
+        }
+
+        // Resize the swap chain.
+        ThrowIfFailed(SwapChain->ResizeBuffers(
+            SwapChainBufferCount,
+            (UINT)ScreenViewport.Width,
+            (UINT)ScreenViewport.Height,
+            BackBufferFormat,
+            DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+
+        CurBackBufferIndex = SwapChain->GetCurrentBackBufferIndex();
 	}
-
-	// Resize the swap chain.
-	ThrowIfFailed(SwapChain->ResizeBuffers(
-		SwapChainBufferCount,
-		(UINT)ScreenViewport.Width,
-		(UINT)ScreenViewport.Height,
-		BackBufferFormat,
-		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
-
-	CurBackBufferIndex = SwapChain->GetCurrentBackBufferIndex();
-
 	CreateSwapChainBuffer();
 
-	//DepthStencilBuffer->Reset();
-
-	//CreateDepthStencilBuffer();
+	// Process to resize depth-stencil buffers.
+	if (DepthStencilBuffer)
+	{
+		DepthStencilBuffer->Reset();
+	}
+	CreateDepthStencilBuffer();
 }
 
 void D3D12Viewport::CreateSwapChain()
@@ -138,8 +127,8 @@ void D3D12Viewport::CreateSwapChain()
 	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
 	// MSAA Sample count
-	swapChainDesc.SampleDesc.Count = IsMsaa4xState ? 4 : 1;
-	swapChainDesc.SampleDesc.Quality = IsMsaa4xState ? (Msaa4xQuality - 1) : 0;
+	swapChainDesc.SampleDesc.Count = IsMsaa4xEnabled() ? 4 : 1;
+	swapChainDesc.SampleDesc.Quality = IsMsaa4xEnabled() ? (Msaa4xQuality - 1) : 0;
 
 	swapChainDesc.BufferCount = SwapChainBufferCount;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -149,7 +138,7 @@ void D3D12Viewport::CreateSwapChain()
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-	// Note: Swap chain uses queue to perform flush.
+	// Note: Swapchain uses queue to perform flush.
 	if (auto pDevice = GetParent())
 	{
 		auto commandQueue = pDevice->GetCommandQueue();
@@ -159,20 +148,15 @@ void D3D12Viewport::CreateSwapChain()
 
 		ThrowIfFailed(swapChain->QueryInterface(IID_PPV_ARGS(SwapChain.GetAddressOf())));
 
-		// Check 4X MSAA quality support for our back buffer format.
-		// All Direct3D 11 capable devices support 4X MSAA for all render target formats, 
-		// so we only need to check quality support.
 		D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS MultiSampleQualityLevels;
 		MultiSampleQualityLevels.Format = BackBufferFormat;
-		MultiSampleQualityLevels.SampleCount = 4;
+		MultiSampleQualityLevels.SampleCount = IsMsaa4xEnabled() ? 4 : 1;
 		MultiSampleQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
-		MultiSampleQualityLevels.NumQualityLevels = 0;
+		MultiSampleQualityLevels.NumQualityLevels = IsMsaa4xEnabled() ? (Msaa4xQuality - 1) : 0;
 
 		ThrowIfFailed(GetDevice()->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &MultiSampleQualityLevels, sizeof(MultiSampleQualityLevels)));
 
 		Msaa4xQuality = MultiSampleQualityLevels.NumQualityLevels;
-
-		assert(Msaa4xQuality > 0 && "Unexpected MSAA quality level."); // ??
 	}
 
 	::PostMessage(WindowHandle, WM_PAINT, 0, 0);
@@ -203,68 +187,61 @@ void D3D12Viewport::CreateSwapChainBuffer()
     }
 }
 
-//void D3D12Viewport::CreateDepthStencilBuffer()
-//{
-//	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
-//	dsvHeapDesc.NumDescriptors = 1;
-//	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-//	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-//	dsvHeapDesc.NodeMask = 0;
-//
-//	if (DepthStencilBufferDescriptor)
-//	{
-//		// Create the depth/stencil buffer and view.
-//		D3D12_RESOURCE_DESC desc;
-//		desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-//		desc.Alignment = 0;
-//		desc.Width = (UINT64)GetWidth();
-//		desc.Height = (UINT)GetHeight();
-//		desc.DepthOrArraySize = 1;
-//		desc.MipLevels = 1;
-//
-//		// Correction 11/12/2016: SSAO chapter requires an SRV to the depth buffer to read from 
-//		// the depth buffer.  Therefore, because we need to create two views to the same resource:
-//		//   1. SRV format: DXGI_FORMAT_R24_UNORM_X8_TYPELESS
-//		//   2. DSV Format: DXGI_FORMAT_D24_UNORM_S8_UINT
-//		// we need to create the depth buffer resource with a typeless format.  
-//		desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-//
-//		desc.SampleDesc.Count = IsMsaa4xEnabled() ? 4 : 1;
-//		desc.SampleDesc.Quality = IsMsaa4xEnabled() ? (GetMsaaQuality() - 1) : 0;
-//		desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-//		desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-//
-//		D3D12_CLEAR_VALUE optClear;
-//		optClear.Format = DepthStencilFormat;
-//		optClear.DepthStencil.Depth = 1.0f;
-//		optClear.DepthStencil.Stencil = 0;
-//
-//		// Transition the resource from its initial state to be used as a depth buffer.
-//		ComPtr<ID3D12Resource> depthStencilBuffer;
-//		D3D12_HEAP_PROPERTIES properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-//
-//		ThrowIfFailed(GetDevice()->CreateCommittedResource(
-//			&properties,
-//			D3D12_HEAP_FLAG_NONE,
-//			&desc,
-//			D3D12_RESOURCE_STATE_COMMON,
-//			&optClear,
-//			IID_PPV_ARGS(&depthStencilBuffer)));
-//
-//		DepthStencilBuffer = std::make_shared<D3D12Resource>(GetParent(), depthStencilBuffer.Get());
-//
-//		GetParent()->GetCommandList().AddTransition(DepthStencilBuffer->GetResource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-//
-//		// Create descriptor to mip level 0 of entire resource using the format of the resource.
-//		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-//		dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
-//		dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-//		dsvDesc.Format = DepthStencilFormat;
-//		dsvDesc.Texture2D.MipSlice = 0;
-//
-//		GetDevice()->CreateDepthStencilView(DepthStencilBuffer->GetResource(), &dsvDesc, DepthStencilBufferDescriptor->GetCpuHandle(0));
-//	}
-//}
+void D3D12Viewport::CreateDepthStencilBuffer()
+{
+	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
+	dsvHeapDesc.NumDescriptors = 1;
+	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	dsvHeapDesc.NodeMask = 0;
+	
+	D3D12Descriptor* descriptor = new D3D12Descriptor(GetParent(), dsvHeapDesc);
+	{
+		ComPtr<ID3D12Resource> depthStencilBuffer;
+		D3D12_HEAP_PROPERTIES properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+
+        D3D12_RESOURCE_DESC desc;
+        desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+        desc.Alignment = 0;
+        desc.Width = (UINT64)GetWidth();
+        desc.Height = (UINT)GetHeight();
+        desc.DepthOrArraySize = 1;
+        desc.MipLevels = 1;
+		desc.Format = DepthStencilFormat;
+        desc.SampleDesc.Count = IsMsaa4xEnabled() ? 4 : 1;
+        desc.SampleDesc.Quality = IsMsaa4xEnabled() ? (GetMsaaQuality() - 1) : 0;
+        desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+        desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+        D3D12_CLEAR_VALUE optClear;
+        optClear.Format = DepthStencilFormat;
+        optClear.DepthStencil.Depth = 1.0f;
+        optClear.DepthStencil.Stencil = 0;
+
+		ThrowIfFailed(GetDevice()->CreateCommittedResource(
+			&properties,
+			D3D12_HEAP_FLAG_NONE,
+			&desc,
+			D3D12_RESOURCE_STATE_DEPTH_WRITE,
+			&optClear,
+			IID_PPV_ARGS(&depthStencilBuffer)));
+
+		D3D12Resource* resource = new D3D12Resource(std::move(depthStencilBuffer));
+		resource->SetResourceState(D3D12_RESOURCE_STATE_COMMON);
+		{
+            // Create descriptor to mip level 0 of entire resource using the format of the resource.
+            D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+            dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+            dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+            dsvDesc.Format = DepthStencilFormat;
+            dsvDesc.Texture2D.MipSlice = 0;
+
+            GetDevice()->CreateDepthStencilView(resource->GetResource(), &dsvDesc, descriptor->GetCpuHandle(0));
+		}
+
+		DepthStencilBuffer = new D3D12DepthStencilView(resource, descriptor);
+	}
+}
 
 void D3D12Viewport::SetViewport(D3DViewportResource& InViewResource)
 {

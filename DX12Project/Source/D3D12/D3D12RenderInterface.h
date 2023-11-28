@@ -45,19 +45,15 @@ public:
 	RHIResource* CreateVertexBuffer(unsigned int InVertexSize, unsigned int InIndexSize, unsigned int InStride) override;
 	UINT8* LockBuffer(RHIResource* InBuffer) override;
 	void UnlockBuffer(RHIResource* InBuffer) override;
+	RHIResource* CreateTexture(TextureSettings* InTextureSettings) override;
+	void SetShaderResource(RHIResource* InResource, unsigned int InFormat) override;
 
 private:
 	ComPtr<ID3D12Resource> CreateResource(unsigned int InByteSize, const D3D12_HEAP_TYPE InHeapType, const D3D12_RESOURCE_STATES InResourceState, const D3D12_CLEAR_VALUE* InValue);
-	void CreateRenderTarget(D3D12Resource* InResource, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize);
-	//void CreateShaderResource(D3D12ShaderResource* InResource, class D3D12Descriptor* InDescriptor, std::string InName = nullptr, std::wstring InFilePath = nullptr);
-	
-	//void LoadTexture(D3D12ShaderResource* InResource, std::string InName = nullptr, std::wstring InFilePath = nullptr);
 
-	void CreateDepthStencilView(D3D12Resource* InResource, D3D12Descriptor* InDescriptor, D3D12_DEPTH_STENCIL_VIEW_DESC& InDepthStencilDesc);
+	ComPtr<ID3D12Resource> CreateResource(D3D12_RESOURCE_DESC InDesc, const D3D12_HEAP_TYPE InHeapType, const D3D12_RESOURCE_STATES InResourceState, const D3D12_CLEAR_VALUE* InValue);
 
 private:
-
-	//std::vector<std::shared_ptr<class D3D12PipelineState>> PipelineStates;
 
 	D3D12Device* CurrentDevice;
 };

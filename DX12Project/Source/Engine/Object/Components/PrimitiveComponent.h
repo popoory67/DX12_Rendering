@@ -31,7 +31,7 @@ public:
 	PrimitiveProxy(class PrimitiveComponent* InComponent);
 	virtual ~PrimitiveProxy() = default;
 
-private:
+protected:
 	class PrimitiveComponent* OwnerComponent;
 	MeshRenderBatchElement PrimitiveData;
 };
@@ -44,26 +44,21 @@ public:
 	PrimitiveComponent() = delete;
 	PrimitiveComponent(class Scene* InScene, Component* InParent = nullptr);
 	virtual ~PrimitiveComponent();
-	
-	UINT GetIndex() const { return Index; }
 
-	void SetMeshModel(const std::wstring& InPath);
-
+	void UpdateResources() override;
 	virtual PrimitiveProxy* CreateProxy();
+
+	UINT GetIndex() const { return Index; }
+	void SetMeshModel(const std::wstring& InAssetName);
 
 protected:
 	virtual void CreateResource();
-	
-	void Update() override;
 
-public:
-	D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	
 protected:
 	static std::unique_ptr<PrimitiveBuilder> Builder;
 
 	PrimitiveProxy* Proxy = nullptr;
-
+	
 private:
 	UINT Index = 0;
 };

@@ -1,22 +1,27 @@
 #pragma once
 #include "D3D12Resource.h"
 #include "D3D12View.h"
-#include "D3D12Descriptor.h"
+#include "RenderResource.h"
+#include "PipelineState.h"
 #include <type_traits>
 #include <d3d12.h>
 #include <unordered_map>
 
-class D3D12PipelineState : public D3D12Api
+class D3D12PipelineState : public D3D12Api, public PipelineStateCache
 {
 public:
 	D3D12PipelineState() = delete;
-	explicit D3D12PipelineState(class D3D12Device* InDevice, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& InDesc);
-	~D3D12PipelineState();
+	explicit D3D12PipelineState(class D3D12Device* InDevice);
+	virtual ~D3D12PipelineState();
 
 	ComPtr<ID3D12PipelineState> Get() { return PipelineState; }
 	ID3D12PipelineState* GetInterface() { return PipelineState.Get(); }
 
 	const D3D12_GRAPHICS_PIPELINE_STATE_DESC& GetDesc() const;
+
+	void BuildPSO(ComPtr<ID3D12PipelineLibrary1> InPipelineLibrary, const GraphicsPipelineState::Key& InKey, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& InDesc);
+	void BuildPSO(ComPtr<ID3D12PipelineLibrary1> InPipelineLibrary, const GraphicsPipelineState::PSOStream& InPSO);
+	void BuildPSO(ComPtr<ID3D12PipelineLibrary1> InPipelineLibrary, const GraphicsPipelineState::Key& InKey, const GraphicsPipelineState::PSOStream& InPSO);
 
 private:
 	ComPtr<ID3D12PipelineState> PipelineState = nullptr;
@@ -30,45 +35,11 @@ private:
 struct D3D12VertexBufferCache
 {
 	D3D12_VERTEX_BUFFER_VIEW CurrentVertexBufferView[MAX_VERTEX_SLOT_COUNT];
-	//D3D12ResourceLocation* ResourceLocation[MAX_VERTEX_SLOT_COUNT];
 };
 
 struct D3D12IndexBufferCache
 {
 	D3D12_INDEX_BUFFER_VIEW CurrentIndexBufferView[MAX_VERTEX_SLOT_COUNT];
-};
-
-namespace D3D12GraphicsPipelineState
-{
-	struct Desc : public D3D12_GRAPHICS_PIPELINE_STATE_DESC
-	{
-		Desc()
-			: D3D12_GRAPHICS_PIPELINE_STATE_DESC()
-		{
-			// TODO
-			// Has it to be a UUID? (IID_PPV_ARGS)
-			static int counter = 0;
-			UniqueKey = ++counter;
-		}
-
-		int UniqueKey;
-	};
-
-	struct Hash
-	{
-		std::size_t operator()(const Desc& InDesc) const
-		{
-			return std::hash<int>()(InDesc.UniqueKey);
-		}
-	};
-
-	struct HashCompare
-	{
-		bool operator()(const Desc& lhs, const Desc& rhs) const
-		{
-			return lhs.UniqueKey == rhs.UniqueKey;
-		}
-	};
 };
 
 class D3D12PipelineStateCache : public D3D12Api
@@ -85,14 +56,14 @@ public:
 	void SetViewport(const D3D12_VIEWPORT& InViewport, const D3D12_RECT& InRect);
 	void SetRenderTargets(D3D12RenderTargetView** InRenderTargets, unsigned int InNumRenderTargets, D3D12DepthStencilView* InDepthStencil);
 	void SetStreamResource(D3D12Buffer* InVertexBuffer, uint32_t StreamIndex, const UINT InIndicesSize = 0);
+	void SetShaderBinding(ShaderBinding& InShaderBinding);
 
-	void CreateAndAddCache(const D3D12GraphicsPipelineState::Desc& InDesc);
-	std::weak_ptr<D3D12PipelineState> FindCache(const D3D12GraphicsPipelineState::Desc& InDesc);
+	void CreateAndAddCache(GraphicsPipelineState::Key&& InKey, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& InDesc);
+	void SetPipelineCache(const GraphicsPipelineState::Key& InKey, const GraphicsPipelineState::PSOStream& InPSOCache);
 	std::weak_ptr<D3D12PipelineState> GetCurrentStateCache() const;
 
 private:
-	
-	std::shared_ptr<D3D12DescriptorCache> DescriptorCache;
+	std::shared_ptr<class D3D12DescriptorCache> DescriptorCache;
 
 	struct
 	{
@@ -111,7 +82,10 @@ private:
 		D3D12VertexBufferCache VertexBufferCache;
 		D3D12IndexBufferCache IndexBufferCache;
 
+		ShaderBinding* VS;
+		ShaderBinding* FS;
+
 	} StateCache;
 
-	std::unordered_map<D3D12GraphicsPipelineState::Desc, std::shared_ptr<D3D12PipelineState>, D3D12GraphicsPipelineState::Hash, D3D12GraphicsPipelineState::HashCompare> PipelineStateCaches;
+	ComPtr<ID3D12PipelineLibrary1> PipelineLibrary = nullptr;
 };

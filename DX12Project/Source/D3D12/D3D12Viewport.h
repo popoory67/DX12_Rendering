@@ -36,13 +36,10 @@ public:
 	static unsigned int GetMsaaQuality() { return Msaa4xQuality; }
 	static bool IsMsaa4xEnabled() { return IsMsaa4xState; }
 
-	DXGI_FORMAT GetBackBufferFormat() { return BackBufferFormat; }
-
 	void GetRenderTargetView(class D3D12RenderTargetView*& OutRenderTargets) const;
+	void GetDepthStencilView(class D3D12DepthStencilView*& OutDepthStencil) const;
 
 	FORCEINLINE unsigned int GetSwapChainBufferCount() const { return SwapChainBufferCount; }
-	//D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilBufferView() const;
-	//DXGI_FORMAT GetDepthStencilFormat() const;
 
 	constexpr float GetAspectRatio();
 
@@ -56,12 +53,10 @@ private:
 
 	void CreateSwapChain();
 	void CreateSwapChainBuffer();
-	//void CreateDepthStencilBuffer();
+	void CreateDepthStencilBuffer();
 
 private:
 	HWND WindowHandle = nullptr;
-
-	ComPtr<IDXGISwapChain4> SwapChain = nullptr;
 
 	static bool IsMsaa4xState;
 	static UINT Msaa4xQuality;
@@ -75,13 +70,12 @@ private:
 	static const unsigned int SwapChainBufferCount = 2;
 	int CurBackBufferIndex = 0;
 
+	ComPtr<IDXGISwapChain4> SwapChain = nullptr;
 	class D3D12RenderTargetView* SwapChainBuffer[SwapChainBufferCount];
 
 	// Depth/Stencil
-	//DXGI_FORMAT DepthStencilFormat;
-
-	//std::shared_ptr<D3D12Resource> DepthStencilBuffer;
-	//std::shared_ptr<D3D12Descriptor> DepthStencilBufferDescriptor;
+	DXGI_FORMAT DepthStencilFormat;  // the size of depth-stencil is important to optimize the program. If the device specification is low such as a mobile device, it would be better to choose lower option.
+	class D3D12DepthStencilView* DepthStencilBuffer = nullptr;
 };
 
 template<>

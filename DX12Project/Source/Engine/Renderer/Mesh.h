@@ -3,6 +3,7 @@
 #include "RenderPass.h"
 #include "Primitive.h"
 #include "MathHelper.h"
+#include "MaterialComponent.h"
 #include <vector>
 
 using VertexStream = std::vector<Vertex>;
@@ -13,6 +14,8 @@ struct MeshRenderBatchElement
 	VertexStream Vertices;
 	IndexStream Indices;
 	unsigned int Stride;
+
+	MaterialProxy* MaterialShaderProxy = nullptr;
 
 	MeshRenderBatchElement() = default;
 	MeshRenderBatchElement(const MeshRenderBatchElement&) = default;
@@ -68,9 +71,8 @@ struct MeshRenderBatch : public RenderBatch
 	void AddElement(MeshRenderBatchElement&& InMeshElement);
 	unsigned int GetStride() const;
 
-	unsigned int Count;
+	size_t Count;
 	std::vector<MeshRenderBatchElement> Elements;
-	//XMMATRIX TransformMatrix;
 };
 
 // This is the stage to render which has meshes.
@@ -79,14 +81,16 @@ class MeshRenderPass : public RenderPass
 public:
 	MeshRenderPass();
 	virtual ~MeshRenderPass();
-	MeshRenderPass(MeshRenderPass&& InPass)
+
+	MeshRenderPass(MeshRenderPass&& InPass) noexcept
 	{
 		Batches = std::move(InPass.Batches);
 	}
 
-	MeshRenderPass& operator=(MeshRenderPass&& InPass)
+	MeshRenderPass& operator=(MeshRenderPass&& InPass) noexcept
 	{
 		Batches = std::move(InPass.Batches);
+		return *this;
 	}
 
 	void AddMeshBatch(MeshRenderBatch&& InBatch);

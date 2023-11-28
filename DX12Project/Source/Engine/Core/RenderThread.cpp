@@ -18,9 +18,7 @@ RHICommandContext GCommandContext;
 class RenderWorker : public Task
 {
 public:
-    RenderWorker(std::shared_ptr<std::mutex> InMutex, std::shared_ptr<std::condition_variable> InCondition)
-        : Mutex(InMutex)
-        , Condition(InCondition)
+    RenderWorker()
     {
 
     }
@@ -34,7 +32,7 @@ public:
         {
             RHIViewport* viewport = GRHI->CreateViewport(Application::GetWindowHandle(), Application::GetWidth(), Application::GetHeight());
             ViewportRenderer = std::make_unique<Viewport>(viewport);
-            ViewportRenderer->Initialize(GCommandContext);
+            ViewportRenderer->Initialize(GetCommandContext());
         }
 
         Renderer = std::make_unique<SceneRenderer>();
@@ -48,46 +46,25 @@ public:
     {
         while (!bStop)
         {
-            std::unique_lock<std::mutex> lock(*Mutex);
-            Condition->wait(lock, []()
-            {
-                return TaskGraphSystem::Get().GetThreadState() == ThreadType::Render;
-            });
-
-            TaskGraphSystem::Get().Execute(ThreadType::Render);
-
             Renderer->BeginRender();
 
-            ViewportRenderer->Draw(GCommandContext);
+            ViewportRenderer->Draw(GetCommandContext());
 
-            Renderer->Render(GCommandContext);
+            Renderer->Render(GetCommandContext());
             Renderer->EndRender();
-
-            Condition->notify_all();
         }
-    }
-
-    void Stop() override
-    {
-        bStop = true;
-        Condition->notify_all();
     }
 
 private:
     std::unique_ptr<SceneRenderer> Renderer; // 3D
     std::unique_ptr<Viewport> ViewportRenderer; // 2D
-
-    bool bStop = false;
-
-    std::shared_ptr<std::mutex> Mutex;
-    std::shared_ptr<std::condition_variable> Condition;
 };
 
 namespace RenderThread
 {
-    void StartRenderThread(std::shared_ptr<std::mutex> InMutex, std::shared_ptr<std::condition_variable> InCondition)
+    void StartRenderThread()
     {
-        RenderWorker* renderWorker = new RenderWorker(InMutex, InCondition);
+        RenderWorker* renderWorker = new RenderWorker();
         GRenderThread = GenericThread::Create(renderWorker, ThreadType::Render);
     }
 
@@ -101,7 +78,7 @@ namespace RenderThread
 
         // RHI resources must be cleaned after the rendering thread is done.
         {
-            GCommandContext.CleanUp();
+            GetCommandContext().CleanUp();
         }
 
         SafeDelete(GRHI);
@@ -118,13 +95,3 @@ namespace RenderThread
 #endif
     }
 };
-
-RenderCommand::~RenderCommand()
-{
-
-}
-
-void RenderCommand::DoTask()
-{
-    Func(GCommandContext);
-}

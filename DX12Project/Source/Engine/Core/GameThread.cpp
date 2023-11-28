@@ -9,10 +9,10 @@ GenericThread* GGameThread = nullptr;
 
 class GameWorker : public Task
 {
+    using Parent = Task;
+
 public:
-    GameWorker(std::shared_ptr<std::mutex> InMutex, std::shared_ptr<std::condition_variable> InCondition)
-        : Mutex(InMutex)
-        , Condition(InCondition)
+    GameWorker()
     {
     }
 
@@ -31,28 +31,14 @@ public:
     {
         while (!bStop)
         {
-            std::unique_lock<std::mutex> lock(*Mutex);
-            Condition->wait(lock, []()
-            {
-                return TaskGraphSystem::Get().GetThreadState() == ThreadType::Main;
-            });
-
-            TaskGraphSystem::Get().Execute(ThreadType::Main);
-
             CurrentScene->Update();
-
-            Condition->notify_all();
         }
     }
 
     void Stop() override
     {
-        bStop = true;
+        Parent::Stop();
         CurrentScene->End();
-
-        TaskGraphSystem::Get().SetThreadState(ThreadType::Main); // test
-
-        Condition->notify_all();
     }
 
 private:
@@ -88,17 +74,13 @@ private:
 
     std::shared_ptr<class Scene> CurrentScene;
 
-    bool bStop = false;
-
-    std::shared_ptr<std::mutex> Mutex;
-    std::shared_ptr<std::condition_variable> Condition;
 };
 
 namespace GameThread
 {
-    void StartGameThread(std::shared_ptr<std::mutex> InMutex, std::shared_ptr<std::condition_variable> InCondition)
+    void StartGameThread()
     {
-        GameWorker* gameWorker = new GameWorker(InMutex, InCondition);
+        GameWorker* gameWorker = new GameWorker();
         GGameThread = GenericThread::Create(gameWorker, ThreadType::Main);
     }
 

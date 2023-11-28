@@ -1,5 +1,6 @@
 #include "D3D12Device.h"
 #include "D3D12Commands.h"
+#include "D3D12Descriptor.h"
 #include "D3DUtil.h"
 #include "Util.h"
 #include "CommandContext.h"
@@ -14,7 +15,7 @@ D3D12Device::~D3D12Device()
     SafeDelete(ResourceManager);
 }
 
-Microsoft::WRL::ComPtr<ID3D12Device> D3D12Device::GetDevice() const
+Microsoft::WRL::ComPtr<D3D12Device_Version> D3D12Device::GetDevice() const
 {
     return Device;
 }
@@ -101,7 +102,7 @@ void D3D12Device::Initialize()
 		std::unique_ptr<D3D12CommandList> commandList = std::make_unique<D3D12CommandList>(this);
         commandList->Initialize();
 
-        GCommandContext.AddCommandList(std::move(commandList));
+		GetCommandContext().AddCommandList(std::move(commandList));
     }
 }
 
@@ -116,7 +117,7 @@ D3D12Api::~D3D12Api()
 	Parent = nullptr;
 }
 
-ID3D12Device* D3D12Api::GetDevice() const
+D3D12Device_Version* D3D12Api::GetDevice() const
 {
     assert(Parent->GetDevice());
 	return Parent->GetDevice().Get();
@@ -125,4 +126,25 @@ ID3D12Device* D3D12Api::GetDevice() const
 void D3D12ResourceManager::AddRootSignature(int InKey, const std::shared_ptr<D3D12RootSignature>& InSignature)
 {
 	RootSignatures[InKey] = InSignature;
+}
+
+void D3D12ResourceManager::AddDescriptorHeap(D3D12Descriptor* InDescriptor)
+{
+    assert(InDescriptor);
+
+    Heaps.emplace_back(InDescriptor->Get());
+}
+
+void D3D12ResourceManager::ExecuteHeaps(D3D12CommandList& InCommandList)
+{
+	// test
+    if (!Heaps.empty())
+    {
+		InCommandList->SetDescriptorHeaps((UINT)Heaps.size(), &(*Heaps.begin()));
+    }
+}
+
+void D3D12ResourceManager::FlushHeaps()
+{
+    Heaps.clear();
 }

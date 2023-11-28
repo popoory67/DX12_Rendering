@@ -25,6 +25,7 @@ RHICommand_EndDrawWindow::RHICommand_EndDrawWindow(class RHIViewport* InViewport
 
 void RHICommand_EndDrawWindow::Execute(const RHICommandContext& InContext)
 {
+    InContext.GetCommandList().EndRender();
     InContext.GetCommandList().EndDrawWindow(Viewport);
 }
 
@@ -55,24 +56,6 @@ void RHICommand_BeginRender::Execute(const RHICommandContext& InContext)
 
     InContext.GetCommandList().AddShaderReference(0, constantBuffer);
     InContext.GetCommandList().AddResource(std::move(constantBuffer));
-}
-
-RHICommand_SetRenderTargets::RHICommand_SetRenderTargets(RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTargets, RHIResource* InDepthStencil)
-    : RenderTargets(InRenderTargets)
-    , NumRenderTargets(InNumRenderTargets)
-    , DepthStencil(InDepthStencil)
-{
-    Priority = PipelinePrioirty::DrawSetting;
-}
-
-void RHICommand_SetRenderTargets::Execute(const RHICommandContext& InContext)
-{
-    InContext.GetCommandList().SetRenderTargets(RenderTargets, NumRenderTargets, DepthStencil);
-}
-
-RHICommand_SetRenderTargets::~RHICommand_SetRenderTargets()
-{
-
 }
 
 RHICommand_SetPrimitive::RHICommand_SetPrimitive(std::vector<Vertex>&& InVertexStream, std::vector<unsigned int>&& InIndexStream, unsigned int InStride)
@@ -118,4 +101,70 @@ void RHICommand_DrawPrimitive::Execute(const RHICommandContext& InContext)
     // test
     //InContext.GetCommandList().DrawPrimitive(Count, 1, 0, 0);
     InContext.GetCommandList().DrawIndexedInstanced(Count, 1, 0, 0, 0);
+}
+
+RHICommand_SetShaderResource::RHICommand_SetShaderResource(TextureSettings* InSettings)
+    : Settings(InSettings)
+{
+    Priority = PipelinePrioirty::BeginRender;
+}
+
+void RHICommand_SetShaderResource::Execute(const RHICommandContext& InContext)
+{
+    // DirectX 12 supports normally 4 channels.
+    // Because the 4 channels format is much more optimized on GPU devices than 3 channels.
+    // Therefore, to change a texture format to 4 channels for a hardware compatibility is pretty usual.
+    size_t rgbaSize = Settings->Width * Settings->Height * 4;
+
+    size_t rowPitch = Settings->Width * Settings->Channels;
+    size_t size = rowPitch * Settings->Height;
+
+    // A texture
+    RHIResource* textureResource = GRHI->CreateTexture(Settings);
+
+    // A staging buffer that is a temporarily allocated memory for moving CPU memory to GPU memory.
+    RHIResource* stagingBuffer = GRHI->CreateBuffer(rgbaSize, rowPitch);
+    {
+        // A raw texture data to the staging
+        UINT8* buffer = GRHI->LockBuffer(stagingBuffer);
+        {
+            memcpy(buffer, Settings->TextureData, size);
+        }
+        GRHI->UnlockBuffer(stagingBuffer);
+    }
+
+    // Copy the CPU texture to the GPU texture. (Staging -> Texture)
+    InContext.GetCommandList().CopyResourceRegion(textureResource, stagingBuffer);
+
+    InContext.GetCommandList().AddResource(stagingBuffer);
+    InContext.GetCommandList().AddResource(textureResource);
+}
+
+RHICommand_SetPipelineState::RHICommand_SetPipelineState(GraphicsPipelineState::Key InPipelineStateId)
+    : PipelineStateId(InPipelineStateId)
+{
+
+}
+
+RHICommand_SetPipelineState::~RHICommand_SetPipelineState()
+{
+    Shaders.clear();
+}
+
+void RHICommand_SetPipelineState::AddShader(ShaderBinding* InShaderBinding)
+{
+    Shaders.emplace_back(InShaderBinding);
+}
+
+void RHICommand_SetPipelineState::Execute(const RHICommandContext& InContext)
+{
+    const GraphicsPipelineState::PSOStream& psoStream = GraphicsPipelineState::GetPSOCache(PipelineStateId);
+    if (!psoStream.empty())
+    {
+        InContext.GetCommandList().SetPipelineState(PipelineStateId, psoStream);
+    }
+    else
+    {
+        InContext.GetCommandList().CreateAndAddPipelineState(std::move(Shaders));
+    }
 }

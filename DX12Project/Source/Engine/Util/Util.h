@@ -1,18 +1,8 @@
 #pragma once
 #include <windows.h>
 #include <string>
-
-inline std::wstring AnsiToWString(const std::string& str)
-{
-	WCHAR buffer[512];
-	MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, buffer, 512);
-	return std::wstring(buffer);
-}
-
-#if defined(DEBUG) || defined(_DEBUG)
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-#endif
+#include <fstream>
+#include <vector>
 
 #ifndef SafeDelete
 #define SafeDelete(x) { if (x) { delete(x); x = nullptr; } }
@@ -43,4 +33,16 @@ protected:
 private:
 	Uncopyable(const Uncopyable&) = delete;
 	Uncopyable& operator=(const Uncopyable&) = delete;
+};
+
+namespace Util
+{
+	const std::wstring ShaderPath = L"./Shaders/ByteCodes/";
+	const std::wstring AssetPath = L"../Resources/";
+
+	std::wstring AnsiToWString(const std::string& InStr);
+	std::wstring GetShaderAssetFullPath(const std::wstring& InAssetName);
+	std::wstring GetAssetFullPath(const std::wstring& InAssetName);
+
+	std::vector<char> GetBinaryData(const std::wstring& InPath);
 };

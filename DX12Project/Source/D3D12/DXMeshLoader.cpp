@@ -25,7 +25,6 @@ void DXMeshLoader::LoadObj(const wchar_t* InFileName)
 
 void DXMeshLoader::GetVertices(std::vector<Vertex>& OutVertices)
 {
-    // test
     Vertex vertex;
 
     for (const auto& it : ObjCache->vertices)

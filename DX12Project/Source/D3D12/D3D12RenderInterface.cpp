@@ -2,7 +2,6 @@
 #include "D3D12RenderInterface.h"
 #include "D3D12Resource.h"
 #include "D3D12Descriptor.h"
-#include "D3D12PipelineState.h"
 #include "D3D12Commands.h"
 
 D3D12RHI::D3D12RHI()
@@ -53,11 +52,59 @@ void D3D12RHI::UnlockBuffer(RHIResource* InBuffer)
 	InBuffer->Unlock();
 }
 
+RHIResource* D3D12RHI::CreateTexture(TextureSettings* InTextureSettings)
+{
+    D3D12_RESOURCE_DESC textureDesc = {};
+    textureDesc.MipLevels = InTextureSettings->MipLevel;
+    textureDesc.Format = static_cast<DXGI_FORMAT>(InTextureSettings->Format);
+    textureDesc.Width = InTextureSettings->Width;
+    textureDesc.Height = InTextureSettings->Height;
+    textureDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+    textureDesc.DepthOrArraySize = 1;
+    textureDesc.SampleDesc.Count = 1;
+    textureDesc.SampleDesc.Quality = 0;
+    textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+
+    ComPtr<ID3D12Resource> textureResource = CreateResource(textureDesc, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COPY_DEST, nullptr);
+
+    unsigned int size = textureDesc.Width * textureDesc.Height * InTextureSettings->Channels;
+    return new D3D12Resource(std::move(textureResource), size);
+}
+
+void D3D12RHI::SetShaderResource(RHIResource* InResource, unsigned int InFormat)
+{
+    D3D12Resource* resource = D3D12RHI::Cast(InResource);
+    assert(resource);
+
+    // Descriptor
+    D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+    srvHeapDesc.NumDescriptors = 1;
+    srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+
+    D3D12Descriptor* descriptor = new D3D12Descriptor(GetCurrentDevice(), srvHeapDesc);
+    {
+        GetCurrentDevice()->GetResourceManager().AddDescriptorHeap(descriptor);
+    }
+
+    // Create a SRV for the texture.
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.Format = static_cast<DXGI_FORMAT>(InFormat);
+    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = 1;
+
+    GetCurrentDevice()->GetDevice()->CreateShaderResourceView(
+        resource->GetResource(),
+        &srvDesc,
+        descriptor->GetCpuHandle(0));
+}
+
 ComPtr<ID3D12Resource> D3D12RHI::CreateResource(unsigned int InByteSize, const D3D12_HEAP_TYPE InHeapType, const D3D12_RESOURCE_STATES InResourceState, const D3D12_CLEAR_VALUE* InValue)
 {
 	ComPtr<ID3D12Resource> newResource;
     D3D12_HEAP_PROPERTIES properties = CD3DX12_HEAP_PROPERTIES(InHeapType);
-	D3D12_RESOURCE_DESC desc{ CD3DX12_RESOURCE_DESC::Buffer(InByteSize) };
+	D3D12_RESOURCE_DESC desc{ CD3DX12_RESOURCE_DESC::Buffer(InByteSize) }; // This is not a texture, but a buffer setting.
 
     ThrowIfFailed(GetCurrentDevice()->GetDevice()->CreateCommittedResource(
         &properties,
@@ -70,56 +117,18 @@ ComPtr<ID3D12Resource> D3D12RHI::CreateResource(unsigned int InByteSize, const D
 	return newResource;
 }
 
-void D3D12RHI::CreateRenderTarget(D3D12Resource* InResource, CD3DX12_CPU_DESCRIPTOR_HANDLE& InDescriptorHandle, UINT InDescriptorSize)
+ComPtr<ID3D12Resource> D3D12RHI::CreateResource(D3D12_RESOURCE_DESC InDesc, const D3D12_HEAP_TYPE InHeapType, const D3D12_RESOURCE_STATES InResourceState, const D3D12_CLEAR_VALUE* InValue)
 {
-	assert(InResource);
+    ComPtr<ID3D12Resource> newResource;
+    D3D12_HEAP_PROPERTIES properties = CD3DX12_HEAP_PROPERTIES(InHeapType);
 
-	GetCurrentDevice()->GetDevice()->CreateRenderTargetView(InResource->GetResource(), nullptr, InDescriptorHandle);
+    ThrowIfFailed(GetCurrentDevice()->GetDevice()->CreateCommittedResource(
+        &properties,
+        D3D12_HEAP_FLAG_NONE,
+        &InDesc,
+        InResourceState,
+        InValue,
+        IID_PPV_ARGS(&newResource)));
 
-	InDescriptorHandle.Offset(1, InDescriptorSize);
-}
-
-//void D3D12RHI::CreateShaderResource(D3D12ShaderResource* InResource, D3D12Descriptor* InDescriptor, std::string InName/* = nullptr*/, std::wstring InFilePath/* = nullptr*/)
-//{
-//	assert(InDescriptor);
-//	assert(InResource);
-//
-//	// Create the SRV heap.
-//	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-//	srvHeapDesc.NumDescriptors = 1;
-//	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-//	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-//
-//	InDescriptor = new D3D12Descriptor(CurrentDevice, srvHeapDesc);
-//
-//	LoadTexture(InResource, InName, InFilePath);
-//
-//	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-//	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-//	srvDesc.Format = InResource->GetResource()->GetDesc().Format;
-//	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-//	srvDesc.Texture2D.MostDetailedMip = 0;
-//	srvDesc.Texture2D.MipLevels = InResource->GetResource()->GetDesc().MipLevels;
-//	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-//
-//	GetCurrentDevice()->GetDevice()->CreateShaderResourceView(InResource->GetResource()->GetResource(), &srvDesc, InDescriptor->GetCpuHandle(0));
-//}
-
-//void D3D12RHI::LoadTexture(D3D12ShaderResource* InResource, std::string InName, std::wstring InFilePath)
-//{
-//	if (InResource)
-//	{
-//		//InTexture->Name = InName; // "woodCrateTex";
-//		//InTexture->Filename = InFilePath;// L"../../Textures/WoodCrate01.dds";
-//
-//		//ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(GetParent()->GetDeviceInterface(), GetCommnadList()->GetGraphicsInterface(), InFilePath.c_str(), InResource->Get(), InResource->GetTextureResource()->Get()));
-//	}
-//}
-
-void D3D12RHI::CreateDepthStencilView(D3D12Resource* InResource, class D3D12Descriptor* InDescriptor, D3D12_DEPTH_STENCIL_VIEW_DESC& InDepthStencilDesc)
-{
-	assert(InDescriptor);
-	assert(InResource);
-
-	GetCurrentDevice()->GetDevice()->CreateDepthStencilView(InResource->GetResource(), &InDepthStencilDesc, InDescriptor->GetCpuHandle(0));
+    return newResource;
 }

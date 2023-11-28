@@ -1,5 +1,6 @@
 #pragma once
 #include "Commands.h"
+#include "RenderResource.h"
 #include <memory>
 
 // This class is for render commands which will be processed in GPU.
@@ -16,12 +17,16 @@ public:
 	virtual void BeginRender() = 0;
 	virtual void EndRender() = 0;
 	virtual void ResizeViewport(class RHIViewport* InViewport) = 0;
-	virtual void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, class RHIResource* InDepthStencil) = 0;
-	virtual void AddResource(class RHIResource*&& InResource) = 0;
+	virtual void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, class RHIDepthStencilInfo* InDepthStencil) = 0;
+	virtual void AddResource(class RHIResource* InResource) = 0;
 	virtual void SetStreamResource(class RHIResource* InVertexBuffer, const UINT InIndicesSize) = 0;
+	virtual void SetShaderBinding(struct ShaderBinding& InBinding) = 0;
 	virtual void AddShaderReference(int InIndex, RHIResource* InBuffer) = 0;
 	virtual void DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance) = 0;
 	virtual void DrawIndexedInstanced(unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance) = 0;
+	virtual void CopyResourceRegion(class RHIResource* InDestResource, class RHIResource* InSourceResource) = 0;
+	virtual void SetPipelineState(const GraphicsPipelineState::Key& InKey, const GraphicsPipelineState::PSOStream& InPSOCache) = 0;
+	virtual void CreateAndAddPipelineState(std::vector<struct ShaderBinding*>&& InShaders) = 0;
 };
 
 class RHICommandListExecutor

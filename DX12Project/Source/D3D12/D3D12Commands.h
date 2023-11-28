@@ -39,9 +39,9 @@ public:
 		CleanUp();
 	}
 
-	void AddResource(RHIResource*&& InResource)
+	void AddResource(class RHIResource* InResource)
 	{
-		GpuResources.emplace_back(std::move(InResource));
+		GpuResources.emplace_back(InResource);
 	}
 
 	void CleanUp()
@@ -96,13 +96,17 @@ public:
 	void EndDrawWindow(RHIViewport* InViewport) final override;
 	void BeginRender() final override;
 	void EndRender() final override;
-	void ResizeViewport(RHIViewport* InViewport) override;
-	void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, class RHIResource* InDepthStencil) override;
-	void AddResource(class RHIResource*&& InResource) final override;
+	void ResizeViewport(RHIViewport* InViewport) final override;
+	void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, class RHIDepthStencilInfo* InDepthStencil) final override;
+	void AddResource(class RHIResource* InResource) final override;
 	void SetStreamResource(class RHIResource* InVertexBuffer, const UINT InIndicesSize) final override;
+	void SetShaderBinding(struct ShaderBinding& InBinding) final override;
 	void AddShaderReference(int InIndex, class RHIResource* InBuffer) final override;
 	void DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance) final override;
 	void DrawIndexedInstanced(unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance) final override;
+	void CopyResourceRegion(class RHIResource* InDestResource, class RHIResource* InSourceResource) final override;
+	void SetPipelineState(const GraphicsPipelineState::Key& InKey, const GraphicsPipelineState::PSOStream& InPSOCache) final override;
+	void CreateAndAddPipelineState(std::vector<struct ShaderBinding*>&& InShaders) final override;
 
 	FORCEINLINE bool IsClosed() const { return bClosed; }
 	void Close();
@@ -111,14 +115,6 @@ public:
 	// Indicate a state transition on the resource usage.
 	void AddTransition(D3D12Resource* InResource, const D3D12_RESOURCE_STATES& InAfterState);
 	void FlushTransitions();
-
-
-	void ClearDepthStencilView(std::optional<D3D12_CPU_DESCRIPTOR_HANDLE> InDescriptorHandle, D3D12_CLEAR_FLAGS ClearFlags, float InDepthValue, UINT8 InStencil, UINT InNumRects, const D3D12_RECT* InRect = nullptr);
-
-	// Descriptor heap
-	void AddDescriptorHeap(class D3D12Descriptor* InDescriptor);
-	void ExecuteHeaps();
-	void FlushHeaps();
 
 	ComPtr<ID3D12GraphicsCommandList> operator->()
 	{
@@ -135,12 +131,11 @@ private:
 private:
 	bool bClosed = false;
 
-	D3D12PipelineStateCache PipelineStateCache;
+	D3D12PipelineStateCache PSOCache;
 
 	ComPtr<ID3D12GraphicsCommandList> CommandList = nullptr; 
 	D3D12CommandAllocator* CommandListAllocator = nullptr;
 
-	std::vector<ID3D12DescriptorHeap*> Heaps;
 	std::vector<D3D12_RESOURCE_BARRIER> Barriers;
 
 	D3D12Fence* Fence;

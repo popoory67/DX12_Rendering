@@ -15,6 +15,7 @@ public:
 	class Entity* GetOwner() const;
 
 protected:
+	virtual void Initialize() {}
 	virtual void Update() {}
 	virtual class Scene* GetScene() const;
 
