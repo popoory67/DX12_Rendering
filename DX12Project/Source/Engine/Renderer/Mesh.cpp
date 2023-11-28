@@ -4,6 +4,7 @@
 #include "CommandContext.h"
 #include "CommandList.h"
 #include "RenderThread.h"
+#include "PipelineState.h"
 
 MeshRenderBatch::MeshRenderBatch()
     : Count(0)
@@ -123,9 +124,16 @@ void MeshRenderPass::DoTask()
     // shader test
     auto shaderCommand = RHICommand_SetShaderResource::Create(resource);
     {
-        shaderCommand->AddShader(vsShader);
-        shaderCommand->AddShader(fsShader);
-
         GetCommandContext().AddCommand(shaderCommand);
+    }
+
+    // PSO test
+    GraphicsPipelineState::Key key{ vsShader->Hash, fsShader->Hash };
+    auto psoCommand = RHICommand_SetPipelineState::Create(key);
+    {
+        psoCommand->AddShader(vsShader);
+        psoCommand->AddShader(fsShader);
+
+        GetCommandContext().AddCommand(psoCommand);
     }
 }

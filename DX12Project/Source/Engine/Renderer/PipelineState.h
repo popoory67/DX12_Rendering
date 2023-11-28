@@ -5,11 +5,13 @@
 #include <unordered_map>
 #include <memory>
 
+class PipelineStateCache;
+
 namespace GraphicsPipelineState
 {
 	struct Key
 	{
-		Key() = delete;
+		Key() = default;
 		Key(size_t InVertexHash, size_t InFragmentHash)
 			: VertexShader(InVertexHash)
 			, FragmentShader(InFragmentHash)
@@ -35,22 +37,38 @@ namespace GraphicsPipelineState
 			return lhs.VertexShader == rhs.VertexShader &&
 				lhs.FragmentShader == rhs.FragmentShader;
 		}
+
+		bool operator()(size_t lhs, size_t rhs) const
+		{
+			return lhs == rhs;
+		}
 	};
+
+	using PSOStream = std::vector<char>;
+	using PSOList = std::unordered_map<size_t, PSOStream>;
+
+	std::size_t GetHash(const Key& InKey);
+	std::wstring GetPSOFileName(std::size_t InKey);
+	PSOStream GetPSOCache(const Key& InKey);
+	void AddPSOCache(size_t InKey, const PSOStream& InPSO);
+	void Save(size_t InKey, const PSOStream& InPSO);
 };
 
-class PipelineState
+class PipelineStateCache
 {
 public:
-	PipelineState() = default;
-	virtual ~PipelineState() = default;
+	PipelineStateCache() = default;
+	virtual ~PipelineStateCache() = default;
 
-private:
+protected:
 	ShaderBinding* VS;
 	ShaderBinding* FS;
 };
 
 class PSOLibrary : public Task
 {
+	using Parent = Task;
+
 public:
 	PSOLibrary() = default;
 	~PSOLibrary() = default;
@@ -59,15 +77,7 @@ public:
 	void Run() override;
 	void Stop() override;
 
-	std::weak_ptr<PipelineState> GetPSOCache(const GraphicsPipelineState::Key& InDesc);
-
 private:
-	bool Load(size_t InVertexHash, size_t InFragmentHash);
-	void Save(size_t InVertexHash, size_t InFragmentHash);
-	void CreateAndAddCache(const GraphicsPipelineState::Key& InDesc);
-	std::weak_ptr<PipelineState> FindCache(const GraphicsPipelineState::Key& InDesc);
-
-private:
-	std::unordered_map<GraphicsPipelineState::Key, std::shared_ptr<PipelineState>, GraphicsPipelineState::Hash, GraphicsPipelineState::HashCompare> PipelineStateCaches;
-
+	GraphicsPipelineState::PSOStream Load(const std::wstring& InPath);
+	void Save(size_t InKey, GraphicsPipelineState::PSOStream& InPSO);
 };

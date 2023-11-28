@@ -96,15 +96,17 @@ public:
 	void EndDrawWindow(RHIViewport* InViewport) final override;
 	void BeginRender() final override;
 	void EndRender() final override;
-	void ResizeViewport(RHIViewport* InViewport) override;
-	void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, class RHIDepthStencilInfo* InDepthStencil) override;
+	void ResizeViewport(RHIViewport* InViewport) final override;
+	void SetRenderTargets(class RHIRenderTargetInfo* InRenderTargets, unsigned int InNumRenderTarget, class RHIDepthStencilInfo* InDepthStencil) final override;
 	void AddResource(class RHIResource* InResource) final override;
 	void SetStreamResource(class RHIResource* InVertexBuffer, const UINT InIndicesSize) final override;
-	void SetShaderBinding(ShaderBinding& InBinding) final override;
+	void SetShaderBinding(struct ShaderBinding& InBinding) final override;
 	void AddShaderReference(int InIndex, class RHIResource* InBuffer) final override;
 	void DrawPrimitive(unsigned int InNumVertices, unsigned int InNumInstances, unsigned int InStartIndex, unsigned int InStartInstance) final override;
 	void DrawIndexedInstanced(unsigned int InNumIndices, unsigned int InNumInstances, unsigned int InStartIndex, int InStartVertex, unsigned int InStartInstance) final override;
 	void CopyResourceRegion(class RHIResource* InDestResource, class RHIResource* InSourceResource) final override;
+	void SetPipelineState(const GraphicsPipelineState::Key& InKey, const GraphicsPipelineState::PSOStream& InPSOCache) final override;
+	void CreateAndAddPipelineState(std::vector<struct ShaderBinding*>&& InShaders) final override;
 
 	FORCEINLINE bool IsClosed() const { return bClosed; }
 	void Close();
@@ -129,7 +131,7 @@ private:
 private:
 	bool bClosed = false;
 
-	D3D12PipelineStateCache PipelineStateCache;
+	D3D12PipelineStateCache PSOCache;
 
 	ComPtr<ID3D12GraphicsCommandList> CommandList = nullptr; 
 	D3D12CommandAllocator* CommandListAllocator = nullptr;

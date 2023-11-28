@@ -9,6 +9,8 @@ GenericThread* GGameThread = nullptr;
 
 class GameWorker : public Task
 {
+    using Parent = Task;
+
 public:
     GameWorker()
     {
@@ -35,7 +37,7 @@ public:
 
     void Stop() override
     {
-        bStop = true;
+        Parent::Stop();
         CurrentScene->End();
     }
 
@@ -72,7 +74,6 @@ private:
 
     std::shared_ptr<class Scene> CurrentScene;
 
-    bool bStop = false;
 };
 
 namespace GameThread

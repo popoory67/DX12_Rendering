@@ -55,16 +55,9 @@ public:
         }
     }
 
-    void Stop() override
-    {
-        bStop = true;
-    }
-
 private:
     std::unique_ptr<SceneRenderer> Renderer; // 3D
     std::unique_ptr<Viewport> ViewportRenderer; // 2D
-
-    bool bStop = false;
 };
 
 namespace RenderThread

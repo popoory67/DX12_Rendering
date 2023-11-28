@@ -1,6 +1,8 @@
 #pragma once
 #include <windows.h>
 #include <string>
+#include <fstream>
+#include <vector>
 
 #ifndef SafeDelete
 #define SafeDelete(x) { if (x) { delete(x); x = nullptr; } }
@@ -38,20 +40,9 @@ namespace Util
 	const std::wstring ShaderPath = L"./Shaders/ByteCodes/";
 	const std::wstring AssetPath = L"../Resources/";
 
-	inline std::wstring AnsiToWString(const std::string& InStr)
-	{
-		WCHAR buffer[512];
-		MultiByteToWideChar(CP_ACP, 0, InStr.c_str(), -1, buffer, 512);
-		return std::wstring(buffer);
-	}
+	std::wstring AnsiToWString(const std::string& InStr);
+	std::wstring GetShaderAssetFullPath(const std::wstring& InAssetName);
+	std::wstring GetAssetFullPath(const std::wstring& InAssetName);
 
-	inline std::wstring GetShaderAssetFullPath(const std::wstring& InAssetName)
-	{
-		return ShaderPath + InAssetName;
-	}
-
-	inline std::wstring GetAssetFullPath(const std::wstring& InAssetName)
-	{
-		return AssetPath + InAssetName;
-	}
+	std::vector<char> GetBinaryData(const std::wstring& InPath);
 };

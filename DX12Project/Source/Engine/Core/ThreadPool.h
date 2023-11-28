@@ -6,7 +6,6 @@ class ThreadPool : public Uncopyable
 	friend class Application;
 
 public:
-	ThreadPool();
 	virtual ~ThreadPool();
 
 	static ThreadPool& Get();
@@ -18,6 +17,8 @@ private:
 	void StopAll();
 
 	int GetAvailableThreadHandle() const;
+
+	ThreadPool();
 
 private:
 	std::vector<std::unique_ptr<GenericThread>> Backgrounds;

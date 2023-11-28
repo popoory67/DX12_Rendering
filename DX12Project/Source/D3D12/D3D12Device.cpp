@@ -15,7 +15,7 @@ D3D12Device::~D3D12Device()
     SafeDelete(ResourceManager);
 }
 
-Microsoft::WRL::ComPtr<ID3D12Device> D3D12Device::GetDevice() const
+Microsoft::WRL::ComPtr<D3D12Device_Version> D3D12Device::GetDevice() const
 {
     return Device;
 }
@@ -117,7 +117,7 @@ D3D12Api::~D3D12Api()
 	Parent = nullptr;
 }
 
-ID3D12Device* D3D12Api::GetDevice() const
+D3D12Device_Version* D3D12Api::GetDevice() const
 {
     assert(Parent->GetDevice());
 	return Parent->GetDevice().Get();

@@ -2,6 +2,7 @@
 #include "Util.h"
 #include "MathHelper.h"
 #include "RenderResource.h"
+#include "PipelineState.h"
 #include <vector>
 
 using namespace DirectX;
@@ -134,25 +135,25 @@ RHICOMMAND(RHICommand_SetShaderResource)
 public:
 	RHICommand_SetShaderResource() = delete;
 	RHICommand_SetShaderResource(TextureSettings* InSettings);
-	virtual ~RHICommand_SetShaderResource();
+	virtual ~RHICommand_SetShaderResource() = default;
 
-	void AddShader(ShaderBinding* InShaderBinding);
 	void Execute(const RHICommandContext& InContext) override;
 
 private:
 	TextureSettings* Settings = nullptr;
-	std::vector<ShaderBinding*> Shaders;
 };
 
 RHICOMMAND(RHICommand_SetPipelineState)
 {
 public:
 	RHICommand_SetPipelineState() = delete;
-	RHICommand_SetPipelineState(int InPipelineStateId);
-	virtual ~RHICommand_SetPipelineState() = default;
+	RHICommand_SetPipelineState(GraphicsPipelineState::Key InPipelineStateId);
+	virtual ~RHICommand_SetPipelineState();
 
+	void AddShader(ShaderBinding* InShaderBinding);
 	void Execute(const RHICommandContext& InContext) override;
 
 private:
-	int PipelineStateId = -1;
+	GraphicsPipelineState::Key PipelineStateId;
+	std::vector<ShaderBinding*> Shaders;
 };
