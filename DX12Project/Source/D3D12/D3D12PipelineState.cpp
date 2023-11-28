@@ -50,6 +50,10 @@ void D3D12PipelineState::BuildPSO(ComPtr<ID3D12PipelineLibrary1> InPipelineLibra
 
 void D3D12PipelineState::BuildPSO(ComPtr<ID3D12PipelineLibrary1> InPipelineLibrary, const GraphicsPipelineState::Key& InKey, const GraphicsPipelineState::PSOStream& InPSO)
 {
+    // TODO
+    // The following PSO description must be removed because it's too expensive.
+    // They have to be saved and loaded as a file like the PSO cache.
+
     // Read in the blob data from disk to avoid compiling it.
     PipelineStateDesc.CachedPSO.pCachedBlob = const_cast<char*>(InPSO.data());
     PipelineStateDesc.CachedPSO.CachedBlobSizeInBytes = InPSO.size();
@@ -125,7 +129,9 @@ void D3D12PipelineState::BuildPSO(ComPtr<ID3D12PipelineLibrary1> InPipelineLibra
     //std::wstring fileName = GraphicsPipelineState::GetPSOFileName(/*hashKey*/0);
     //InPipelineLibrary->LoadGraphicsPipeline(fileName.c_str(), &PipelineStateDesc, IID_PPV_ARGS(&PipelineState));
 
-    GetDevice()->CreateGraphicsPipelineState(&PipelineStateDesc, IID_PPV_ARGS(&PipelineState));
+    // TODO
+    // File checking system is required.
+    ThrowIfFailed(GetDevice()->CreateGraphicsPipelineState(&PipelineStateDesc, IID_PPV_ARGS(&PipelineState)));
 }
 
 D3D12PipelineStateCache::D3D12PipelineStateCache(D3D12Device* InDevice)
