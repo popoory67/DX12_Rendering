@@ -109,16 +109,6 @@ RHICommand_SetShaderResource::RHICommand_SetShaderResource(TextureSettings* InSe
     Priority = PipelinePrioirty::BeginRender;
 }
 
-RHICommand_SetShaderResource::~RHICommand_SetShaderResource()
-{
-    Shaders.clear();
-}
-
-void RHICommand_SetShaderResource::AddShader(ShaderBinding* InShaderBinding)
-{
-    Shaders.emplace_back(InShaderBinding);
-}
-
 void RHICommand_SetShaderResource::Execute(const RHICommandContext& InContext)
 {
     // DirectX 12 supports normally 4 channels.
@@ -146,22 +136,35 @@ void RHICommand_SetShaderResource::Execute(const RHICommandContext& InContext)
     // Copy the CPU texture to the GPU texture. (Staging -> Texture)
     InContext.GetCommandList().CopyResourceRegion(textureResource, stagingBuffer);
 
-    for (auto& shader : Shaders)
-    {
-        InContext.GetCommandList().SetShaderBinding(*shader);
-    }
-
     InContext.GetCommandList().AddResource(stagingBuffer);
     InContext.GetCommandList().AddResource(textureResource);
 }
 
-RHICommand_SetPipelineState::RHICommand_SetPipelineState(int InPipelineStateId)
+RHICommand_SetPipelineState::RHICommand_SetPipelineState(GraphicsPipelineState::Key InPipelineStateId)
     : PipelineStateId(InPipelineStateId)
 {
 
 }
 
+RHICommand_SetPipelineState::~RHICommand_SetPipelineState()
+{
+    Shaders.clear();
+}
+
+void RHICommand_SetPipelineState::AddShader(ShaderBinding* InShaderBinding)
+{
+    Shaders.emplace_back(InShaderBinding);
+}
+
 void RHICommand_SetPipelineState::Execute(const RHICommandContext& InContext)
 {
-    // How can I get PSO from PSOLibrary
+    const GraphicsPipelineState::PSOStream& psoStream = GraphicsPipelineState::GetPSOCache(PipelineStateId);
+    if (!psoStream.empty())
+    {
+        InContext.GetCommandList().SetPipelineState(PipelineStateId, psoStream);
+    }
+    else
+    {
+        InContext.GetCommandList().CreateAndAddPipelineState(std::move(Shaders));
+    }
 }

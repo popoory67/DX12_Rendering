@@ -1,5 +1,6 @@
 #pragma once
 #include "Util.h"
+#include "d3dx12.h"
 #include <windef.h>
 #include <windows.h>
 #include <string>
@@ -35,4 +36,10 @@ public:
 	std::wstring FunctionName;
 	std::wstring Filename;
 	int LineNumber = -1;
+};
+
+namespace D3DUtil
+{
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC ParsePSOStream(D3D12_PIPELINE_STATE_STREAM_DESC& InStreamDesc);
 };

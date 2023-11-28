@@ -22,14 +22,17 @@ enum class ThreadPriority : unsigned
 	Immediate,
 };
 
-class Task
+class Task : public Uncopyable
 {
 public:
 	virtual ~Task() = default;
 
 	virtual bool Init() = 0;
 	virtual void Run() = 0;
-	virtual void Stop() {}
+	virtual void Stop() { bStop = true; }
+
+protected:
+	bool bStop = false;
 };
 
 class GenericThread : public Uncopyable

@@ -2,7 +2,7 @@
 #include "Material.h"
 #include "MathHelper.h"
 #include "PrimitiveComponent.h"
-#include <fstream>
+#include "Util.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -84,19 +84,5 @@ void MaterialComponent::LoadTexture(const std::wstring& InPath)
 
 std::vector<char> MaterialComponent::LoadShader(const std::wstring& InPath)
 {
-    std::ifstream file(InPath.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
-    if (!file.is_open()) 
-    {
-        throw std::runtime_error("Failed to open file!");
-    }
-
-    size_t size = (size_t)file.tellg();
-
-    std::vector<char> buffer(size);
-    {
-        file.seekg(0, std::ios::beg);
-        file.read(&buffer[0], size);
-        file.close();
-    }
-    return buffer;
+    return Util::GetBinaryData(InPath);
 }
