@@ -6,7 +6,11 @@
 #include "Commands.h"
 #include "MathHelper.h"
 #include "DirectXColors.h"
+
+// WinPIX package doesn't support 32bit platform.
+#if !_WIN32
 #include <pix3.h>
+#endif
 
 void D3D12CommandList::BeginDrawWindow(RHIViewport* InViewport)
 {
@@ -23,9 +27,9 @@ void D3D12CommandList::BeginDrawWindow(RHIViewport* InViewport)
 	if (renderTarget)
 	{
         Reset();
-
+#if !_WIN32
         PIXBeginEvent(GetCommandList(), PIX_COLOR(0, 255, 0), "Render");
-
+#endif
 		// Render target which is used use frame buffer
 		{
 			D3D12Resource* resource = D3D12RHI::Cast(renderTarget->GetTexture());
@@ -53,8 +57,9 @@ void D3D12CommandList::BeginDrawWindow(RHIViewport* InViewport)
 
 void D3D12CommandList::EndDrawWindow(RHIViewport* InViewport)
 {
+#if !_WIN32
     PIXEndEvent(GetCommandList());
-
+#endif
 	D3D12Viewport* viewport = D3D12RHI::Cast(InViewport);
 	assert(viewport);
 

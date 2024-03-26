@@ -1,9 +1,10 @@
 # folders
 .vs
-Debug
 packages
 Textures
-x64
+Debug
+DX12Project/x64
+DX12Project/Release
 
 # files
 *.vcxproj.user
