@@ -210,11 +210,13 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>..\DX12Project\Source;..\DX12Project\Source\Engine;..\DX12Project\Source\Engine\Core;..\DX12Project\Source\Engine\Util;..\DX12Project\Source\Engine\Events;..\DX12Project\Source\Engine\Renderer;..\DX12Project\Source\Engine\Object;..\DX12Project\Source\Engine\Object\Commands;..\DX12Project\Source\Engine\Object\Components;..\DX12Project\Source\D3D12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -235,7 +237,7 @@
       <AdditionalIncludeDirectories>..\DX12Project\Source;..\DX12Project\Source\Engine;..\DX12Project\Source\Engine\Core;..\DX12Project\Source\Engine\Util;..\DX12Project\Source\Engine\Events;..\DX12Project\Source\Engine\Renderer;..\DX12Project\Source\Engine\Object;..\DX12Project\Source\Engine\Object\Commands;..\DX12Project\Source\Engine\Object\Components;..\DX12Project\Source\D3D12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>
       </AdditionalOptions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <DisableSpecificWarnings>4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PrecompiledHeaderFile />
