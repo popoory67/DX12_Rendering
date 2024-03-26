@@ -77,9 +77,21 @@ void MaterialComponent::LoadTexture(const std::wstring& InPath)
 
     int width, height, channels;
     Settings.TextureData = stbi_load(strTo.c_str(), &width, &height, &channels, 0);
-    Settings.Width = width;
-    Settings.Height = height;
-    Settings.Channels = channels;
+    if (!Settings.TextureData)
+    {
+        // TODO
+        // Print a warning message it doesn't have a texture file. 
+        Settings.TextureData = new BYTE{};
+        Settings.Width = 1;
+        Settings.Height = 1;
+        Settings.Channels = 3;
+    }
+    else
+    {
+        Settings.Width = width;
+        Settings.Height = height;
+        Settings.Channels = channels;
+    }
 }
 
 std::vector<char> MaterialComponent::LoadShader(const std::wstring& InPath)

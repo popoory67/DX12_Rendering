@@ -10,7 +10,7 @@ D3D12Fence::D3D12Fence(D3D12Device* InDevice, UINT64 InInitialValue)
 {
 	assert(InDevice);
 
-	CompleteEventHandle = CreateEventEx(nullptr, L"", false, EVENT_ALL_ACCESS);
+	CompleteEventHandle = CreateEventExW(nullptr, L"", false, EVENT_ALL_ACCESS);
 	assert(CompleteEventHandle != INVALID_HANDLE_VALUE);
 
 	ThrowIfFailed(InDevice->GetDevice()->CreateFence(InInitialValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&Fence)));
