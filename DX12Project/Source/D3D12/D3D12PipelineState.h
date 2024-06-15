@@ -22,8 +22,11 @@ public:
 	void BuildPSO(ComPtr<ID3D12PipelineLibrary1> InPipelineLibrary, const GraphicsPipelineState::Key& InKey, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& InDesc);
 	void BuildPSO(ComPtr<ID3D12PipelineLibrary1> InPipelineLibrary, const GraphicsPipelineState::PSOStream& InPSO);
 	void BuildPSO(ComPtr<ID3D12PipelineLibrary1> InPipelineLibrary, const GraphicsPipelineState::Key& InKey, const GraphicsPipelineState::PSOStream& InPSO);
+	
+	bool IsEqual(const GraphicsPipelineState::Key& InKey) const;
 
 private:
+	GraphicsPipelineState::Key HashKey = {};
 	ComPtr<ID3D12PipelineState> PipelineState = nullptr;
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC PipelineStateDesc;

@@ -132,30 +132,28 @@ bool PSOLibrary::Init()
 
 void PSOLibrary::Run()
 {
-    while (!bStop)
+    auto& SaveList = GraphicsPipelineState::PSOService::Get().GetSaveList();
+
+    if (!SaveList.empty())
     {
-        auto& SaveList = GraphicsPipelineState::PSOService::Get().GetSaveList();
+        std::pair<size_t, GraphicsPipelineState::PSOStream> pso = SaveList.front();
+        SaveList.pop();
 
-        // Check if PSO exists with RHI.
-        while (!SaveList.empty())
-        {
-            std::pair<size_t, GraphicsPipelineState::PSOStream> pso = SaveList.front();
-            SaveList.pop();
-
-            Save(pso.first, pso.second);
-        }
+        Save(pso.first, pso.second);
     }
 }
 
-void PSOLibrary::Stop()
+bool PSOLibrary::CheckCondition()
 {
-    Parent::Stop();
+    if (IsStopped())
+    {
+        return false;
+    }
 
-    // Save
-    //for (auto& pso : SaveList)
-    //{
-    //    Save();
-    //}
+    auto& SaveList = GraphicsPipelineState::PSOService::Get().GetSaveList();
+
+    bool bUpdate = !SaveList.empty();
+    return !bUpdate;
 }
 
 GraphicsPipelineState::PSOStream PSOLibrary::Load(const std::wstring& InPath)

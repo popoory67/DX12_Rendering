@@ -31,7 +31,11 @@ public:
 	virtual void Run() = 0;
 	virtual void Stop() { bStop = true; }
 
-protected:
+	virtual bool CheckCondition() { return !IsStopped(); }
+
+	bool IsStopped() { return bStop; }
+
+private:
 	bool bStop = false;
 };
 
@@ -63,4 +67,5 @@ protected:
 
 	ThreadPriority Priority;
 	ThreadType Type;
+	std::atomic<bool> bStop;
 };

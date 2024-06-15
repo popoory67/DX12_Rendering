@@ -114,9 +114,6 @@
     <ClCompile Include="Source\Engine\WindowMain.cpp">
       <Filter>Engine\Launch</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Main.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\Events\InputManager.cpp">
       <Filter>Engine\Events</Filter>
     </ClCompile>
@@ -161,6 +158,9 @@
     <ClCompile Include="TestEntities.cpp" />
     <ClCompile Include="Source\Engine\Renderer\PipelineState.cpp" />
     <ClCompile Include="Source\Engine\Core\ThreadPool.cpp" />
+    <ClCompile Include="Source\Main.cpp">
+      <Filter>Engine\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\D3D12\D3DUtil.h">

@@ -44,7 +44,7 @@ public:
 
     void Run() override
     {
-        while (!bStop)
+        while (!IsStopped())
         {
             Renderer->BeginRender();
 

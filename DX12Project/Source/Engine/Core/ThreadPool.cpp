@@ -60,11 +60,7 @@ void ThreadPool::StopAll()
 
     for (const auto& workerThread : Backgrounds)
     {
-        if (workerThread->IsTaskAllocated())
-        {
-            workerThread->Kill();
-        }
-        workerThread->Resume();
+        workerThread->Kill();
     }
 
     Backgrounds.clear();

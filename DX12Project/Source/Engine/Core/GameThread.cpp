@@ -29,7 +29,7 @@ public:
 
     void Run() override
     {
-        while (!bStop)
+        while (!IsStopped())
         {
             CurrentScene->Update();
         }

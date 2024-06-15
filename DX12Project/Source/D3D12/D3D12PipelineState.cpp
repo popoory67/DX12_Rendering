@@ -42,6 +42,8 @@ void D3D12PipelineState::BuildPSO(ComPtr<ID3D12PipelineLibrary1> InPipelineLibra
             GraphicsPipelineState::Save(hashKey, psoStream);
         }
     }
+
+    HashKey = InKey;
 }
 
 void D3D12PipelineState::BuildPSO(ComPtr<ID3D12PipelineLibrary1> InPipelineLibrary, const GraphicsPipelineState::PSOStream& InPSO)
@@ -115,7 +117,6 @@ void D3D12PipelineState::BuildPSO(ComPtr<ID3D12PipelineLibrary1> InPipelineLibra
     }
 
     PipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    PipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     PipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     PipelineStateDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     PipelineStateDesc.SampleMask = UINT_MAX;
@@ -132,6 +133,13 @@ void D3D12PipelineState::BuildPSO(ComPtr<ID3D12PipelineLibrary1> InPipelineLibra
     // TODO
     // File checking system is required.
     ThrowIfFailed(GetDevice()->CreateGraphicsPipelineState(&PipelineStateDesc, IID_PPV_ARGS(&PipelineState)));
+
+    HashKey = InKey;
+}
+
+bool D3D12PipelineState::IsEqual(const GraphicsPipelineState::Key& InKey) const
+{
+    return HashKey == InKey;
 }
 
 D3D12PipelineStateCache::D3D12PipelineStateCache(D3D12Device* InDevice)
@@ -243,13 +251,15 @@ void D3D12PipelineStateCache::CreateAndAddCache(GraphicsPipelineState::Key&& InK
 
 void D3D12PipelineStateCache::SetPipelineCache(const GraphicsPipelineState::Key& InKey, const GraphicsPipelineState::PSOStream& InPSOCache)
 {
-	//std::shared_ptr<D3D12PipelineState> pipelineState = std::make_shared<D3D12PipelineState>(GetParent(), InPSOCache);
-    std::shared_ptr<D3D12PipelineState> pipelineState = std::make_shared<D3D12PipelineState>(GetParent());
-	if (pipelineState)
+    if (!StateCache.CurrentPipelineState->IsEqual(InKey))
     {
-        pipelineState->BuildPSO(PipelineLibrary, std::move(InKey), InPSOCache);
-		StateCache.CurrentPipelineState = pipelineState;
-	}
+        std::shared_ptr<D3D12PipelineState> pipelineState = std::make_shared<D3D12PipelineState>(GetParent());
+        if (pipelineState)
+        {
+            pipelineState->BuildPSO(PipelineLibrary, InKey, InPSOCache);
+            StateCache.CurrentPipelineState = pipelineState;
+        }
+    }
 }
 
 std::weak_ptr<D3D12PipelineState> D3D12PipelineStateCache::GetCurrentStateCache() const

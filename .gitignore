@@ -5,6 +5,7 @@ Textures
 Debug
 DX12Project/x64
 DX12Project/Release
+_drafts
 
 # files
 *.vcxproj.user
@@ -12,3 +13,4 @@ DX12Project/Release
 *.vspx
 *.psess
 *.vspx
+*.pdb

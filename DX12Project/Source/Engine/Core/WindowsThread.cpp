@@ -28,7 +28,7 @@ void WindowsThread::Resume()
     }
 
     std::unique_lock<std::mutex> lock(Mutex);
-    bSuspended = false;
+    bSuspended = Action->CheckCondition();
 
     Condition.notify_all();
 }
@@ -36,16 +36,25 @@ void WindowsThread::Resume()
 void WindowsThread::Wait()
 {
     std::unique_lock<std::mutex> lock(Mutex);
-
     Condition.wait(lock, [this]
     {
-        return !bSuspended;
+        return !IsSuspended();
     });
 }
 
 void WindowsThread::Kill()
 {
+    bStop = true;
+
+    if (!Action)
+    {
+        std::unique_lock<std::mutex> lock(Mutex);
+        Condition.notify_all();
+        return;
+    }
+
     Action->Stop();
+    Resume();
 }
 
 bool WindowsThread::IsSuspended() const
@@ -70,15 +79,37 @@ bool WindowsThread::CreateInternal(Task* InAction, ThreadType InThreadType, Thre
 
 void WindowsThread::ThreadProc()
 {
-    Wait();
-
     if (!IsTaskAllocated())
     {
+        std::unique_lock<std::mutex> lock{ Mutex };
+        Condition.wait(lock, [this]()
+        {
+            return IsTaskAllocated() || bStop;
+        });
+    }
+
+    if (bStop)
+    {
+        Kill();
         return;
     }
 
-    if (Action->Init() == true)
+    if (!Action->Init())
+    {
+        Kill();
+        return;
+    }
+
+    while (!Action->IsStopped())
     {
         Action->Run();
+        bSuspended = Action->CheckCondition();
+
+        // Wait for the next resume after updating once
+        if (bSuspended)
+        {
+            Wait();
+        }
     }
+    Kill();
 }

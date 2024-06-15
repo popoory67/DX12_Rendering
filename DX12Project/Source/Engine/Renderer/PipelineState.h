@@ -18,6 +18,12 @@ namespace GraphicsPipelineState
 		{
 		}
 
+		bool operator==(const Key& other) const
+		{
+			return VertexShader == other.VertexShader && 
+				FragmentShader == other.FragmentShader;
+		}
+
 		size_t VertexShader;
 		size_t FragmentShader;
 	};
@@ -75,7 +81,8 @@ public:
 
 	bool Init() override;
 	void Run() override;
-	void Stop() override;
+
+	bool CheckCondition() override;
 
 private:
 	GraphicsPipelineState::PSOStream Load(const std::wstring& InPath);
